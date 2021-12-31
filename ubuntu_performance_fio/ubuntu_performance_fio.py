@@ -246,7 +246,15 @@ class ubuntu_performance_fio(test.test):
 
     def mk_ramdisk(self, ramdisk_bytes, mount_point):
         #print("ramfs device size: %.2f MB" % (float(ramdisk_bytes) / (1024.0 * 1024.0)))
-        cmd = 'mount -t ramfs none %s -o maxsize=%d' % (mount_point, ramdisk_bytes)
+        platform = self.get_platform()
+        if platform == 'DGX2':
+            cmd = 'mount -t tmpfs -o size=756G,mpol=bind:0 tmpfs %s ' % (mount_point)
+        elif platform == 'DGXA100':
+            cmd = 'mount -t tmpfs -o size=1000G,mpol=interleave:0-7 tmpfs %s ' % (mount_point)
+        elif platform == 'DGXH100':
+            cmd = 'mount -t tmpfs -o size=1000G,mpol=bind:0 tmpfs %s ' % (mount_point)
+        else:
+            cmd = 'mount -t ramfs none %s -o maxsize=%d' % (mount_point, ramdisk_bytes)
         utils.system_output(cmd, retain_output=True)
 
     def rm_ramdisk(self, mount_point):

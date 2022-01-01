@@ -295,15 +295,18 @@ class ubuntu_performance_fio(test.test):
         #  Edit various fio configs to use dynamic settings
         #  relevant to this test location and test size
         #
-        test_dir = os.path.join(self.srcdir, 'fio-test')
+        platform = self.get_platform()
+        print(platform)
+        if platform is not "Generic":
+            test_dir = os.path.join('/raid', 'fio-test')
+        else:
+            test_dir = os.path.join(self.srcdir, 'fio-test')
         if os.path.isdir(test_dir):
             shutil.rmtree(test_dir)
         os.mkdir(test_dir)
         if media == 'ramdisk':
             self.mk_ramdisk(ramdisk_bytes, test_dir)
 
-        platform = self.get_platform()
-        print(platform)
         shutil.copyfile(os.path.join(self.bindir, platform, media, "global-include.fio"), os.path.join(self.srcdir, "global-include.fio"))
 
         file = testname + ".fio"

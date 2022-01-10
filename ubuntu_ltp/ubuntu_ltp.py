@@ -103,9 +103,9 @@ class ubuntu_ltp(test.test):
         elif test_case in ['cve-2018-1000204', 'ioctl_sg01']:
             print("Setting LTP_TIMEOUT_MUL=5 for cve-2018-1000204 / ioctl_sg01 (lp:1899413, lp:1936886, lp:1949934, lp:1955629)")
             os.environ["LTP_TIMEOUT_MUL"] = '5'
-        elif test_case == 'fs_fill' and self.arch == 'ppc64le':
-            print("Setting LTP_TIMEOUT_MUL=3 for fs_fill on PowerPC")
-            os.environ["LTP_TIMEOUT_MUL"] = '3'
+        elif test_case == 'fs_fill':
+            print("Setting LTP_TIMEOUT_MUL=5 for fs_fill")
+            os.environ["LTP_TIMEOUT_MUL"] = '5'
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
         print(utils.system_output(cmd, verbose=False))

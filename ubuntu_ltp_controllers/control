@@ -22,7 +22,7 @@ else:
                 with open ('/tmp/target' , 'w') as t:
                     t.write(line)
                 testcase = line.split()[0]
-                timeout_threshold = 60*60
+                timeout_threshold = 60*75
                 job.run_test_detail(NAME, test_name=testcase, tag=testcase, timeout=timeout_threshold)
 
 

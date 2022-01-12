@@ -120,6 +120,9 @@ class ubuntu_ltp_controllers(test.test):
             if utils.system_output('virt-what', verbose=False):
                 print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL=12 for memcg_test_3 (lp:1836694)")
                 os.environ["LTP_TIMEOUT_MUL"] = '12'
+        elif test_name == 'memcg_stress':
+            print("Set timeout multiplier LTP_TIMEOUT_MUL=2 for memcg_stress (lp:1946348)")
+            os.environ["LTP_TIMEOUT_MUL"] = '2'
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
         print(utils.system_output(cmd, verbose=False))

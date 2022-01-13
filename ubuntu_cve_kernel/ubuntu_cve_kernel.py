@@ -6,11 +6,6 @@ class ubuntu_cve_kernel(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
 
         pkgs = [
             'build-essential', 'git', 'libkeyutils-dev', 'libfuse-dev', 'pkg-config', 'expect', 'libecryptfs-dev', 'ecryptfs-utils'
@@ -27,11 +22,13 @@ class ubuntu_cve_kernel(test.test):
     def setup(self):
         self.install_required_pkgs()
         self.job.require_gcc()
-        utils.system('make -C %s/cves' % self.bindir)
 
-    def run_once(self, cve, exit_on_error=True, set_time=True):
-        print('*** %s ***' % cve)
-        cmd = 'make -C %s/cves/%s check' % (self.bindir, cve)
+    def run_once(self, test_name, exit_on_error=True, set_time=True):
+        if test_name == 'setup':
+            return
+
+        print('*** %s ***' % test_name)
+        cmd = 'make -C %s/cves/%s check' % (self.bindir, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

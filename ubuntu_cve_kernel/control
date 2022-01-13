@@ -15,7 +15,20 @@ Tests publicly available CVE exploits
 
 name = 'ubuntu_cve_kernel'
 
-CVES=['CVE-2015-7550', 'CVE-2015-8543', 'CVE-2015-8660', 'CVE-2016-0728', 'CVE-2016-3134', 'CVE-2016-3135', 'CVE-2016-3672']
-for cve in CVES:
-    result = job.run_test_detail(name, cve=cve, tag=cve, timeout=60*15)
+CVES = {'CVE-2015-7550': {'arch-blacklist': []},
+        'CVE-2015-8543': {'arch-blacklist': []},
+        'CVE-2015-8660': {'arch-blacklist': []},
+        'CVE-2016-0728': {'arch-blacklist': []},
+        'CVE-2016-3134': {'arch-blacklist': []},
+        'CVE-2016-3135': {'arch-blacklist': []},
+        'CVE-2016-3672': {'arch-blacklist': ['aarch64', 'athlon', 'ppc64le', 'riscv64', 's390x']},
+}
+
+result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*10)
+if result == 'ERROR':
+    print("ERROR: required packages installation has failed, skipping all the sub tests")
+else:
+    for cve in CVES:
+        if not platform.processor() in CVES[cve]['arch-blacklist']:
+            result = job.run_test_detail(name, test_name=cve, tag=cve, timeout=60*15)
 

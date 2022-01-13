@@ -59,12 +59,11 @@ class ubuntu_qrt_kernel_panic(test.test):
         print("Test suite HEAD SHA1: {}".format(sha1))
 
     def run_once(self, test_name):
-        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
-        os.chdir(scripts)
-
         if test_name == 'setup':
             return
 
+        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
+        os.chdir(scripts)
         cmd = 'python2 ./%s -v' % test_name
         self.results = utils.system_output(cmd, retain_output=True)
 

@@ -22,6 +22,7 @@ CVES = {'CVE-2015-7550': {'arch-blacklist': []},
         'CVE-2016-3134': {'arch-blacklist': []},
         'CVE-2016-3135': {'arch-blacklist': []},
         'CVE-2016-3672': {'arch-blacklist': ['aarch64', 'athlon', 'ppc64le', 'riscv64', 's390x']},
+        'CVE-2021-2736X':{'arch-blacklist': []},
 }
 
 result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*10)

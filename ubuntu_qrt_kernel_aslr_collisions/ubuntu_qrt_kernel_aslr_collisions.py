@@ -2,18 +2,12 @@ import os
 import platform
 import shutil
 from autotest.client import test, utils
-from autotest.client.shared import software_manager
 
 class ubuntu_qrt_kernel_aslr_collisions(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
+        arch = platform.processor()
 
         pkgs = [
             'git', 'build-essential', 'libcap2-bin', 'gawk', 'execstack', 'exim4', 'libcap-dev',
@@ -52,11 +46,11 @@ class ubuntu_qrt_kernel_aslr_collisions(test.test):
         print("Test suite HEAD SHA1: {}".format(sha1))
 
     def run_once(self, test_name):
-        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
-        os.chdir(scripts)
-
         if test_name == 'setup':
             return
+
+        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
+        os.chdir(scripts)
 
         cmd = 'python2 ./%s -v' % test_name
         self.results = utils.system_output(cmd, retain_output=True)

@@ -1,14 +1,13 @@
 import os
 import platform
 import shutil
-import time
 from autotest.client import test, utils
 
 class ubuntu_qrt_apparmor(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch = platform.processor()
 
         pkgs = [
             'apparmor',
@@ -65,14 +64,8 @@ class ubuntu_qrt_apparmor(test.test):
         except AttributeError:
             import distro
             self.series = distro.codename()
-        pass
 
     def setup(self):
-        # Yes, the following is a horrible hack.
-        #
-        utils.system_output('apt-get update', retain_output=True)
-        time.sleep(60)
-        utils.system_output('apt-get update', retain_output=True)
         self.install_required_pkgs()
 
         os.chdir(self.srcdir)
@@ -97,11 +90,11 @@ class ubuntu_qrt_apparmor(test.test):
         print("Test suite HEAD SHA1: {}".format(sha1))
 
     def run_once(self, test_name):
-        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
-        os.chdir(scripts)
-
         if test_name == 'setup':
             return
+
+        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
+        os.chdir(scripts)
 
         inter = 'python3'
         if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:

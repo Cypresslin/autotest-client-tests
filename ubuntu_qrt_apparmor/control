@@ -8,12 +8,10 @@ TEST_CLASS = 'kernel'
 TEST_CATEGORY = 'Functional'
 TEST_TYPE = 'client'
 
-tests = [
-    'setup',
-    'test-apparmor.py'
-]
-
-for test in tests:
-    result = job.run_test_detail('ubuntu_qrt_apparmor', test_name=test, tag=test, timeout=60*60*3)
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    result = job.run_test_detail(NAME, test_name='test-apparmor.py', tag='test-apparmor.py', timeout=60*60*3)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -8,12 +8,10 @@ TEST_CLASS = 'kernel'
 TEST_CATEGORY = 'Functional'
 TEST_TYPE = 'client'
 
-tests = [
-    'setup',
-    'test-kernel-aslr-collisions.py',
-]
-
-for test in tests:
-    result = job.run_test_detail('ubuntu_qrt_kernel_aslr_collisions', test_name=test, tag=test, timeout=(60*60*2))
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
+if result == 'ERROR':
+    print("ERROR: test setup has failed, skipping all the sub tests")
+else:
+    result = job.run_test_detail(NAME, test_name='test-kernel-aslr-collisions.py', tag='test-kernel-aslr-collisions.py', timeout=60*60*2)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

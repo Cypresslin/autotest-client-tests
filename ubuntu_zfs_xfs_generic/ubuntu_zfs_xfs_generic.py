@@ -99,6 +99,8 @@ class ubuntu_zfs_xfs_generic(test.test):
         utils.system('patch -p1 < %s/0001-xfstests-add-minimal-support-for-zfs.patch' % self.bindir)
         print("Patching xfstests-dev: fix warning with Awk 5.0.1")
         utils.system('patch -p1 < %s/0006-generic-001-remove-unnecessary-backslash.patch' % self.bindir)
+        print("Running autoreconf --install")
+        utils.system('autoreconf --install')
 
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfsprogs-dev'))
         print("Patching xfstests-dev: fix linker issues with modern gcc")

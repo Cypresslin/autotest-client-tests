@@ -107,6 +107,8 @@ class ubuntu_zfs_xfs_generic(test.test):
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fio'))
         print("Patching fio: fix linker issues with modern gcc")
         utils.system('patch -p1 < %s/0008-Fix-linker-issues-by-making-tsc_reliable-a-weak-refe.patch' % self.bindir)
+        print("Patch out raw support")
+        utils.system('patch -p1 < %s/382975557e632efb506836bc1709789e615c9094.patch' % self.bindir)
 
 #       os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
 #       print("getting xfs tests source")

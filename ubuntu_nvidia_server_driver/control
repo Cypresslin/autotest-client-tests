@@ -10,3 +10,4 @@ Perform testing of Nvidia server drivers
 """
 
 job.run_test_detail('ubuntu_nvidia_server_driver', test_name='load', tag='load', timeout=600)
+job.run_test_detail('ubuntu_nvidia_server_driver', test_name='nvidia-fs', tag='nvidia-fs', timeout=1500)

@@ -19,9 +19,19 @@ class ubuntu_nvidia_server_driver(test.test):
         cmd = "{} test".format(sh_executable)
         utils.system(cmd)
 
+    def run_nvidia_fs_in_lxc(self):
+        cmd = os.path.join(p_dir, "./nvidia-fs/a-c-t-entry.sh")
+        utils.system(cmd)
+
     def run_once(self, test_name):
         if test_name == "load":
             self.compare_kernel_modules()
+
+            print("")
+            print("{} has run.".format(test_name))
+
+        elif test_name == "nvidia-fs":
+            self.run_nvidia_fs_in_lxc()
 
             print("")
             print("{} has run.".format(test_name))

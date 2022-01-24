@@ -1,0 +1,17 @@
+= nvidia-fs testing =
+The goal of this test is to confirm that the nvidia-fs module continues to
+build and work properly with new kernel updates.
+
+The environment in which this test needs to run requires several 3rd party
+pieces of software - including other 3rd party modules that require a reboot
+after installation. To avoid having to handle reboots of the test client,
+we instead do the test inside of a virtual machine that the test client
+can spin up and reboot itself. The actual nvidia-fs test runs in a docker
+container inside that virtual machine.
+
+The test is kicked off by running 01-run-test.sh, which will run each of
+the other scripts in turn to set up the virtual machine and the test
+docker container within it.
+
+
+

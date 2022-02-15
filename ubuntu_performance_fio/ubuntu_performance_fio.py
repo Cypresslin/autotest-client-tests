@@ -192,8 +192,8 @@ class ubuntu_performance_fio(test.test):
         self.job.require_gcc()
 
         os.chdir(self.srcdir)
-        self.results = utils.system_output('unxz < %s | tar xf - ' % os.path.join(self.bindir, 'fio-3.27.tar.xz'), retain_output=True)
-        os.chdir(os.path.join(self.srcdir, 'fio-3.27'))
+        self.results = utils.system_output('tar xvf %s' % os.path.join(self.bindir, 'fio-3.29.tar.gz'), retain_output=True)
+        os.chdir(os.path.join(self.srcdir, 'fio-fio-3.29'))
         utils.configure()
         self.results += utils.system_output('make', retain_output=True)
 
@@ -310,7 +310,7 @@ class ubuntu_performance_fio(test.test):
         #
         #  Run fio
         #
-        cmd = os.path.join(self.srcdir, 'fio-3.27', 'fio') + " " + os.path.join(self.srcdir, file)
+        cmd = os.path.join(self.srcdir, 'fio-fio-3.29', 'fio') + " " + os.path.join(self.srcdir, file)
         results = utils.system_output(cmd, retain_output=True)
 
         if media == 'ramdisk':

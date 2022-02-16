@@ -44,7 +44,7 @@ if result == 'GOOD':
                 if os.path.isfile('/run/container_type') or (utils.system('type systemd-detect-virt &> /dev/null', ignore_status=True) == 0 and utils.system('systemd-detect-virt  --container &> /dev/null', ignore_status=True) == 0):
                     continue
             # Skip userns tests in unprivileged containers
-            elif test in ['lxc-test-unpriv', 'lxc-test-unpriv']:
+            elif test in ['lxc-test-unpriv', 'lxc-test-usernic']:
                 if os.path.isfile('/proc/self/uid_map') and utils.system_output('! grep "4294967295$" /proc/self/uid_map', ignore_status=True) == 0:
                     continue
             # Skip some tests because of broken busybox, this is working on X/F/H but not B

@@ -110,7 +110,8 @@ class ubuntu_performance_fio(test.test):
             'xfsprogs',
             'btrfs-progs',
             'jfsutils',
-            'zfsutils-linux'
+            'zfsutils-linux',
+            'zlib1g-dev'
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)

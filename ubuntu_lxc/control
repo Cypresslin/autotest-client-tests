@@ -51,6 +51,11 @@ if result == 'GOOD':
             elif test == 'lxc-test-state-server':
                 continue
 
+            # Skip some tests due to cgroup v2 incompatibility (lp:1960847)
+            if test in ['lxc-test-apparmor-mount', 'lxc-test-autostart', 'lxc-test-no-new-privs', 'lxc-test-unpriv']:
+                if os.path.isfile('/sys/fs/cgroup/system.slice/memory.current'):
+                    continue
+
             # Skip some tests on old kernels, this must be in another if statement as we have lxc-test-unpriv checked above
             if test in ['lxc-test-unpriv', 'lxc-test-usernic']:
                 if not os.path.isfile('/proc/self/uid_map') or not os.path.isfile('/etc/subuid') or not os.path.isfile('/etc/subgid'):

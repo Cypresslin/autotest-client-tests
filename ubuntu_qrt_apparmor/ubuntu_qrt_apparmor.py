@@ -42,9 +42,13 @@ class ubuntu_qrt_apparmor(test.test):
         elif self.series in ['trusty', 'xenial', 'bionic', 'cosmic']:
             for p in ['python-libapparmor', 'python3-libapparmor', 'ruby', 'apparmor-easyprof']:
                 pkgs.append(p)
-        else:
+        elif self.series in ['focal', 'impish']:
             for p in ['python3-libapparmor', 'ruby', 'apparmor-easyprof']:
                 pkgs.append(p)
+        else:
+            for p in ['python3-libapparmor', 'ruby']:
+                pkgs.append(p)
+
 
         if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:
             pkgs.append('pyflakes')

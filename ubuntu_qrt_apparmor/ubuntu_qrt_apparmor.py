@@ -21,7 +21,6 @@ class ubuntu_qrt_apparmor(test.test):
             'gawk',
             'git',
             'libapparmor-dev',
-            'libapparmor-perl',
             'libcap2-bin',
             'libcap-dev',
             'libdbus-1-dev',
@@ -37,13 +36,13 @@ class ubuntu_qrt_apparmor(test.test):
         pkgs.append(gcc)
 
         if self.series == 'precise':
-            for p in ['python-libapparmor', 'ruby1.8']:
+            for p in ['python-libapparmor', 'ruby1.8', 'libapparmor-perl']:
                 pkgs.append(p)
         elif self.series in ['trusty', 'xenial', 'bionic', 'cosmic']:
-            for p in ['python-libapparmor', 'python3-libapparmor', 'ruby', 'apparmor-easyprof']:
+            for p in ['python-libapparmor', 'python3-libapparmor', 'ruby', 'apparmor-easyprof', 'libapparmor-perl']:
                 pkgs.append(p)
         elif self.series in ['focal', 'impish']:
-            for p in ['python3-libapparmor', 'ruby', 'apparmor-easyprof']:
+            for p in ['python3-libapparmor', 'ruby', 'apparmor-easyprof', 'libapparmor-perl']:
                 pkgs.append(p)
         else:
             for p in ['python3-libapparmor', 'ruby']:

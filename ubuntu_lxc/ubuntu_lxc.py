@@ -105,4 +105,15 @@ class ubuntu_lxc(test.test):
         cmd = fpath + test_name
         utils.system_output(cmd, retain_output=True)
 
+    def cleanup(self, test_name):
+        if test_name == 'setup':
+            return
+
+        # Make sure to properly cleanup containers that may still exist if
+        # sub-tests are failing
+        leftover_containers = ('device_add_remove_test', 'mount_injection_test', )
+        for name in leftover_containers:
+            cmd = "lxc-destroy -f -n {0} 2>/dev/null || true".format(name)
+            utils.system(cmd)
+
 # vi:set ts=4 sw=4 expandtab syntax=python:

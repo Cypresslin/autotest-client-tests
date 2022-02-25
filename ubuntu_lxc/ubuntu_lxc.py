@@ -87,12 +87,6 @@ class ubuntu_lxc(test.test):
         if test_name == 'setup':
             return
 
-        # Destroy the "reboot" container which might have been left
-        # behind (LP#1788574)
-        if test_name == 'lxc-test-api-reboot':
-            cmd = 'lxc-destroy reboot'
-            utils.system(cmd, ignore_status=True)
-
         if self.series in ['precise', 'trusty', 'xenial']:
             fpath = '/usr/bin/'
         else:
@@ -110,10 +104,13 @@ class ubuntu_lxc(test.test):
             return
 
         # Make sure to properly cleanup containers that may still exist if
-        # sub-tests are failing
-        leftover_containers = ('device_add_remove_test', 'mount_injection_test', )
-        for name in leftover_containers:
-            cmd = "lxc-destroy -f -n {0} 2>/dev/null || true".format(name)
+        # sub-tests are failing (LP: #1788574, LP: #1941063)
+        leftover_containers = {'lxc-test-api-reboot': 'reboot',
+                'lxc-test-device-add-remove': 'device_add_remove_test',
+                'lxc-test-mount-injection': 'mount_injection_test',}
+        if test_name in leftover_containers:
+            print("Stopping and destroying {0}".format(leftover_containers[test_name]))
+            cmd = "lxc-destroy -f -n {0} 2>/dev/null || true".format(leftover_containers[test_name])
             utils.system(cmd)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -71,6 +71,21 @@ class ubuntu_qrt_apparmor(test.test):
     def setup(self):
         self.install_required_pkgs()
 
+        # During execution on baremetal, apparmor.service is restarted too
+        # quickly too fast, and that triggers 'start-limit-hit' threshold error:
+        # runtime increase the threshold.
+        if self.series == 'jammy':
+            aadir = '/run/systemd/system.control/apparmor.service.d'
+            cmd = 'mkdir -p %s' % (aadir)
+            utils.system_output(cmd, retain_output=True)
+            cmd = 'mv %s/10-StartLimitBurst.conf %s' % (self.bindir, aadir)
+            utils.system_output(cmd, retain_output=True)
+            cmd = 'systemctl daemon-reload'
+            utils.system_output(cmd, retain_output=True)
+            cmd = 'systemctl show --property=StartLimitBurst apparmor.service'
+            burst = utils.system_output(cmd, retain_output=False, verbose=False)
+            print("apparmor.service StartLimitBurst: %s" % (burst))
+
         os.chdir(self.srcdir)
         # Kernel QA Automation already copies the qa-regression-testing
         # repo over to the SUT(system under test) via rsync+ssh.
@@ -106,5 +121,15 @@ class ubuntu_qrt_apparmor(test.test):
         cmd = '%s ./%s -v' % (inter, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
 
+        # Tear down StartLimitBurst threshold increase
+        if self.series == 'jammy':
+            aadir = '/run/systemd/system.control/apparmor.service.d'
+            cmd = 'rm -f %s/10-StartLimitBurst.conf' % (aadir)
+            utils.system_output(cmd, retain_output=True)
+            cmd = 'systemctl daemon-reload'
+            utils.system_output(cmd, retain_output=True)
+            cmd = 'systemctl show --property=StartLimitBurst apparmor.service'
+            burst = utils.system_output(cmd, retain_output=False, verbose=False)
+            print("apparmor.service StartLimitBurst: %s" % (burst))
 
 # vi:set ts=4 sw=4 expandtab:

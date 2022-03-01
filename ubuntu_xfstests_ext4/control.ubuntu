@@ -82,4 +82,7 @@ fs_type = 'ext4'
 # Finally, run the tests
 #
 result = job.run_test_detail('ubuntu_xfstests_ext4', test_name='setup', tag='setup', timeout=60*30)
-result = job.run_test_detail('ubuntu_xfstests_ext4', test_name='ubuntu_xfstests_ext4', filesystem=fs_type, tag=fs_type, timeout=60*60*3)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    result = job.run_test_detail('ubuntu_xfstests_ext4', test_name='ubuntu_xfstests_ext4', filesystem=fs_type, tag=fs_type, timeout=60*60*3)

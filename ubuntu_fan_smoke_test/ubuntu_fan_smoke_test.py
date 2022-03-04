@@ -45,6 +45,8 @@ class ubuntu_fan_smoke_test(test.test):
         return underlay
 
     def run_once(self, test_name):
+        if test_name == 'setup':
+            return
 
         underlay = self.determine_underlay()
 

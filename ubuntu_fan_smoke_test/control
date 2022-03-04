@@ -10,6 +10,10 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
 DOC = ""
 
-results = job.run_test_detail('ubuntu_fan_smoke_test', test_name='fan-smoke-test', tag='fan-smoke-test', timeout=60*30)
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*20)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    results = job.run_test_detail(NAME, test_name='fan-smoke-test', tag='fan-smoke-test', timeout=60*30)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

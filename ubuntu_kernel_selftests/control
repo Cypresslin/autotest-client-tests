@@ -37,6 +37,7 @@ else:
         mk_src = os.path.join(dir_src, 'Makefile')
         os.chdir(dir_src)
         cmd = 'grep SUB_DIRS {}'.format(mk_src)
+        timeout_threshold = 60*30
         if utils.system_output(cmd, verbose=False, ignore_status=True):
             cmd = 'make -f {} -f {} getsubdirs'.format(mk_helper, mk_src)
             subdirs = utils.system_output(cmd).split()
@@ -49,12 +50,14 @@ else:
                    tests = utils.system_output(cmd).split()
                    for item in tests:
                        test = "{}/{}:{}".format(category, subdir, item)
-                       job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*30)
+                       job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
         elif os.path.isfile(mk_src):
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
             tests = utils.system_output(cmd).split()
             for item in tests:
+                if item == 'ftracetest':
+                    timeout_threshold = 60*45
                 test = "{}:{}".format(category, item)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*30)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

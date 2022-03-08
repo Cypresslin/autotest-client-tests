@@ -55,6 +55,7 @@ else:
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
             tests = utils.system_output(cmd).split()
             for item in tests:
+                timeout_threshold = 60*30
                 if item == 'ftracetest':
                     timeout_threshold = 60*45
                 test = "{}:{}".format(category, item)

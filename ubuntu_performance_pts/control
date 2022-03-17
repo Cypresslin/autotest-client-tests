@@ -31,10 +31,10 @@ jobs = [
 if os.uname()[1] == 'ivysaur':
     jobs = [
         [ 'apache', 'apache', 10 ],
-        [ 'cloverleaf', 'cloverleaf', 5 ],
+        [ 'cloverleaf', 'cloverleaf', 30 ],
         [ 'crafty', 'crafty', 10 ],
         [ 'ebizzy', 'ebizzy', 10 ],
-        [ 'git', 'git', 10 ],
+        [ 'git', 'git', 30 ],
         [ 'phpbench', 'phpbench', 10 ],
         [ 'unpack-linux', 'unpack-linux', 10 ],
         [ 'hmmer', 'hmmer', 10 ],

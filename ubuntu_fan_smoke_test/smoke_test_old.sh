@@ -142,16 +142,16 @@ fanatic_docker_test()
 	dns_opt=""
 	dns1=$(awk '$1=="nameserver"{print $2; exit}' /etc/resolv.conf)
 	if [ "$dns1" = "127.0.0.53" ]; then
-		if command -v systemd-resolve 2>&1 > /dev/null; then
+		if command -v resolvectl 2>&1 > /dev/null; then
+			dns_opt="--dns=$(resolvectl status |
+				sed -n "0,/Current DNS/s/^.*Current DNS Server: //p")"
+		else
 			dns_opt="--dns=$(systemd-resolve --status |
 				awk '/DNS Servers:/{
 					sub(/.*DNS Servers: */, "")
 					sub(/,.*/, "")
 					print
 					exit}')"
-		else
-			dns_opt="--dns=$(resolvectl status |
-				sed -n "0,/Current DNS/s/^.*Current DNS Server: //p")"
 		fi
 		echo -n "($dns_opt): "
 	else

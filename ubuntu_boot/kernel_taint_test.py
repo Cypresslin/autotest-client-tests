@@ -44,10 +44,10 @@ def find_taints(taint_file):
         f = open(taint_file, "r")
         taints = int(f.read())
     except OSError:
-        taints = -1
-        print("Kernel taint file ({}) not found!".format(taint_file))
+        raise SystemExit(
+            "Kernel taint file ({}) not found!".format(taint_file))
     print("Kernel taint value is {}".format(taints))
-    return(taints)
+    return taints
 
 
 def get_modules():
@@ -57,7 +57,7 @@ def get_modules():
     for line in lsmod_output:
         if line and 'Module' not in line:
             modules.append(line.split()[0])
-    return(modules)
+    return modules
 
 
 def print_out_of_tree_modules(modules):
@@ -79,8 +79,15 @@ def print_GPL_incompatible_modules(modules):
             print("     %s: %s" % (mod, license))
 
 
-def report_failures(taints):
-    """Report the failure code and its meaning(s)."""
+def main():
+    """Print out the tainted state code and its meaning(s)."""
+    parser = ArgumentParser()
+    parser.add_argument('--taint-file',
+                        default="/proc/sys/kernel/tainted",
+                        help='The file that holds the taint information')
+    args = parser.parse_args()
+    taints = find_taints(args.taint_file)
+
     # Below meaning strings are taken from
     # https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html
     taint_meanings = ["proprietary module was loaded",
@@ -122,19 +129,6 @@ def report_failures(taints):
         return 0
     else:
         return 1
-
-
-def main():
-    parser = ArgumentParser()
-    parser.add_argument('--taint-file',
-                        default="/proc/sys/kernel/tainted",
-                        help='The file that holds the taint information')
-    args = parser.parse_args()
-    taints = find_taints(args.taint_file)
-    if taints < 0:
-        return taints
-
-    return(report_failures(taints))
 
 
 if __name__ == '__main__':

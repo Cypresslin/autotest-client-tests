@@ -188,13 +188,15 @@ if [ "$UNDERLAY" = "" ]; then
 	exit 1
 fi
 
-image="`uname -m`/ubuntu"
-[ "`uname -m`" = "x86_64" ] && image="ubuntu"
-# i386 is an official repository on docker.io, i686 is not
-[ "`uname -m`" = "i686" ] && image="i386/ubuntu"
-echo -n "docker pull $image: "
+arch="`uname -m`"
+[ "`uname -m`" = "x86_64" ] && arch='amd64'
+[ "`uname -m`" = "i686" ] && arch='386'
+[ "`uname -m`" = "aarch64" ] && arch='arm64'
+image='ubuntu'
+opt="--platform linux/$arch"
+echo -n "docker pull $opt $image: "
 
-docker pull $image > /dev/null
+docker pull $opt $image > /dev/null
 ret=$?
 if [ $ret -ne 0 ]; then
 	echo "FAILED (docker pull returned $ret)"

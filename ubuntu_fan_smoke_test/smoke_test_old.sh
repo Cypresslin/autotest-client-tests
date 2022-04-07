@@ -193,7 +193,10 @@ arch="`uname -m`"
 [ "`uname -m`" = "i686" ] && arch='386'
 [ "`uname -m`" = "aarch64" ] && arch='arm64'
 image='ubuntu'
+series=`lsb_release -c | awk '{print $2}'`
 opt="--platform linux/$arch"
+# Xenial only support --platform flag in experimental mode
+[ "$series" = "xenial" ] && opt=""
 echo -n "docker pull $opt $image: "
 
 docker pull $opt $image > /dev/null

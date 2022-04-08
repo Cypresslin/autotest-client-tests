@@ -340,6 +340,13 @@ class ubuntu_performance_fio(test.test):
         self.drop_cache()
         self.fio_clean_files(testname)
 
+        #if DGXA100 run fstrim
+        if platform == 'DGXA100' or platform == 'DGXH100':
+            if media == 'dataset':
+                print("Run fstrim")
+                cmd = "fstrim " + test_dir
+                results = utils.system_output(cmd, retain_output=True)
+
         #
         #  Run fio
         #

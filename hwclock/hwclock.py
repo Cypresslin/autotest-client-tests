@@ -44,9 +44,12 @@ class hwclock(test.test):
             logging.info('Running inside ' + self.virt + ', not testing ')
         else:
             logging.info('Setting hwclock to 2004 Oct. 20 04:10:00')
-            utils.system_output('/sbin/hwclock --set --date "2004/10/20 04:10:00"', retain_output=True)
+            cmd = '/sbin/hwclock --set --date "2004-10-20 04:10:00"'
+            if series in ['precise', 'trusty', 'xenial', 'bionic', 'focal', 'impish']:
+                cmd = '/sbin/hwclock --set --date "2004/10/20 04:10:00"'
+            utils.system_output(cmd, retain_output=True)
             date = utils.system_output('LC_ALL=C /sbin/hwclock')
-            if series in ['precise', 'trusty', 'vivid', 'xenial']:
+            if series in ['precise', 'trusty', 'xenial']:
                 if not re.match('Wed *Oct *20 *04:10:.. 2004', date):
                     raise error.TestFail("Failed to set hwclock back to Warthog's birthday. Output of hwclock is '%s'" % date)
             elif not re.match('2004-10-20 04:10:..*', date):

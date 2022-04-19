@@ -18,7 +18,8 @@ categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memfd', 'memory-hotplug
 #
 kver = platform.release().split(".")[:2]
 kver = int(kver[0])*100 + int(kver[1])
-if 'seccomp' in categories and kver > 418 and platform.machine() not in ['x86_64', 'ppc64le']:
+arch = platform.machine()
+if 'seccomp' in categories and kver > 418 and arch not in ['x86_64', 'ppc64le']:
     categories.remove('seccomp')
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*45)
@@ -58,6 +59,10 @@ else:
                 timeout_threshold = 60*30
                 if item == 'ftracetest':
                     timeout_threshold = 60*45
+                    if arch == 'riscv64':
+                        # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+                        # It takes about 22 mins on 5.15 and about 35 mins on 5.13
+                        timeout_threshold = 0
                 test = "{}:{}".format(category, item)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 

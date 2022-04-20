@@ -77,6 +77,15 @@ class ubuntu_zfs(test.test):
     def run_once(self, test_name):
         if test_name == 'setup':
             return
+        elif test_name == 'post-test-zfs-cleanup':
+            utils.system('systemctl stop zed')
+            utils.system('modprobe -r zfs')
+            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+            # Remove .version for the test, in order to trigger setup() again if we want re-test it
+            cmd = 'rm {}/.version'.format(self.srcdir)
+            utils.system(cmd)
+            return
 
         os.chdir(self.srcdir)
         cmd = 'RUNFILE="-c %s/linux.run" make test' % self.srcdir

@@ -12,11 +12,10 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
 DOC = ""
 
-name = 'ubuntu_zfs_stress'
-
 if platform.machine() in ['riscv64', 'riscv']:
     print("Test skipped as it takes too long to run on this platform\n")
 else:
-    results = job.run_test_detail('ubuntu_zfs_stress', test_name='zfs-stress', tag='zfs-stress', timeout=60*60*5) # 5hr. timeout
+    results = job.run_test_detail(NAME, test_name='zfs-stress', tag='zfs-stress', timeout=60*60*5) # 5hr. timeout
+    job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=60*10)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

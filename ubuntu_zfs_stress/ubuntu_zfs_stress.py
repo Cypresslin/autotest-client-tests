@@ -63,6 +63,16 @@ class ubuntu_zfs_stress(test.test):
         utils.system('modprobe zfs')
 
     def run_once(self, test_name):
+        if test_name == 'post-test-zfs-cleanup':
+            utils.system('systemctl stop zed')
+            utils.system('modprobe -r zfs')
+            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+            # Remove .version for the test, in order to trigger setup() again if we want re-test it
+            cmd = 'rm {}/.version'.format(self.srcdir)
+            utils.system(cmd)
+            return
+
         stress_ng = os.path.join(self.srcdir, 'stress-ng', 'stress-ng')
         #
         #  temp logfile

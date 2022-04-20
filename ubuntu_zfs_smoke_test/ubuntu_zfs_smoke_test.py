@@ -38,6 +38,16 @@ class ubuntu_zfs_smoke_test(test.test):
     def run_once(self, test_name):
         if test_name == 'setup':
             return
+        elif test_name == 'post-test-zfs-cleanup':
+            utils.system('systemctl stop zed')
+            utils.system('modprobe -r zfs')
+            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+            # Remove .version for the test, in order to trigger setup() again if we want re-test it
+            cmd = 'rm {}/.version'.format(self.srcdir)
+            utils.system(cmd)
+            return
+
         cmd = '%s/%s %s' % (self.bindir, test_name, self.srcdir)
         self.results = utils.system_output(cmd, retain_output=True)
 

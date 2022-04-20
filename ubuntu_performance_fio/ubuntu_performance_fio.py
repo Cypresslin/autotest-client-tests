@@ -408,6 +408,15 @@ class ubuntu_performance_fio(test.test):
             self.setup()
             self.get_sysinfo()
             return
+        elif test_name == 'post-test-zfs-cleanup':
+            utils.system('systemctl stop zed')
+            utils.system('modprobe -r zfs')
+            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+            # Remove .version for the test, in order to trigger setup() again if we want re-test it
+            cmd = 'rm {}/.version'.format(self.srcdir)
+            utils.system(cmd)
+            return
 
         #
         #  Drop cache to get a good idea of how much free memory can be used

@@ -13,6 +13,7 @@ DOC = ""
 tests = [
     'setup',
     'performance-test-encryption',
+    'post-test-zfs-cleanup',
     ]
 
 import os

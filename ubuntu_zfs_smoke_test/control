@@ -26,6 +26,7 @@ tests = [
     'kernel-smoke-test-send-receive',
     'kernel-smoke-test-scrub',
     'kernel-smoke-test-encrypt',
+    'post-test-zfs-cleanup',
     ]
 
 import os

@@ -131,7 +131,17 @@ class ubuntu_zfs_xfs_generic(test.test):
         #  invoked, then we can run run_once per test
         #
         if test_name == 'setup':
-                return
+            return
+        elif test_name == 'post-test-zfs-cleanup':
+            utils.system('systemctl stop zed')
+            utils.system('modprobe -r zfs')
+            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+            # Remove .version for the test, in order to trigger setup() again if we want re-test it
+            cmd = 'rm {}/.version'.format(self.srcdir)
+            utils.system(cmd)
+            return
+
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
         cmd = '%s/ubuntu_zfs_xfs_generic.sh %s %s' % (self.bindir, test_name, self.srcdir)
         print("Running: " + cmd)

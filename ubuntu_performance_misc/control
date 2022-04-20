@@ -15,7 +15,7 @@ DOC = ""
 name = 'ubuntu_performance_misc'
 
 tests = [ 'kernel-wakeups',
-	  'userspace-wakeups',
+          'userspace-wakeups',
           'interrupts',
           'context-switches',
           'forks' ]

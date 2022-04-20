@@ -11,9 +11,9 @@ TEST_TYPE = "client"
 DOC = ""
 
 tests = [
-	'setup',
-	'performance-test-encryption',
-	]
+    'setup',
+    'performance-test-encryption',
+    ]
 
 import os
 import ctypes

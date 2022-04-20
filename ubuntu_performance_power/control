@@ -15,7 +15,7 @@ DOC = ""
 name = 'ubuntu_performance_power'
 
 tests = {
-    'cpu-idle':		  [ 'cpu',	 1, '--cpu 0 --cpu-load 0 --cpu-method fft' ],
+    'cpu-idle':           [ 'cpu',       1, '--cpu 0 --cpu-load 0 --cpu-method fft' ],
     'matrix-all-cpus':    [ 'matrix',    0, '' ],
     'matrix-two-cpus':    [ 'matrix',    2, '' ],
     'matrix-one-cpu':     [ 'matrix',    1, '' ],

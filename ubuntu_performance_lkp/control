@@ -54,8 +54,8 @@ lkp_jobs = {
     'linpack.yaml':
         [ 'linpack-defaults.yaml' ],
     'perf-bench-futex.yaml':
-	[ 'perf-bench-futex-100%-300s-shared-hash.yaml',
-	  'perf-bench-futex-100%-300s-hash.yaml',
+        [ 'perf-bench-futex-100%-300s-shared-hash.yaml',
+          'perf-bench-futex-100%-300s-hash.yaml',
           'perf-bench-futex-100%-300s-shared-lock-pi.yaml',
           'perf-bench-futex-100%-300s-lock-pi.yaml' ],
     'schbench.yaml':

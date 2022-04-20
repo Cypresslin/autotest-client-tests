@@ -40,7 +40,7 @@ def step_init():
 
 def check_original():
     for analyzer in source_analizers_list:
-	job.run_test(analyzer, kernel = kernel, build_target = btarget, tag= vtag + '-orig')
+        job.run_test(analyzer, kernel = kernel, build_target = btarget, tag= vtag + '-orig')
 
 def check_patched():
     # Patch kernel and run checks again

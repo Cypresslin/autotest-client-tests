@@ -28,6 +28,7 @@ returns a value of 1. The script also returns a value of 1 if
 """
 
 
+import platform
 import sys
 import shlex
 from argparse import ArgumentParser
@@ -60,23 +61,81 @@ def get_modules():
     return modules
 
 
-def print_out_of_tree_modules(modules):
-    print("*   Modules not in-tree:")
+def process_out_of_tree_modules(modules):
+    mod_list = []
+    modules = remove_ignored_modules(modules)
     for mod in modules:
         cmd = 'modinfo -F intree %s' % mod
         if not check_output(shlex.split(cmd),
                             universal_newlines=True):
-            print("     %s" % mod)
+            mod_list.append(mod)
+    return(mod_list)
 
 
-def print_GPL_incompatible_modules(modules):
-    print("*   Modules with GPL Incompatible Licenses:")
+def process_GPL_incompatible_modules(modules):
+    mod_list = []
+    modules = remove_ignored_modules(modules)
     for mod in modules:
         cmd = 'modinfo -F license %s' % mod
         license = check_output(shlex.split(cmd),
                                universal_newlines=True).strip()
         if "GPL" not in license and "MIT" not in license:
-            print("     %s: %s" % (mod, license))
+            mod_list.append((mod, license))
+    return(mod_list)
+
+
+def process_unsigned_modules(modules):
+    mod_list = []
+    modules = remove_ignored_modules(modules)
+    for mod in modules:
+        fn = '/sys/module/{}/taint'.format(mod)
+        with open(fn, 'r') as f:
+            status = f.read()
+            if 'E' in status:
+                mod_list.append(mod)
+    return(mod_list)
+
+
+def remove_ignored_modules(modules):
+    # Remove modules we know will fail, but accept
+    dgx_modules = {'focal': ['mlx5_ib',
+                             'ib_uverbs',
+                             'ib_core',
+                             'mlx5_core',
+                             'mlxdevm',
+                             'auxiliary',
+                             'mlxfw',
+                             'mlx_compat'],
+                   'bionic':['ib_iser',
+                             'rdma_cm',
+                             'iw_cm',
+                             'ib_cm',
+                             'mlx5_ib',
+                             'ib_uverbs',
+                             'ib_core',
+                             'mlx5_core',
+                             'mlxfw',
+                             'mdev',
+                             'mlx_compat']}
+    try:
+        series = platform.dist()[2]
+    except AttributeError:
+        import distro
+        series = distro.codename()
+    try:
+        with open('/sys/class/dmi/id/product_name', 'r') as f:
+            product_name = f.read().strip()
+    except FileNotFoundError:
+        product_name = ''
+
+    if series in ['focal', 'bionic'] and 'DGX' in product_name:
+        for ignore_mod in dgx_modules[series]:
+            try:
+                print('Exception made in test script: {}'.format(ignore_mod))
+                modules.remove(ignore_mod)
+            except ValueError:
+                pass
+    return(modules)
 
 
 def main():
@@ -114,16 +173,43 @@ def main():
             modules = get_modules()
             print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
             if i == 0:  # List GPL incompatible modules and licenses
-                print_GPL_incompatible_modules(modules)
-            if i == 12:  # List out-of-tree modules
-                print_out_of_tree_modules(modules)
-            if i == 11:
+                proprietary_modules = process_GPL_incompatible_modules(modules)
+                if proprietary_modules:
+                    print("*   Modules with GPL Incompatible Licenses:")
+                    for mod in proprietary_modules:
+                        print("     %s: %s" % (mod[0], mod[1]))
+                    count += 1
+                else:
+                    print("*   Proprietary modules found, "
+                          "but they are expected and OK")
+            elif i == 11:
                 print("*   Firmware workarounds are expected and OK")
-                continue
-            count += 1
+            elif i == 12:  # List out-of-tree modules
+                out_of_tree_modules = process_out_of_tree_modules(modules)
+                if len(out_of_tree_modules) > 0:
+                    print("*   Modules not in-tree:")
+                    for mod in out_of_tree_modules:
+                        print("     %s" % mod)
+                    count += 1
+                else:
+                    print("*   Out of Tree modules found, "
+                          "but they are expected and OK")
+            elif i == 13:
+                unsigned_modules = process_unsigned_modules(modules)
+                if len(unsigned_modules) > 0:
+                    print("*   Module not signed / failed with verification")
+                    for mod in unsigned_modules:
+                        print("     %s" % mod)
+                    count += 1
+                else:
+                    print("*   Unsigned modules found, "
+                          "but they are expected and OK")
+            else:
+                count += 1
+
 
     if count == 0:
-        # else case below contains expected issue in case 0 / 11 / 12
+        # else case below contains expected issue in case 0 / 11 / 12 / 13
         if not taints:
             print("No kernel taints detected.")
         return 0

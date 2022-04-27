@@ -5,6 +5,7 @@ import os
 import platform
 import shutil
 from autotest.client                        import test, utils
+from autotest.client.shared                 import error
 
 class ubuntu_zfs_stress(test.test):
     version = 1
@@ -64,13 +65,19 @@ class ubuntu_zfs_stress(test.test):
 
     def run_once(self, test_name):
         if test_name == 'post-test-zfs-cleanup':
-            utils.system('systemctl stop zed')
-            utils.system('modprobe -r zfs')
-            # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
-            utils.system('apt-get remove --yes --force-yes zfsutils-linux')
-            # Remove .version for the test, in order to trigger setup() again if we want re-test it
-            cmd = 'rm {}/.version'.format(self.srcdir)
-            utils.system(cmd)
+            # Make sure there is no ZFS in use by any filesystem
+            try:
+                utils.system('df -t zfs &> /dev/null') # return 1 if not found
+                print("ZFS in use by filesystem, SKIP cleanup")
+            except error.CmdError:
+                print("Stop / unload / remove ZFS")
+                utils.system('systemctl stop zed')
+                utils.system('modprobe -r zfs')
+                # No need to consider ubuntu-zfs package on P/T as they've been blacklisted
+                utils.system('apt-get remove --yes --force-yes zfsutils-linux')
+                # Remove .version for the test, in order to trigger setup() again if we want re-test it
+                cmd = 'rm {}/.version'.format(self.srcdir)
+                utils.system(cmd)
             return
 
         stress_ng = os.path.join(self.srcdir, 'stress-ng', 'stress-ng')

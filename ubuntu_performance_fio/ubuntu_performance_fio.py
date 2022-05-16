@@ -253,6 +253,17 @@ class ubuntu_performance_fio(test.test):
         cmd = 'umount %s' % mount_point
         utils.system_output(cmd, retain_output=True)
 
+    def get_platform(self):
+        bpn = utils.system_output('dmidecode -s baseboard-product-name | head -1', retain_output=True)
+        if bpn == 'NVIDIA DGX-2':
+            return 'DGX2'
+        elif bpn == 'DGXA100':
+            return 'DGXA100'
+        elif bpn == 'DGXH100':
+            return 'DGXH100'
+        else:
+            return 'Generic'
+
     def run_fio(self, testname, ramdisk_bytes, media):
         kb_scale = {
             "KiB":  1024.0 / 1000.0,
@@ -283,8 +294,12 @@ class ubuntu_performance_fio(test.test):
         if media == 'ramdisk':
             self.mk_ramdisk(ramdisk_bytes, test_dir)
 
+        platform = self.get_platform()
+        print(platform)
+        shutil.copyfile(os.path.join(self.bindir, platform, media, "global-include.fio"), os.path.join(self.srcdir, "global-include.fio"))
+
         file = testname + ".fio"
-        fin = open(os.path.join(self.bindir, file), "r")
+        fin = open(os.path.join(self.bindir, platform, media, file), "r")
         fout = open(os.path.join(self.srcdir, file), "w")
 
         for line in fin:

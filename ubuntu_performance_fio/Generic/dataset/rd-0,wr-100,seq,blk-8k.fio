@@ -1,0 +1,8 @@
+[global]
+include global-include.fio
+directory=DIRECTORY
+size=8192M
+[rd-0,wr-100,seq,blk-8k,jobs-64]
+bs=8K
+rw=write
+numjobs=64

@@ -30,6 +30,7 @@ class ubuntu_ramfs_stress(test.test):
             'pax',
             'xfsprogs',
             'libattr1-dev',
+            'libapparmor-dev',
             'libkeyutils-dev',
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'

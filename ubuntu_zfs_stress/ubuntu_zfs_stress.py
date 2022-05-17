@@ -22,6 +22,7 @@ class ubuntu_zfs_stress(test.test):
             'build-essential',
             'gdb',
             'git',
+            'libapparmor-dev',
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)

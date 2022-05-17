@@ -18,7 +18,7 @@ class ubuntu_stress_btrfs(test.test):
             series = distro.codename()
 
         pkgs = [
-            'build-essential', 'xfsprogs', 'git', 'acl', 'libattr1-dev', 'libkeyutils-dev',
+            'build-essential', 'xfsprogs', 'git', 'acl', 'libattr1-dev', 'libapparmor-dev', 'libkeyutils-dev',
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)

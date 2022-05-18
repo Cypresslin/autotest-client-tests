@@ -8,8 +8,8 @@ source ./00-vars
 install_nvidia_docker() {
     local distribution
     distribution="$(. /etc/os-release;echo "$ID$VERSION_ID")"
-    curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-    curl -s -L "https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list" | \
+    curl --retry 6 --retry-delay 10 --silent --show-error -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+    curl --retry 6 --retry-delay 10 --silent --show-error -L "https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list" | \
         sudo tee /etc/apt/sources.list.d/nvidia-docker.list > /dev/null
     sudo apt update
     sudo apt install -y nvidia-docker2 -y

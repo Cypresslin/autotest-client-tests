@@ -16,9 +16,9 @@ categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memfd', 'memory-hotplug
 #  The seccomp tests on 4.19+ on non-x86 are known to be fail and
 #  need fixing up. For now, disable them.
 #
-release = platform.release().split(".")[:2]
-release = int(release[0])*100 + int(release[1])
-if 'seccomp' in categories and release > 418 and platform.machine() not in ['x86_64', 'ppc64le']:
+kver = platform.release().split(".")[:2]
+kver = int(kver[0])*100 + int(kver[1])
+if 'seccomp' in categories and kver > 418 and platform.machine() not in ['x86_64', 'ppc64le']:
     categories.remove('seccomp')
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*45)

@@ -61,17 +61,6 @@ def get_modules():
     return modules
 
 
-def process_out_of_tree_modules(modules):
-    mod_list = []
-    modules = remove_ignored_modules(modules)
-    for mod in modules:
-        cmd = 'modinfo -F intree %s' % mod
-        if not check_output(shlex.split(cmd),
-                            universal_newlines=True):
-            mod_list.append(mod)
-    return(mod_list)
-
-
 def process_GPL_incompatible_modules(modules):
     mod_list = []
     modules = remove_ignored_modules(modules)
@@ -84,14 +73,16 @@ def process_GPL_incompatible_modules(modules):
     return(mod_list)
 
 
-def process_unsigned_modules(modules):
+def process_known_issues(issue, modules):
     mod_list = []
+    issue_flags = {"externally-built ('out-of-tree') module was loaded": "O",
+                   "unsigned module was loaded":                         "E"}
     modules = remove_ignored_modules(modules)
     for mod in modules:
         fn = '/sys/module/{}/taint'.format(mod)
         with open(fn, 'r') as f:
             status = f.read()
-            if 'E' in status:
+            if issue_flags[issue] in status:
                 mod_list.append(mod)
     return(mod_list)
 
@@ -185,7 +176,7 @@ def main():
             elif i == 11:
                 print("*   Firmware workarounds are expected and OK")
             elif i == 12:  # List out-of-tree modules
-                out_of_tree_modules = process_out_of_tree_modules(modules)
+                out_of_tree_modules = process_known_issues(taint_meanings[i], modules)
                 if len(out_of_tree_modules) > 0:
                     print("*   Modules not in-tree:")
                     for mod in out_of_tree_modules:
@@ -195,7 +186,7 @@ def main():
                     print("*   Out of Tree modules found, "
                           "but they are expected and OK")
             elif i == 13:
-                unsigned_modules = process_unsigned_modules(modules)
+                unsigned_modules = process_known_issues(taint_meanings[i], modules)
                 if len(unsigned_modules) > 0:
                     print("*   Module not signed / failed with verification")
                     for mod in unsigned_modules:

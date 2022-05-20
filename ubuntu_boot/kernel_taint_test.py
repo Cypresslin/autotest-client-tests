@@ -75,7 +75,8 @@ def process_GPL_incompatible_modules(modules):
 
 def process_known_issues(issue, modules):
     mod_list = []
-    issue_flags = {"externally-built ('out-of-tree') module was loaded": "O",
+    issue_flags = {"staging driver was loaded":                          "C",
+                   "externally-built ('out-of-tree') module was loaded": "O",
                    "unsigned module was loaded":                         "E"}
     modules = remove_ignored_modules(modules)
     for mod in modules:
@@ -108,6 +109,18 @@ def remove_ignored_modules(modules):
                              'mlxfw',
                              'mdev',
                              'mlx_compat']}
+    rpi_modules = {'jammy': ['bcm2835_codec',
+                             'bcm2835_isp',
+                             'bcm2835_v4l2',
+                             'bcm2835_mmal_vchiq',
+                             'snd_bcm2835',
+                             'vc_sm_cma'],
+                   'focal': ['bcm2835_codec',
+                             'bcm2835_isp',
+                             'bcm2835_v4l2',
+                             'bcm2835_mmal_vchiq',
+                             'snd_bcm2835',
+                             'vc_sm_cma']}
     try:
         series = platform.dist()[2]
     except AttributeError:
@@ -121,6 +134,13 @@ def remove_ignored_modules(modules):
 
     if series in ['focal', 'bionic'] and 'DGX' in product_name:
         for ignore_mod in dgx_modules[series]:
+            try:
+                print('Exception made in test script: {}'.format(ignore_mod))
+                modules.remove(ignore_mod)
+            except ValueError:
+                pass
+    elif series in ['focal', 'jammy'] and 'raspi' in platform.release():
+        for ignore_mod in rpi_modules[series]:
             try:
                 print('Exception made in test script: {}'.format(ignore_mod))
                 modules.remove(ignore_mod)
@@ -172,6 +192,16 @@ def main():
                     count += 1
                 else:
                     print("*   Proprietary modules found, "
+                          "but they are expected and OK")
+            elif i == 10:  # List staging modules
+                staging_modules = process_known_issues(taint_meanings[i], modules)
+                if len(staging_modules) > 0:
+                    print("*   Staging driver in use:")
+                    for mod in staging_modules:
+                        print("     %s" % mod)
+                    count += 1
+                else:
+                    print("*   Staging modules found, "
                           "but they are expected and OK")
             elif i == 11:
                 print("*   Firmware workarounds are expected and OK")

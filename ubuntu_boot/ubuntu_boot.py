@@ -41,6 +41,8 @@ class ubuntu_boot(test.test):
                         for item in re.finditer(pat, content):
                             print(item.group(0))
                         test_passed = False
+                        print('==== Complete syslog ====')
+                        print(content)
                     else:
                         print('PASSED, log clean.')
         else:

@@ -51,13 +51,13 @@ class ubuntu_qrt_kernel_security(test.test):
         print("Test suite HEAD SHA1: {}".format(sha1))
 
     def run_once(self, test_name):
-        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
-        os.chdir(scripts)
-
         if test_name == 'setup':
             return
 
-        cmd = 'python2 ./%s -v' % test_name
+        scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
+        os.chdir(scripts)
+
+        cmd = 'python2 ./test-kernel-security.py -v %s' % test_name
         self.results = utils.system_output(cmd, retain_output=True)
 
 

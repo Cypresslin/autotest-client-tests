@@ -12,6 +12,23 @@ result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60
 if result == 'ERROR':
     print("ERROR: test setup has failed, skipping all the sub tests")
 else:
-    result = job.run_test_detail(NAME, test_name='test-kernel-aslr-collisions.py', tag='test-kernel-aslr-collisions.py', timeout=60*60*2)
+    fn = os.path.join(job.bindir, 'tmp', NAME, 'src', 'qa-regression-testing', 'scripts', 'test-kernel-aslr-collisions.py')
+    cmd = 'grep -e "class .*Test.*:" -e "def test_.*:" {} | sed "s/(.*)://"'.format(fn)
+    output = utils.system_output(cmd, verbose=False).splitlines()
+    all_tests = {}
+    for line in output:
+        item = line.strip()
+        if item.startswith('class '):
+            category = item.replace('class ', '')
+            all_tests[category] = []
+        elif item.startswith('def '):
+            sub_test = item.replace('def ', '')
+            all_tests[category].append(sub_test)
+
+    for category in all_tests:
+        if all_tests[category]:
+            for sub_test in all_tests[category]:
+                test = '{}.{}'.format(category, sub_test)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*15)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -52,7 +52,7 @@ class ubuntu_qrt_kernel_aslr_collisions(test.test):
         scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
         os.chdir(scripts)
 
-        cmd = 'python2 ./%s -v' % test_name
+        cmd = 'python2 ./test-kernel-aslr-collisions.py -v %s' % test_name
         self.results = utils.system_output(cmd, retain_output=True)
 
 

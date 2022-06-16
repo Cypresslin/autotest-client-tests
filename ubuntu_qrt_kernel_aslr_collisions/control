@@ -29,6 +29,6 @@ else:
         if all_tests[category]:
             for sub_test in all_tests[category]:
                 test = '{}.{}'.format(category, sub_test)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*15)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*45)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

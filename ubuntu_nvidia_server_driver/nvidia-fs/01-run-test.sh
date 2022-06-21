@@ -22,20 +22,24 @@ driver_recommended_cuda_version() {
 
 find_latest_cuda_container_tag_by_branch() {
     local branch="$1" # e.g. 11.4
+    local tmpfile="$(mktemp)"
+    local url="https://registry.hub.docker.com/v2/repositories/nvidia/cuda/tags"
     source ./00-vars.gen # pick up LXD_OS_VER
 
     # List all of the available nvidia cuda image tags, filter for
     # devel/ubuntu images that match our cuda x.y, and sort numerically
     # to find the newest minor (x.y.z) version.
     #
-    # Output is paginated by default. To get all the items in one go,
-    # set a page_size greater than the likely number of items (1024)
-    curl -L -s \
-	 'https://registry.hub.docker.com/v2/repositories/nvidia/cuda/tags?page_size=1024' | \
-	jq '."results"[]["name"]' | \
-	tr -d \" | \
-	grep -E "^${branch}(\.[0-9]+)*-devel-ubuntu${LXD_OS_VER}$" | \
-	sort -n | tail -1
+    # Output is paginated, this loops through each page.
+    while [ "$url" != "null" ]; do
+        curl -L -s "$url" > "$tmpfile"
+        url="$(jq '."next"' < "$tmpfile" | tr -d \")"
+        jq '."results"[]["name"]' < "$tmpfile" |
+            tr -d \"
+    done |
+        grep -E "^${branch}(\.[0-9]+)*-devel-ubuntu${LXD_OS_VER}$" | \
+        sort -n | tail -1
+    rm -f "$tmpfile"
 }
 
 gen_vars() {

@@ -33,7 +33,14 @@ apt install -y mlnx-ofed-all mlnx-nvme-dkms mlnx-nfsrdma-dkms
 
 # Install nvidia-fs module
 cuda_os="ubuntu$(echo "$LXD_OS_VER" | tr -d .)"
-apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/${cuda_os}/x86_64/7fa2af80.pub"
+
+# keyring install instructions from:
+#  https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+cuda_keyring_deb="$(mktemp)"
+wget "https://developer.download.nvidia.com/compute/cuda/repos/$cuda_os/x86_64/cuda-keyring_1.0-1_all.deb" -O "$cuda_keyring_deb"
+sudo dpkg -i "$cuda_keyring_deb"
+rm -f "$cuda_keyring_deb"
+
 add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/${cuda_os}/x86_64/ /"
 apt install -y nvidia-fs-dkms
 add-apt-repository -r "deb https://developer.download.nvidia.com/compute/cuda/repos/${cuda_os}/x86_64/ /"

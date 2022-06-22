@@ -5,7 +5,7 @@
 
 set -eo pipefail
 
-CONTAINER_VER="21.07"
+CONTAINER_VER="22.01"
 
 install_nvidia_docker() {
     local distribution

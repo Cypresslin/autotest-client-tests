@@ -65,6 +65,13 @@ class ubuntu_bpf(test.test):
             self.download()
         # Assist local testing by restoring the linux repo to vanilla.
         self.extract()
+
+        # clean source tree so changes from debian.foo/reconstruct
+        # (e.g. deleting files) are applied
+        os.chdir('linux')
+        cmd = 'fakeroot debian/rules clean'
+        utils.system(cmd)
+
         os.chdir(self.srcdir)
 
         #

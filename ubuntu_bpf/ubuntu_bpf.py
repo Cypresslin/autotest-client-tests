@@ -12,6 +12,7 @@ class ubuntu_bpf(test.test):
 
         pkgs = [
             'build-essential',
+            'debhelper',
             'docutils-common',
             'git',
             'libcap-dev',

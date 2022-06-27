@@ -26,7 +26,6 @@ class ubuntu_qrt_apparmor(test.test):
             'libdbus-1-dev',
             'libgtk2.0-dev',
             'libpam-apparmor',
-            'netcat',
             'python3',
             'python3-all-dev',
             'quilt',
@@ -48,6 +47,11 @@ class ubuntu_qrt_apparmor(test.test):
             for p in ['python3-libapparmor', 'ruby']:
                 pkgs.append(p)
 
+
+        if self.series in ['precise']:
+            pkgs.append('netcat')
+        else:
+            pkgs.append('netcat-openbsd')
 
         if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:
             pkgs.append('pyflakes')

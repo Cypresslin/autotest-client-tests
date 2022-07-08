@@ -24,8 +24,10 @@ driver_recommended_cuda_version() {
 find_latest_cuda_container_tag_by_branch() {
     local branch="$1" # e.g. 11.4
     local tmpfile="$(mktemp)"
-    local url="https://registry.hub.docker.com/v2/repositories/nvidia/cuda/tags"
+    local url_api_base="https://registry.hub.docker.com/v2/repositories/nvidia/cuda/tags"
     source ./00-vars.gen # pick up LXD_OS_VER
+    local search_tag=devel-ubuntu"${LXD_OS_VER}"
+    local url=${url_api_base}"?name="-"${search_tag}"
 
     # List all of the available nvidia cuda image tags, filter for
     # devel/ubuntu images that match our cuda x.y, and sort numerically
@@ -38,7 +40,7 @@ find_latest_cuda_container_tag_by_branch() {
         jq '."results"[]["name"]' < "$tmpfile" |
             tr -d \"
     done |
-        grep -E "^${branch}(\.[0-9]+)*-devel-ubuntu${LXD_OS_VER}$" | \
+        grep -E "^${branch}(\.[0-9]+)*-${search_tag}$" | \
         sort -n | tail -1
     rm -f "$tmpfile"
 }

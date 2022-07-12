@@ -96,7 +96,8 @@ class ubuntu_bpf(test.test):
                 os.environ["LLVM_OBJCOPY"] = "llvm-objcopy-9"
                 os.environ["LLVM_READELF"] = "llvm-readelf-9"
 
-        utils.make('-C linux/tools/testing/selftests TARGETS=bpf SKIP_TARGETS= clean all')
+        cmd = '-C linux/tools/testing/selftests TARGETS=bpf SKIP_TARGETS= clean all KDIR=/usr/src/linux-headers-{}'.format(platform.release())
+        utils.make(cmd)
 
     def run_once(self, test_name):
         if test_name == 'setup':

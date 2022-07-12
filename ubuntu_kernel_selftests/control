@@ -56,13 +56,11 @@ else:
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
             tests = utils.system_output(cmd).split()
             for item in tests:
-                timeout_threshold = 60*30
-                if item == 'ftracetest':
-                    timeout_threshold = 60*45
-                    if arch == 'riscv64':
-                        # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
-                        # It takes about 22 mins on 5.15 and about 35 mins on 5.13
-                        timeout_threshold = 0
+                timeout_threshold = 60*45
+                if item == 'ftracetest' and arch == 'riscv64':
+                    # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+                    # It takes about 22 mins on 5.15 and about 35 mins on 5.13
+                    timeout_threshold = 0
                 test = "{}:{}".format(category, item)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 

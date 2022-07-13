@@ -127,14 +127,14 @@ class ubuntu_ltp_syscalls(test.test):
         if test_name == 'setup':
             return
 
-        LTP_TIMEOUT_MUL = '3'
+        # PHLin - with LTP 20220527 most of the default timeout is now just 30 seconds
+        #         instead of 5 mins, change mulitplier to 30 to keep it at 15 mins
+        LTP_TIMEOUT_MUL = '30'
 
-        # Set the timeout multiplier exclusively for getrandom02 (lp:1831235) in a VM
         if test_name == 'getrandom02':
             if utils.system_output('virt-what', verbose=False):
-                print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL={} (lp:1797327) for getrandom02".format(LTP_TIMEOUT_MUL))
+                print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL={} (lp:1797327, lp:1831235) for getrandom02".format(LTP_TIMEOUT_MUL))
                 os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
-        # Set the timeout multiplier for ioctl_sg01 (lp:1895281, lp:1936886)
         elif test_name == 'ioctl_sg01':
             print("Set timeout multiplier LTP_TIMEOUT_MUL>1 (lp:1895281, lp:1936886) for ioctl_sg01")
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL

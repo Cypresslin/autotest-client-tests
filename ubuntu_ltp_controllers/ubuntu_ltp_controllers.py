@@ -123,6 +123,10 @@ class ubuntu_ltp_controllers(test.test):
         elif test_name == 'memcg_stress':
             print("Set timeout multiplier LTP_TIMEOUT_MUL=2 for memcg_stress (lp:1946348)")
             os.environ["LTP_TIMEOUT_MUL"] = '2'
+        elif test_name == 'memcontrol03':
+            # Default 30 seconds timeout will fail on node helo-kernel with J-5.17
+            print("Set timeout multiplier LTP_TIMEOUT_MUL=5 for memcontrol03")
+            os.environ["LTP_TIMEOUT_MUL"] = '5'
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
         print(utils.system_output(cmd, verbose=False))

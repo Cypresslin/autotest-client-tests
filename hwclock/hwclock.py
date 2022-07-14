@@ -44,9 +44,11 @@ class hwclock(test.test):
             logging.info('Running inside ' + self.virt + ', not testing ')
         else:
             logging.info('Setting hwclock to 2004 Oct. 20 04:10:00')
-            cmd = '/sbin/hwclock --set --date "2004-10-20 04:10:00"'
-            if series in ['precise', 'trusty', 'xenial', 'bionic', 'focal', 'impish']:
-                cmd = '/sbin/hwclock --set --date "2004/10/20 04:10:00"'
+            cmd = '/sbin/hwclock --verbose --set --date "2004-10-20 04:10:00"'
+            if series in ['precise', 'trusty', 'xenial', 'bionic']:
+                cmd = '/sbin/hwclock --debug --set --date "2004/10/20 04:10:00"'
+            elif series in ['focal', 'impish']:
+                cmd = '/sbin/hwclock --verbose --set --date "2004/10/20 04:10:00"'
             utils.system_output(cmd, retain_output=True)
             date = utils.system_output('LC_ALL=C /sbin/hwclock')
             if series in ['precise', 'trusty', 'xenial']:

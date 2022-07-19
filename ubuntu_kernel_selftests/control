@@ -19,16 +19,21 @@ categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memfd', 'memory-hotplug
 kver = platform.release().split(".")[:2]
 kver = int(kver[0])*100 + int(kver[1])
 arch = platform.machine()
+arch_scale = 1
+# Scale timeouts by 2 for riscv64, some tests timeout due to lack of
+# timeout, despite progressing fine
+if arch in ['riscv64']:
+   arch_scale = 2
 if 'seccomp' in categories and kver > 418 and arch not in ['x86_64', 'ppc64le']:
     categories.remove('seccomp')
 
-result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*45)
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_scale*60*45)
 if result == 'ERROR':
     print("ERROR: test failed to build, skipping all the sub tests")
 else:
     for category in categories:
         build = '{}-build'.format(category)
-        result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=60*60)
+        result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=arch_scale*60*60)
         if result == 'ERROR':
             print("ERROR: test suite '{}' failed to build, skipping all the sub tests".format(category))
             continue
@@ -38,7 +43,7 @@ else:
         mk_src = os.path.join(dir_src, 'Makefile')
         os.chdir(dir_src)
         cmd = 'grep SUB_DIRS {}'.format(mk_src)
-        timeout_threshold = 60*30
+        timeout_threshold = arch_scale*60*30
         if utils.system_output(cmd, verbose=False, ignore_status=True):
             cmd = 'make -f {} -f {} getsubdirs'.format(mk_helper, mk_src)
             subdirs = utils.system_output(cmd).split()
@@ -56,7 +61,7 @@ else:
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
             tests = utils.system_output(cmd).split()
             for item in tests:
-                timeout_threshold = 60*45
+                timeout_threshold = arch_scale*60*45
                 if item == 'ftracetest' and arch == 'riscv64':
                     # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
                     # It takes about 22 mins on 5.15 and about 35 mins on 5.13

@@ -114,6 +114,18 @@ class ubuntu_qrt_apparmor(test.test):
     def run_once(self, test_name):
         if test_name == 'setup':
             return
+        elif test_name == 'cleanup':
+            # Tear down StartLimitBurst threshold increase
+            if self.series == 'jammy':
+                aadir = '/run/systemd/system.control/apparmor.service.d'
+                cmd = 'rm -f %s/10-StartLimitBurst.conf' % (aadir)
+                utils.system_output(cmd, retain_output=True)
+                cmd = 'systemctl daemon-reload'
+                utils.system_output(cmd, retain_output=True)
+                cmd = 'systemctl show --property=StartLimitBurst apparmor.service'
+                burst = utils.system_output(cmd, retain_output=False, verbose=False)
+                print("apparmor.service StartLimitBurst: %s" % (burst))
+            return
 
         scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
         os.chdir(scripts)
@@ -122,18 +134,7 @@ class ubuntu_qrt_apparmor(test.test):
         if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:
             inter = 'python2'
 
-        cmd = '%s ./%s -v' % (inter, test_name)
+        cmd = '%s ./test-apparmor.py -v %s' % (inter, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
-
-        # Tear down StartLimitBurst threshold increase
-        if self.series == 'jammy':
-            aadir = '/run/systemd/system.control/apparmor.service.d'
-            cmd = 'rm -f %s/10-StartLimitBurst.conf' % (aadir)
-            utils.system_output(cmd, retain_output=True)
-            cmd = 'systemctl daemon-reload'
-            utils.system_output(cmd, retain_output=True)
-            cmd = 'systemctl show --property=StartLimitBurst apparmor.service'
-            burst = utils.system_output(cmd, retain_output=False, verbose=False)
-            print("apparmor.service StartLimitBurst: %s" % (burst))
 
 # vi:set ts=4 sw=4 expandtab:

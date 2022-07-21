@@ -12,6 +12,27 @@ result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60
 if result == 'ERROR':
     print("ERROR: test failed to build, skipping all the sub tests")
 else:
-    result = job.run_test_detail(NAME, test_name='test-apparmor.py', tag='test-apparmor.py', timeout=60*60*3)
+    fn = os.path.join(job.bindir, 'tmp', NAME, 'src', 'qa-regression-testing', 'scripts', 'test-apparmor.py')
+    cmd = 'grep -e "class .*Test.*:" -e "def test_.*:" {} | sed "s/(.*)://"'.format(fn)
+    output = utils.system_output(cmd, verbose=False).splitlines()
+    all_tests = {}
+    for line in output:
+        item = line.strip()
+        if item.startswith('class '):
+            category = item.replace('class ', '')
+            all_tests[category] = []
+        elif item.startswith('def '):
+            sub_test = item.replace('def ', '')
+            all_tests[category].append(sub_test)
+
+    for category in all_tests:
+        if all_tests[category]:
+            for sub_test in all_tests[category]:
+                test = '{}.{}'.format(category, sub_test)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*15)
+
+    # Extra clean up task for Jammy
+    job.run_test_detail(NAME, test_name='cleanup', tag='cleanup', timeout=60*5)
+
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

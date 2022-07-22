@@ -1,6 +1,7 @@
 #
 #
 from autotest.client import test, utils
+from autotest.client.shared import error
 import platform
 import os
 
@@ -101,6 +102,25 @@ class ubuntu_bpf(test.test):
 
     def run_once(self, test_name):
         if test_name == 'setup':
+            return
+        elif test_name == 'config_check':
+            meaning = ["unprivileged enable",                         #0
+                       "only privileged users enable (until reboot)", #1
+                       "only privileged users enabled"]               #2
+            print("Checking if kernel.unprivileged_bpf_disabled != 0 for series >= Bionic")
+            if self.series == 'trusty':
+                print("Skip this test on Trusty as there is no such config.")
+            else:
+                result = int(utils.system_output('sysctl -n kernel.unprivileged_bpf_disabled'))
+                print("unprivileged_bpf_disabled set to: {} - {}".format(result ,meaning[result]))
+                if self.series == 'xenial':
+                    if result != 0:
+                        print("Test Failed, value should be 0 - {} on Xenial".format(meaning[0]))
+                        raise error.TestFail()
+                elif result != 2:
+                    print("Test Failed, value should be 2 - {} >= Bionic".format(meaning[2]))
+                    raise error.TestFail()
+                print("Test passed.")
             return
 
         os.chdir(os.path.join(self.srcdir, 'linux/tools/testing/selftests/bpf'))

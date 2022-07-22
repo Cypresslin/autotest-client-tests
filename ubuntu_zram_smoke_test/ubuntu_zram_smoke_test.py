@@ -17,6 +17,7 @@ class ubuntu_zram_smoke_test(test.test):
             series = distro.codename()
 
         pkgs = [
+            'lsof'
         ]
 
         flavour = re.split('-\d*-', platform.uname()[2])[-1]

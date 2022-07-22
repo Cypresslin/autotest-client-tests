@@ -44,7 +44,6 @@ class ubuntu_ltp_syscalls(test.test):
             'libtirpc-dev',
             'pkg-config',
             'quota',
-            'virt-what',
             'xfslibs-dev',
             'xfsprogs',
         ]
@@ -132,9 +131,8 @@ class ubuntu_ltp_syscalls(test.test):
         LTP_TIMEOUT_MUL = '30'
 
         if test_name == 'getrandom02':
-            if utils.system_output('virt-what', verbose=False):
-                print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL={} (lp:1797327, lp:1831235) for getrandom02".format(LTP_TIMEOUT_MUL))
-                os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
+            print("Set timeout multiplier LTP_TIMEOUT_MUL={} (lp:1797327, lp:1831235, lp:1982574) for getrandom02".format(LTP_TIMEOUT_MUL))
+            os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
         elif test_name == 'ioctl_sg01':
             print("Set timeout multiplier LTP_TIMEOUT_MUL>1 (lp:1895281, lp:1936886) for ioctl_sg01")
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL

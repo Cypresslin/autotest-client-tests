@@ -108,6 +108,9 @@ class ubuntu_ltp(test.test):
         elif test_case == 'cve-2017-5754':
             print("Setting LTP_TIMEOUT_MUL={} for cve-2017-5754 (lp:1981780)".format(LTP_TIMEOUT_MUL))
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
+        elif test_case in ['cve-2017-15299', 'cve-2017-15951']:
+            print("Setting LTP_TIMEOUT_MUL={} for cve-2017-15299 / cve-2017-15951 (lp:1983299)")
+            os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
         elif test_case == 'fs_fill':
             print("Setting LTP_TIMEOUT_MUL={} for fs_fill".format(LTP_TIMEOUT_MUL))
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL

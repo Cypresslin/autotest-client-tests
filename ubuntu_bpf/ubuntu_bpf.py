@@ -123,6 +123,9 @@ class ubuntu_bpf(test.test):
                 print("Test passed.")
             return
 
+        # Enabling unprivileged eBPF to get more tests covered, this will be cleared after reboot (lp:1980756)
+        if test_name == 'test_verifier' and self.series not in ['trusty', 'xenial']:
+            utils.system('sysctl kernel.unprivileged_bpf_disabled=0')
         os.chdir(os.path.join(self.srcdir, 'linux/tools/testing/selftests/bpf'))
         cmd = './%s' % test_name
         self.results = utils.system_output(cmd, retain_output=True)

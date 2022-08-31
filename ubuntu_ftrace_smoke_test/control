@@ -10,8 +10,13 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
 DOC = ""
 
-name = 'ubuntu_ftrace_smoke_test'
+arch = platform.machine()
+timeout_threshold = 60*15
+if arch == 'riscv64':
+    # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+    # It takes about 22 mins on 5.15 and about 35 mins on 5.13
+    timeout_threshold = 0
 
-results = job.run_test_detail('ubuntu_ftrace_smoke_test', test_name='ftrace-smoke-test', tag='ftrace-smoke-test', timeout=60*15)
+results = job.run_test_detail(NAME, test_name='ftrace-smoke-test', tag='ftrace-smoke-test', timeout=timeout_threshold)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

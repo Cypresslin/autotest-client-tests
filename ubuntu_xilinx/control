@@ -1,0 +1,17 @@
+AUTHOR = "Ubuntu"
+NAME = "ubuntu_xilinx"
+CRITERIA = """
+Uses the linux-xilinx-zynqmp kernel repo
+"""
+SUITE = "None"
+TIME = "SHORT"
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = "client"
+DOC = ""
+
+tests_dir = os.path.join(job.bindir, 'tests', NAME, 'tests')
+tests_list = os.listdir(tests_dir)
+tests_list.sort()
+for test in tests_list:
+    job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*5)

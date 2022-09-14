@@ -1,0 +1,222 @@
+#!/bin/bash
+#
+# Wrapper script to run a Xilinx SoC regression test (RT)
+# This script was copied and modified from:
+# https://git.launchpad.net/~juergh/+git/raspi-rt
+#
+# The following global variables are available to the test scripts:
+#   RT_TEST_NAME         - The name of the test being run
+#   RT_UNAME             - System information (uname -a)
+#   RT_OS_CODENAME       - The codename  of the OS (bionic, focal, ...)
+#   RT_XILINX_MODEL      - Xilinx SoC full model name
+#   RT_XILINX_BOARD      - Xilinx board (KV260, KR260, ZCU102, ...)
+#   RT_XILINX_REV        - Xilinx SoC odel revision (1, 2, A, ...)
+#
+# The following are global variables that can be defined by tests:
+#   RT_TEMP_FILE  - If non-empty, will be deleted when the test terminates.
+#
+
+set -e
+set -u
+
+# -----------------------------------------------------------------------------
+# Public functions
+#
+# All public functions start with 'rt_'
+#
+
+function rt_echo()
+{
+	echo "[${RT_TEST_NAME}] ${*}"
+}
+
+function rt_fail()
+{
+	rt_echo "Test failure: ${*}" >&2
+}
+
+function rt_assert()
+{
+	local val1=${1} val2=${2} msg=${3}
+
+	if [ "${val1}" != "${val2}" ] ; then
+		rt_fail "${msg}"
+		rt_fail "${val1} != ${val2}"
+		return 1
+	fi
+}
+
+function rt_reboot_required()
+{
+	touch "${_RT_REBOOT_FLAG}"
+	return 126
+}
+
+# -----------------------------------------------------------------------------
+# Private functions
+#
+# All private functions start with '_'
+#
+
+function _out()
+{
+	local rc=${?}
+
+	trap - EXIT INT TERM HUP
+
+	# Cleanup after the test
+	if [ -n "${RT_TEMP_FILE:-}" ] ; then
+		rm -f "${RT_TEMP_FILE}"
+	fi
+
+	if [ "${_RT_PRINT_TEST_RESULT}" -eq 1 ] ; then
+		case "${rc}" in
+			0)   rt_echo "Test result: PASSED" ;;
+			125) rt_echo "Test result: SKIPPED" ;;
+			126) rt_echo "Test result: REBOOT_REQUIRED" ;;
+			*)   rt_echo "Test result: FAILED" >&2 ;;
+		esac
+	fi
+
+	exit "${rc}"
+}
+
+function _set_globals()
+{
+	# Test name
+	RT_TEST_NAME=$(basename "${0}")
+
+	# Print a test result string at the end
+	_RT_PRINT_TEST_RESULT=1
+
+	# Check for empty globals
+	_RT_CHECK_EMPTY_GLOBALS=1
+
+	# Per-test reboot flag
+	_RT_REBOOT_FLAG=/tmp/xilinx-rt.reboot.${RT_TEST_NAME}
+
+	# OS Codename
+	RT_OS_CODENAME=$(lsb_release -s -c)
+	RT_OS_CODENAME=${RT_OS_CODENAME,,}
+	RT_OS_CODENAME=${RT_OS_CODENAME^}
+
+	# System information
+	RT_UNAME=$(uname -a)
+
+	# Boot directory
+	if [ -d /boot/firmware ] ; then
+		RT_BOOT_DIR=/boot/firmware
+	else
+		RT_BOOT_DIR=/boot
+	fi
+
+	# shellcheck disable=SC2002
+	RT_XILINX_MODEL=$(cat /proc/device-tree/model 2>/dev/null | \
+						 tr -d '\0\n')
+
+	# Find the board
+	if [ $(cat /proc/device-tree/compatible | grep -ao k26 | head -1) ] ; then
+		RT_XILINX_BOARD="kv260"
+	fi
+
+	if [ $(cat /proc/device-tree/compatible | grep -ao zcu102 | head -1) ] ; then
+		RT_XILINX_BOARD="zcu102"
+	fi
+
+	if [ $(cat /proc/device-tree/compatible | grep -ao zcu104 | head -1) ] ; then
+		RT_XILINX_BOARD="zcu104"
+	fi
+
+	if [ $(cat /proc/device-tree/compatible | grep -ao zcu106 | head -1) ] ; then
+		RT_XILINX_BOARD="zcu106"
+	fi
+
+
+	# Compute the model revision
+	RT_XILINX_REV=${RT_XILINX_MODEL#* Rev}
+
+	# Hack to silence shellcheck SC2034
+	export RT_UNAME RT_BOOT_DIR RT_XILINX_REV \
+		RT_XILINX_BOARD
+}
+
+function _print_globals()
+{
+	local var error
+
+	rt_echo "-- Globals --"
+
+	error=0
+	while IFS= read -r var ; do
+		if [ -z "${!var}" ] ; then
+			error=1
+		fi
+		rt_echo "$(printf "%-22s: %s" "${var}" "${!var}")"
+	done < <(compgen -A variable | grep '^RT_')
+
+	if [ "${_RT_CHECK_EMPTY_GLOBALS}" -eq 1 ] && [ "${error}" -ne 0 ] ; then
+		rt_fail "Empty global(s) found"
+		return 1
+	fi
+}
+
+function _run_test()
+{
+	# Bail out if a reboot is required
+	if [ -e "${_RT_REBOOT_FLAG}" ] ; then
+		rt_echo "A reboot is required to continue the test"
+		return 126
+	fi
+
+	if [ "$(type -t rt_test_setup)" = "function" ] ; then
+		rt_echo "-- Test setup --"
+		rt_test_setup
+	fi
+
+	rt_echo "-- Test --"
+	rt_test
+
+	if [ "$(type -t rt_test_cleanup)" = "function" ] ; then
+		rt_echo "-- Test cleanup --"
+		rt_test_cleanup
+	fi
+
+	rt_echo "-- Test done --"
+}
+
+function _install_deps()
+{
+	if [ ${RT_OS_CODENAME} == "Focal" ] ; then
+		rt_echo "Installing depedencies for Focal"
+		sudo snap install \
+			xlnx-config --classic --channel=1.x
+	fi
+}
+
+# -----------------------------------------------------------------------------
+# Main entry point
+
+# Install a generic exit handler
+trap _out EXIT INT TERM HUP
+
+# Set the globals
+_set_globals
+
+case "${1:-}" in
+	""|run)
+		# Print the globals and run the test
+		_print_globals
+		_install_deps
+		_run_test
+		;;
+	globals)
+		# Print the globals
+		_RT_PRINT_TEST_RESULT=0
+		_RT_CHECK_EMPTY_GLOBALS=0
+		_print_globals
+		;;
+	*)
+		echo "Invalid test command: ${1}" >&2
+		exit 2
+		;;
+esac

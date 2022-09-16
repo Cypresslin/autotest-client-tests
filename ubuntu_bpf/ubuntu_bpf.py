@@ -35,7 +35,7 @@ class ubuntu_bpf(test.test):
             else:
                 pkgs.extend(['clang', 'llvm'])
         else:
-            pkgs.extend(['clang', 'llvm'])
+            pkgs.extend(['clang', 'llvm', 'lld'])
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

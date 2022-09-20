@@ -1,0 +1,12 @@
+AUTHOR = 'Taihsiang Ho <taihsiang.ho@canonical.com>'
+TIME = 'SHORT'
+NAME = 'nvidia-fs module test'
+TEST_TYPE = 'client'
+TEST_CLASS = 'General'
+TEST_CATEGORY = 'Smoke'
+
+DOC = """
+Perform testing of nvidia-fs module
+"""
+
+job.run_test_detail('ubuntu_nvidia_fs', test_name='nvidia-fs', tag='nvidia-fs', timeout=1500)

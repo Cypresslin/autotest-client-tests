@@ -138,6 +138,8 @@ fanatic_docker_test()
 	enable_docker
 	service docker restart
 
+	unconfined_opt='--security-opt seccomp=unconfined'
+
 	# Docker needs DNS hinting if systemd-resolvd is in charge
 	dns_opt=""
 	dns1=$(awk '$1=="nameserver"{print $2; exit}' /etc/resolv.conf)
@@ -157,7 +159,7 @@ fanatic_docker_test()
 	else
 		echo -n ": "
 	fi
-	docker run $dns_opt $image sh -c "apt-get update && apt-get install iputils-ping -y && ping -c 10 $fan_addr" > $TMP
+	docker run $dns_opt $unconfined_opt $image sh -c "apt-get update && apt-get install iputils-ping -y && ping -c 10 $fan_addr" > $TMP
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo "FAILED: (docker run returned $ret)"

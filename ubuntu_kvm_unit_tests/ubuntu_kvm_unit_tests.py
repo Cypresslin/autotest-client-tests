@@ -13,11 +13,6 @@ class ubuntu_kvm_unit_tests(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
 
         pkgs = [
             'build-essential', 'cpu-checker', 'qemu-kvm', 'git',
@@ -26,7 +21,7 @@ class ubuntu_kvm_unit_tests(test.test):
         pkgs.append(gcc)
 
         # ncat command needed by run_migration
-        if series in ['bionic', 'xenial', 'trusty']:
+        if self.series in ['bionic', 'xenial', 'trusty']:
             pkgs.append('nmap')
         else:
             pkgs.append('ncat')
@@ -35,7 +30,11 @@ class ubuntu_kvm_unit_tests(test.test):
         self.results = utils.system_output(cmd, retain_output=True)
 
     def initialize(self):
-        pass
+        try:
+            self.series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            self.series = distro.codename()
 
     def setup(self):
         canonical.setup_proxy()
@@ -46,7 +45,12 @@ class ubuntu_kvm_unit_tests(test.test):
         opt = []
         os.chdir(self.srcdir)
         shutil.rmtree('kvm-unit-tests', ignore_errors=True)
-        cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/kvm-unit-tests -b hirsute'
+        if self.series == 'xenial':
+            branch = 'sru-xenial'
+        else:
+            branch = 'sru'
+
+        cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/kvm-unit-tests -b {}'.format(branch)
         self.results = utils.system_output(cmd, retain_output=True)
         # Print test suite HEAD SHA1 commit id for future reference
         os.chdir(os.path.join(self.srcdir, 'kvm-unit-tests'))

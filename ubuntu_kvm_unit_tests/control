@@ -18,18 +18,20 @@ BLACKLIST = [
     "vmware_backdoors"
 ]
 
-job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
-
-tests_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'kvm-unit-tests', 'tests')
-try:
-    tests_list = os.listdir(tests_dir)
-    tests_list.sort()
-    for test in tests_list:
-        if test in BLACKLIST:
-            print("BLACKLISTED: " + test)
-            continue
-        job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*30)
-except OSError:
-    print("ERROR: kvm-unit-tests/test does not exist, skipping all the sub tests")
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    tests_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'kvm-unit-tests', 'tests')
+    try:
+        tests_list = os.listdir(tests_dir)
+        tests_list.sort()
+        for test in tests_list:
+            if test in BLACKLIST:
+                print("BLACKLISTED: " + test)
+                continue
+            job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*30)
+    except OSError:
+        print("ERROR: kvm-unit-tests/test does not exist, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

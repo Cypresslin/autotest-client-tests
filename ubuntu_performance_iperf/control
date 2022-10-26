@@ -10,10 +10,11 @@ TEST_CATEGORY = 'Benchmark'
 TEST_TYPE = "client"
 DOC = ""
 
-name = 'ubuntu_performance_iperf'
-
-results = job.run_test_detail('ubuntu_performance_iperf', test_name='setup', tag='setup', clients=0, timeout=60*30)
-results = job.run_test_detail('ubuntu_performance_iperf', test_name='ubuntu-performance-iperf', tag='ubuntu-performance-iperf-1', clients=1, timeout=60*30)
-results = job.run_test_detail('ubuntu_performance_iperf', test_name='ubuntu-performance-iperf', tag='ubuntu-performance-iperf-8', clients=8, timeout=60*30)
+results = job.run_test_detail(NAME, test_name='setup', tag='setup', clients=0, timeout=60*30)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    results = job.run_test_detail(NAME, test_name='ubuntu-performance-iperf', tag='ubuntu-performance-iperf-1', clients=1, timeout=60*30)
+    results = job.run_test_detail(NAME, test_name='ubuntu-performance-iperf', tag='ubuntu-performance-iperf-8', clients=8, timeout=60*30)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

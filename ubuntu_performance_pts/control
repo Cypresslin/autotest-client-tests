@@ -13,39 +13,39 @@ DOC = ""
 import os
 hostname = os.uname()[1]
 
-name = 'ubuntu_performance_pts'
-
-results = job.run_test_detail(name, test_name='setup', tag='setup', subtest='setup', timeout=60*30)
-
-jobs = [
-    [ 'john-the-ripper', 'john-the-ripper-blowfish', 30 ],
-    [ 'john-the-ripper', 'john-the-ripper-des', 30 ],
-    [ 'openssl', 'openssl', 30 ],
-    [ 'povray', 'povray', 80 ],
-    [ 'ttsiod-renderer', 'ttsiod-renderer', 30 ],
-]
-
-#
-# More OS orientated benchmarks
-#
-if os.uname()[1] == 'ivysaur':
+results = job.run_test_detail(NAME, test_name='setup', tag='setup', subtest='setup', timeout=60*30)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
     jobs = [
-        [ 'apache', 'apache', 10 ],
-        [ 'cloverleaf', 'cloverleaf', 30 ],
-        [ 'crafty', 'crafty', 10 ],
-        [ 'ebizzy', 'ebizzy', 10 ],
-        [ 'git', 'git', 30 ],
-        [ 'phpbench', 'phpbench', 10 ],
-        [ 'unpack-linux', 'unpack-linux', 10 ],
-        [ 'hmmer', 'hmmer', 10 ],
-        [ 'osbench', 'osbench-files', 10 ],
-        [ 'osbench', 'osbench-processes', 10 ],
-        [ 'osbench', 'osbench-threads', 10 ],
-        [ 'osbench', 'osbench-memory', 10 ],
+        [ 'john-the-ripper', 'john-the-ripper-blowfish', 30 ],
+        [ 'john-the-ripper', 'john-the-ripper-des', 30 ],
+        [ 'openssl', 'openssl', 30 ],
+        [ 'povray', 'povray', 80 ],
+        [ 'ttsiod-renderer', 'ttsiod-renderer', 30 ],
     ]
 
-for j in jobs:
-    results += job.run_test_detail(name, test_name=j[0], tag=name + '_' + j[1], subtest=j[1], timeout=j[2] * 60)
+    #
+    # More OS orientated benchmarks
+    #
+    if os.uname()[1] == 'ivysaur':
+        jobs = [
+            [ 'apache', 'apache', 10 ],
+            [ 'cloverleaf', 'cloverleaf', 30 ],
+            [ 'crafty', 'crafty', 10 ],
+            [ 'ebizzy', 'ebizzy', 10 ],
+            [ 'git', 'git', 30 ],
+            [ 'phpbench', 'phpbench', 10 ],
+            [ 'unpack-linux', 'unpack-linux', 10 ],
+            [ 'hmmer', 'hmmer', 10 ],
+            [ 'osbench', 'osbench-files', 10 ],
+            [ 'osbench', 'osbench-processes', 10 ],
+            [ 'osbench', 'osbench-threads', 10 ],
+            [ 'osbench', 'osbench-memory', 10 ],
+        ]
+
+    for j in jobs:
+        results += job.run_test_detail(NAME, test_name=j[0], tag=name + '_' + j[1], subtest=j[1], timeout=j[2] * 60)
 
 # print(results)
 

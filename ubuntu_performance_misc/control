@@ -12,18 +12,18 @@ TEST_CATEGORY = 'Benchmark'
 TEST_TYPE = "client"
 DOC = ""
 
-name = 'ubuntu_performance_misc'
-
 tests = [ 'kernel-wakeups',
           'userspace-wakeups',
           'interrupts',
           'context-switches',
           'forks' ]
 
-results = job.run_test_detail(name, tag='setup', test_name='setup', timeout=60*20)
-
-for test in sorted(tests):
-        results = job.run_test_detail(name, tag=test, test_name=test, timeout=600)
+results = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*20)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    for test in sorted(tests):
+        results = job.run_test_detail(NAME, tag=test, test_name=test, timeout=600)
         print(results)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

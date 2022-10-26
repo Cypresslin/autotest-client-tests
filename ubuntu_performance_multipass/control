@@ -1,5 +1,3 @@
-import os
-
 AUTHOR = "Ubuntu"
 NAME = "ubuntu_performance_multipass"
 CRITERIA = """
@@ -12,10 +10,11 @@ TEST_CATEGORY = 'Benchmark'
 TEST_TYPE = "client"
 DOC = ""
 
-name = 'ubuntu_performance_multipass'
-
-results = job.run_test_detail(name, tag='setup', test_name='setup', timeout=60*30)
-results = job.run_test_detail(name, tag='multipassboot', test_name='multipassboot', timeout=1800)
-print(results)
+results = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*30)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    results = job.run_test_detail(NAME, tag='multipassboot', test_name='multipassboot', timeout=1800)
+    print(results)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

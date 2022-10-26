@@ -13,18 +13,20 @@ DOC = ""
 # This forces setup() to be run, it is in fact a no-op test
 #
 results = job.run_test_detail(NAME, test_name='setup', timeout=60*20)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    import os
+    srcdir = os.path.join(job.bindir, 'tmp', NAME, 'src')
+    for fid in os.listdir(os.path.join(srcdir, 'tests')):
+        with open(os.path.join(srcdir, 'tests', fid), 'r') as fin:
+            with open(os.path.join(srcdir, 'linux.run'), 'w') as fout:
+                for line in fin:
+                    fout.write(line.replace('PATHNAME', os.path.join(srcdir, 'test/zfs-tests')))
 
-import os
-srcdir = os.path.join(job.bindir, 'tmp', NAME, 'src')
-for fid in os.listdir(os.path.join(srcdir, 'tests')):
-    with open(os.path.join(srcdir, 'tests', fid), 'r') as fin:
-        with open(os.path.join(srcdir, 'linux.run'), 'w') as fout:
-            for line in fin:
-                fout.write(line.replace('PATHNAME', os.path.join(srcdir, 'test/zfs-tests')))
+        results = job.run_test_detail(NAME, test_name='zfs-tests', tag='zfs-tests.%s' % os.path.split(fid)[-1].split('-', 1)[1], timeout=60*60*3)
 
-    results = job.run_test_detail(NAME, test_name='zfs-tests', tag='zfs-tests.%s' % os.path.split(fid)[-1].split('-', 1)[1], timeout=60*60*3)
-
-job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=60*10)
+    job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=60*10)
 
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

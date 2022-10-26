@@ -11,10 +11,13 @@ TEST_TYPE = "client"
 DOC = ""
 
 results = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=30*60)
-print("Invoking zfs fstest functional tests..")
-results = job.run_test_detail(NAME, test_name='zfs-tests', tag='zfs-tests', timeout=10*60)
-job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=10*60)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    print("Invoking zfs fstest functional tests..")
+    results = job.run_test_detail(NAME, test_name='zfs-tests', tag='zfs-tests', timeout=10*60)
+    job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=10*60)
 
-print("Done!")
+    print("Done!")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -11,7 +11,6 @@ TEST_TYPE = "client"
 DOC = ""
 
 tests = [
-    'setup',
     'kernel-smoke-test-pool-2x2-mirror',
     'kernel-smoke-test-pool-4x1-mirror',
     'kernel-smoke-test-pool-nested-raidz3',
@@ -29,8 +28,9 @@ tests = [
     'post-test-zfs-cleanup',
     ]
 
-import os
-import ctypes
-
-for t in tests:
-    results = job.run_test_detail('ubuntu_zfs_smoke_test', test_name=t, tag=t, timeout=60*30)
+results = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
+if results == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    for t in tests:
+        results = job.run_test_detail('ubuntu_zfs_smoke_test', test_name=t, tag=t, timeout=60*30)

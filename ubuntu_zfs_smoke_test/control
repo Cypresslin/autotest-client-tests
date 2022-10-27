@@ -1,5 +1,5 @@
 AUTHOR = "Ubuntu"
-NAME = "ubuntu_zfs_smoke_tests"
+NAME = "ubuntu_zfs_smoke_test"
 CRITERIA = """
 Test zfs with kernel smoke tests
 """
@@ -33,4 +33,4 @@ if results == 'ERROR':
     print("ERROR: test failed to build, skipping all the sub tests")
 else:
     for t in tests:
-        results = job.run_test_detail('ubuntu_zfs_smoke_test', test_name=t, tag=t, timeout=60*30)
+        results = job.run_test_detail(NAME, test_name=t, tag=t, timeout=60*30)

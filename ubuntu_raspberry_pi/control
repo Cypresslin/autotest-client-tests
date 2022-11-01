@@ -18,7 +18,7 @@ SKIP_LIST = [
 
 result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*5)
 if result == 'GOOD':
-    tests_dir = os.path.join(job.bindir, 'tmp', name, 'src', 'raspi-rt', 'tests')
+    tests_dir = os.path.join(job.bindir, 'tmp', name, 'src', 'raspi-rt-tests', 'tests')
     tests_list = os.listdir(tests_dir)
     tests_list.sort()
     for test in tests_list:

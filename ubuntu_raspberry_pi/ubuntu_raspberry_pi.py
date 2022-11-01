@@ -4,7 +4,7 @@ from autotest.client import test, utils
 import os
 import shutil
 
-TEST_REPOSITORY = 'https://git.launchpad.net/~juergh/+git/raspi-rt'
+TEST_REPOSITORY = 'git://git.launchpad.net/~canonical-kernel-team/+git/raspi-rt-tests'
 
 
 class ubuntu_raspberry_pi(test.test):
@@ -15,10 +15,10 @@ class ubuntu_raspberry_pi(test.test):
 
     def setup(self, test_name):
         os.chdir(self.srcdir)
-        shutil.rmtree('raspi-rt', ignore_errors=True)
-        cmd = 'git clone --depth=1 ' + TEST_REPOSITORY
+        shutil.rmtree('raspi-rt-tests', ignore_errors=True)
+        cmd = 'git clone --depth=1 ' + TEST_REPOSITORY + ' raspi-rt-tests'
         utils.system(cmd)
-        os.chdir(os.path.join(self.srcdir, 'raspi-rt'))
+        os.chdir(os.path.join(self.srcdir, 'raspi-rt-tests'))
         cmd = 'sudo ./install-deps'
         utils.system(cmd)
 
@@ -26,7 +26,7 @@ class ubuntu_raspberry_pi(test.test):
         if test_name == 'setup':
             return
 
-        cmd = os.path.join(self.srcdir, 'raspi-rt', 'tests', test_name)
+        cmd = os.path.join(self.srcdir, 'raspi-rt-tests', 'tests', test_name)
         utils.system_output(cmd, retain_output=True)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

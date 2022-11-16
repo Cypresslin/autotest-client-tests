@@ -30,11 +30,13 @@ class ubuntu_kernel_selftests(test.test):
         if not (self.arch == 's390x' and self.series in ['trusty', 'xenial']):
             pkgs.append('libnuma-dev')
             pkgs.append('libfuse-dev')
-        if not self.series in ['trusty', 'xenial']:
-            # With recent kernels BPF requires lld (LLVM-based linker) to
-            # build the corresponding kernel selftests, so make sure this
-            # package is installed (in the releases where it is available)
-            pkgs.append('lld')
+        if not self.arch == 's390x':
+            if not self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy']:
+                # With recent kernels BPF requires lld (LLVM-based linker) to
+                # build the corresponding kernel selftests, so make sure this
+                # package is installed (in the releases where it is available)
+                # lld is not available for s390x
+                pkgs.append('lld')
         gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 

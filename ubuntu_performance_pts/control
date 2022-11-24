@@ -45,7 +45,7 @@ else:
         ]
 
     for j in jobs:
-        results += job.run_test_detail(NAME, test_name=j[0], tag=name + '_' + j[1], subtest=j[1], timeout=j[2] * 60)
+        results += job.run_test_detail(NAME, test_name=j[0], tag=NAME + '_' + j[1], subtest=j[1], timeout=j[2] * 60)
 
 # print(results)
 

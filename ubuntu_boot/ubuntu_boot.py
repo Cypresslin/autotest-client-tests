@@ -74,7 +74,7 @@ class ubuntu_boot(test.test):
             if self.kernel_tainted():
                 raise error.TestFail()
             else:
-                print('GOOD: Kernel not tainted.')
+                print('GOOD: Test Passed.')
             return
         elif test_name == 'kernel_revocation_list':
             if self.kernel_revocation_list():

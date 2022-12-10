@@ -61,92 +61,84 @@ def get_modules():
     return modules
 
 
-def process_GPL_incompatible_modules(modules):
-    mod_list = []
-    modules = remove_ignored_modules(modules)
-    for mod in modules:
-        cmd = 'modinfo -F license %s' % mod
-        license = check_output(shlex.split(cmd),
-                               universal_newlines=True).strip()
-        if "GPL" not in license and "MIT" not in license:
-            mod_list.append((mod, license))
-    return(mod_list)
-
-
 def process_known_issues(issue, modules):
-    mod_list = []
-    issue_flags = {"staging driver was loaded":                          "C",
+    '''Filter out known taint flags'''
+    issue_flags = {"proprietary module was loaded":                      "P",
+                   "staging driver was loaded":                          "C",
                    "externally-built ('out-of-tree') module was loaded": "O",
                    "unsigned module was loaded":                         "E"}
-    modules = remove_ignored_modules(modules)
-    for mod in modules:
-        fn = '/sys/module/{}/taint'.format(mod)
-        with open(fn, 'r') as f:
-            status = f.read()
-            if issue_flags[issue] in status:
-                mod_list.append(mod)
-    return(mod_list)
-
-
-def remove_ignored_modules(modules):
-    # Remove modules we know will fail, but accept
-    dgx_modules = {'focal': ['mlx5_ib',
-                             'ib_uverbs',
-                             'ib_core',
-                             'mlx5_core',
-                             'mlxdevm',
-                             'auxiliary',
-                             'mlxfw',
-                             'mlx_compat'],
-                   'bionic':['ib_iser',
-                             'rdma_cm',
-                             'iw_cm',
-                             'ib_cm',
-                             'mlx5_ib',
-                             'ib_uverbs',
-                             'ib_core',
-                             'mlx5_core',
-                             'mlxfw',
-                             'mdev',
-                             'mlx_compat']}
-    rpi_modules = {'jammy': ['bcm2835_codec',
-                             'bcm2835_isp',
-                             'bcm2835_v4l2',
-                             'bcm2835_mmal_vchiq',
-                             'snd_bcm2835',
-                             'vc_sm_cma'],
-                   'focal': ['bcm2835_codec',
-                             'bcm2835_isp',
-                             'bcm2835_v4l2',
-                             'bcm2835_mmal_vchiq',
-                             'snd_bcm2835',
-                             'vc_sm_cma']}
-    try:
-        series = platform.dist()[2]
-    except AttributeError:
-        import distro
-        series = distro.codename()
+    dgx_modules = {'focal':  {'nvidia_uvm':     'O',
+                              'nvidia_drm':     'PO',
+                              'nvidia_modeset': 'PO',
+                              'nvidia':         'PO',
+                              'mlx5_ib':        'OE',
+                              'ib_uverbs':      'OE',
+                              'ib_core':        'OE',
+                              'mlx5_core':      'OE',
+                              'mlxdevm':        'OE',
+                              'auxiliary':      'OE',
+                              'mlxfw':          'OE',
+                              'mlx_compat':     'OE'},
+                   'bionic': {'nvidia_uvm':     'O',
+                              'nvidia_drm':     'PO',
+                              'nvidia_modeset': 'PO',
+                              'nvidia':         'PO',
+                              'ib_iser':        'OE',
+                              'rdma_cm':        'OE',
+                              'iw_cm':          'OE',
+                              'ib_cm':          'OE',
+                              'mlx5_ib':        'OE',
+                              'ib_uverbs':      'OE',
+                              'ib_core':        'OE',
+                              'mlx5_core':      'OE',
+                              'mlxfw':          'OE',
+                              'mdev':           'OE',
+                              'mlx_compat':     'OE'}}
+    rpi_modules = {'jammy': {'bcm2835_codec':      'C',
+                             'bcm2835_isp':        'C',
+                             'bcm2835_v4l2':       'C',
+                             'bcm2835_mmal_vchiq': 'C',
+                             'snd_bcm2835':        'C',
+                             'vc_sm_cma':          'C'},
+                   'focal': {'bcm2835_codec':      'CE',
+                             'bcm2835_isp':        'CE',
+                             'bcm2835_v4l2':       'CE',
+                             'bcm2835_mmal_vchiq': 'CE',
+                             'snd_bcm2835':        'CE',
+                             'vc_sm_cma':          'CE'}}
     try:
         with open('/sys/class/dmi/id/product_name', 'r') as f:
             product_name = f.read().strip()
     except FileNotFoundError:
         product_name = ''
 
-    if series in ['focal', 'bionic'] and 'DGX' in product_name:
-        for ignore_mod in dgx_modules[series]:
-            try:
-                print('Exception made in test script: {}'.format(ignore_mod))
-                modules.remove(ignore_mod)
-            except ValueError:
-                pass
-    elif series in ['focal', 'jammy'] and 'raspi' in platform.release():
-        for ignore_mod in rpi_modules[series]:
-            try:
-                print('Exception made in test script: {}'.format(ignore_mod))
-                modules.remove(ignore_mod)
-            except ValueError:
-                pass
-    return(modules)
+    module_flags = {}
+    if 'DGX' in product_name:
+        module_flags = dgx_modules
+    elif 'raspi' in platform.release():
+        module_flags = rpi_modules
+
+    try:
+        series = platform.dist()[2]
+    except AttributeError:
+        import distro
+        series = distro.codename()
+
+    # Filter out modules flagged with corresponding taint flag
+    mod_list = []
+    for mod in modules:
+        fn = '/sys/module/{}/taint'.format(mod)
+        with open(fn, 'r') as f:
+            status = f.read()
+            if issue_flags[issue] in status:
+                # Check with the allow list
+                if series in module_flags:
+                    if mod in module_flags[series]:
+                        if issue_flags[issue] in module_flags[series][mod]:
+                            print('Exception made in test script for: ' + mod)
+                            continue
+                mod_list.append(mod)
+    return mod_list
 
 
 def main():
@@ -184,7 +176,7 @@ def main():
             modules = get_modules()
             print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
             if i == 0:  # List GPL incompatible modules and licenses
-                proprietary_modules = process_GPL_incompatible_modules(modules)
+                proprietary_modules = process_known_issues(taint_meanings[i], modules)
                 if proprietary_modules:
                     print("*   Modules with GPL Incompatible Licenses:")
                     for mod in proprietary_modules:
@@ -230,8 +222,9 @@ def main():
 
 
     if count == 0:
-        # else case below contains expected issue in case 0 / 11 / 12 / 13
-        if not taints:
+        if taints:
+            print("Kernel tainted but in an expected way.")
+        else:
             print("No kernel taints detected.")
         return 0
     else:

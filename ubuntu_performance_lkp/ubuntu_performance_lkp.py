@@ -115,6 +115,7 @@ class ubuntu_performance_lkp(test.test):
         return ipaddr
 
     def setup(self, lkp_jobs, lkp_commit):
+        self.get_sysinfo()
         self.install_required_pkgs()
         self.job.require_gcc()
 
@@ -561,8 +562,6 @@ class ubuntu_performance_lkp(test.test):
 
     def run_once(self, lkp_job, sub_job, lkp_jobs, lkp_commit = None):
         if lkp_job == 'setup':
-            self.get_sysinfo()
-            self.setup(lkp_jobs, lkp_commit)
             return
 
         job_funcs = {

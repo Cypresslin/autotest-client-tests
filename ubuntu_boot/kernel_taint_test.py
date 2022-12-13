@@ -94,18 +94,25 @@ def process_known_issues(issue, modules):
                               'mlxfw':          'OE',
                               'mdev':           'OE',
                               'mlx_compat':     'OE'}}
-    rpi_modules = {'jammy': {'bcm2835_codec':      'C',
-                             'bcm2835_isp':        'C',
-                             'bcm2835_v4l2':       'C',
-                             'bcm2835_mmal_vchiq': 'C',
-                             'snd_bcm2835':        'C',
-                             'vc_sm_cma':          'C'},
-                   'focal': {'bcm2835_codec':      'CE',
-                             'bcm2835_isp':        'CE',
-                             'bcm2835_v4l2':       'CE',
-                             'bcm2835_mmal_vchiq': 'CE',
-                             'snd_bcm2835':        'CE',
-                             'vc_sm_cma':          'CE'}}
+    rpi_modules = {'kinetic': {'snd_bcm2835':        'C',
+                               'rpivid_hevc':        'CE',
+                               'bcm2835_codec':      'C',
+                               'bcm2835_v4l2':       'C',
+                               'bcm2835_isp':        'C',
+                               'bcm2835_mmal_vchiq': 'C',
+                               'vc_sm_cma':          'C'},
+                   'jammy':   {'bcm2835_codec':      'C',
+                               'bcm2835_isp':        'C',
+                               'bcm2835_v4l2':       'C',
+                               'bcm2835_mmal_vchiq': 'C',
+                               'snd_bcm2835':        'C',
+                               'vc_sm_cma':          'C'},
+                   'focal':   {'bcm2835_codec':      'CE',
+                               'bcm2835_isp':        'CE',
+                               'bcm2835_v4l2':       'CE',
+                               'bcm2835_mmal_vchiq': 'CE',
+                               'snd_bcm2835':        'CE',
+                               'vc_sm_cma':          'CE'}}
     try:
         with open('/sys/class/dmi/id/product_name', 'r') as f:
             product_name = f.read().strip()

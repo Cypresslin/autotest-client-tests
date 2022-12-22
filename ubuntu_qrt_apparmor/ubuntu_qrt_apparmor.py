@@ -130,11 +130,23 @@ class ubuntu_qrt_apparmor(test.test):
         scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
         os.chdir(scripts)
 
+        # Workaround for LP: #2000062
+        cleanup = False
+        if test_name == "ApparmorTestsuites.test_utils_testsuite":
+            if not 'PYTHON' in os.environ:
+                os.environ['PYTHON_VERSIONS'] = 'python3'
+                print("Use python3 for ApparmorTestsuites.test_utils_testsuite test (LP: #2000062)")
+                cleanup = True
+
         inter = 'python3'
         if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:
             inter = 'python2'
 
         cmd = '%s ./test-apparmor.py -v %s' % (inter, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
+
+        # Workaround for LP: #2000062 (cleanup)
+        if test_name == "tApparmorTestsuites.test_utils_testsuit" and cleanup:
+            del os.environ['PYTHON_VERSIONS']
 
 # vi:set ts=4 sw=4 expandtab:

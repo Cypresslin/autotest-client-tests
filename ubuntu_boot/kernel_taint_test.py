@@ -112,6 +112,12 @@ def process_known_issues(issue, modules):
                                'bcm2835_v4l2':       'CE',
                                'bcm2835_mmal_vchiq': 'CE',
                                'snd_bcm2835':        'CE',
+                               'vc_sm_cma':          'CE'},
+                   # For bionic-5.4 only, 4.15 does not need this
+                   'bionic':  {'bcm2835_codec':      'CE',
+                               'bcm2835_isp':        'CE',
+                               'bcm2835_v4l2':       'CE',
+                               'bcm2835_mmal_vchiq': 'CE',
                                'vc_sm_cma':          'CE'}}
     try:
         with open('/sys/class/dmi/id/product_name', 'r') as f:
@@ -119,17 +125,20 @@ def process_known_issues(issue, modules):
     except FileNotFoundError:
         product_name = ''
 
-    module_flags = {}
-    if 'DGX' in product_name:
-        module_flags = dgx_modules
-    elif 'raspi' in platform.release():
-        module_flags = rpi_modules
-
     try:
         series = platform.dist()[2]
     except AttributeError:
         import distro
         series = distro.codename()
+
+    module_flags = {}
+    if 'DGX' in product_name:
+        module_flags = dgx_modules
+    elif 'raspi' in platform.release():
+        # Special case for B-5.4 raspi
+        if series == 'bionic' and platform.release().startswith('5.4.0'):
+            module_flags = rpi_modules
+        module_flags = rpi_modules
 
     # Filter out modules flagged with corresponding taint flag
     mod_list = []

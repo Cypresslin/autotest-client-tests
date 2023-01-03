@@ -3,6 +3,7 @@
 import multiprocessing
 import os
 from autotest.client                        import test, utils
+from autotest.client.shared                 import error
 import platform
 import shutil
 
@@ -69,6 +70,8 @@ class ubuntu_stress_smoke_test(test.test):
         if test_name == 'setup':
             return
 
+        if os.uname()[1] == '202008-28164-ZCU106':
+            raise error.TestFail('Test marked as failed for ZCU106 as requested by portias, dev test hang (LP: #1998738)')
         os.chdir(os.path.join(self.srcdir, 'stress-ng'))
         cmd = '%s/ubuntu_stress_smoke_test.sh' % (self.bindir)
         self.results = utils.system_output(cmd, retain_output=True)

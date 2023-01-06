@@ -27,6 +27,8 @@ class ubuntu_kernel_selftests(test.test):
             'pkg-config',
             'uuid-runtime'
         ]
+        if not self.series in ['trusty', 'xenial', 'bionic']:
+            pkgs.append('socat')
         if not (self.arch == 's390x' and self.series in ['trusty', 'xenial']):
             pkgs.append('libnuma-dev')
             pkgs.append('libfuse-dev')

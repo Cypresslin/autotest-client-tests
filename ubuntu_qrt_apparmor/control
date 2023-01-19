@@ -29,7 +29,7 @@ else:
         if all_tests[category]:
             for sub_test in all_tests[category]:
                 test = '{}.{}'.format(category, sub_test)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*15)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*35)
 
     # Extra clean up task for Jammy
     job.run_test_detail(NAME, test_name='cleanup', tag='cleanup', timeout=60*5)

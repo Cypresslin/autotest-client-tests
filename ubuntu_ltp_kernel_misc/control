@@ -22,6 +22,11 @@ else:
                 with open ('/tmp/target' , 'w') as t:
                     t.write(line)
                 testcase = line.split()[0]
+                if 'tpci' == testcase and 'kvm' in platform.release():
+                    # Test results in an unkillable hang on KVM hosts
+                    print('Skipping tpci on kvm flavours due to lp:1947422')
+                    continue
+
                 timeout_threshold = 60*20
                 if testcase == 'zram01':
                     timeout_threshold = 60*30

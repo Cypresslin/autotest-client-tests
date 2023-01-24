@@ -136,7 +136,7 @@ class ubuntu_performance_pts(test.test):
         self.results += self.setup_config(pwd.getpwnam(username)[5])
         self.results += self.setup_config(os.path.expanduser("~"))
 
-        self.results += utils.system_output('dpkg -i %s' % os.path.join(self.bindir, 'phoronix-test-suite_7.8.0_all.deb'), retain_output=True)
+        self.results += utils.system_output('dpkg -i %s' % os.path.join(self.bindir, 'phoronix-test-suite_10.8.4_all.deb'), retain_output=True)
         self.results += utils.system_output('phoronix-test-suite enterprise-setup', retain_output=True)
         self.results += utils.system_output('yes n | phoronix-test-suite batch-setup', retain_output=True)
 

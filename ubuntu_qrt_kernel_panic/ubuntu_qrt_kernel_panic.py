@@ -8,11 +8,6 @@ class ubuntu_qrt_kernel_panic(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
 
         pkgs = [
             'build-essential',
@@ -32,7 +27,11 @@ class ubuntu_qrt_kernel_panic(test.test):
         self.results = utils.system_output(cmd, retain_output=True)
 
     def initialize(self):
-        pass
+        try:
+            self.series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            self.series = distro.codename()
 
     def setup(self):
         self.install_required_pkgs()
@@ -64,7 +63,12 @@ class ubuntu_qrt_kernel_panic(test.test):
 
         scripts = os.path.join(self.srcdir, 'qa-regression-testing', 'scripts')
         os.chdir(scripts)
-        cmd = 'python2 ./%s -v' % test_name
+
+        inter = 'python3'
+        if self.series in ['precise', 'trusty', 'xenial', 'bionic', 'focal']:
+            inter = 'python2'
+
+        cmd = '%s ./%s -v' % (inter, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
 
 

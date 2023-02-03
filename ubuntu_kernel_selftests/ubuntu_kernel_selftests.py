@@ -225,8 +225,16 @@ class ubuntu_kernel_selftests(test.test):
         if test_name.endswith('-build'):
             os.chdir(self.srcdir)
             if "net" in test_name:
-                cmd = "sh -c 'echo 1 > /proc/sys/net/ipv4/conf/all/accept_local'"
-                utils.system(cmd)
+                cmds = []
+                cmds.append("sh -c 'echo 1 > /proc/sys/net/ipv4/conf/all/accept_local'")
+                # The net benchmarching tests (e.g. udpgso) can fail when
+                # optmem limit is reached.
+                # https://www.kernel.org/doc/html/latest/networking/msg_zerocopy.html#transmission
+                # LP #1960907
+                cmds.append("sh -c 'echo 2048000 > /proc/sys/net/core/optmem_max'")
+                for cmd in cmds:
+                    utils.system(cmd)
+
                 if self.kv >= 415:
                     # net selftests use a module built by bpf selftests, bpf is available since bionic kernel
                     if self.kv == 506:

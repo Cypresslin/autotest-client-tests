@@ -117,6 +117,9 @@ class ubuntu_ltp(test.test):
         elif test_case == 'fs_fill':
             print("Setting LTP_TIMEOUT_MUL=90 for fs_fill")
             os.environ["LTP_TIMEOUT_MUL"] = '90'
+        elif test_case == 'read_all_dev':
+            print("Setting LTP_TIMEOUT_MUL=5 for read_all_dev (lp:2006117)")
+            os.environ["LTP_TIMEOUT_MUL"] = '5'
         elif test_case == 'read_all_proc':
             print("Setting LTP_TIMEOUT_MUL={} for read_all_proc".format(LTP_TIMEOUT_MUL))
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL

@@ -66,6 +66,8 @@ else:
                     # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
                     # It takes about 22 mins on 5.15 and about 35 mins on 5.13
                     timeout_threshold = 0
+                elif item == 'fcnal-test.sh':
+                    timeout_threshold = 60*75  # lp:2006499
                 test = "{}:{}".format(category, item)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 

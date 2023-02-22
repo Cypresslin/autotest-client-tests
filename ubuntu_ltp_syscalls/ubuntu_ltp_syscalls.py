@@ -106,6 +106,9 @@ class ubuntu_ltp_syscalls(test.test):
             nprocs = ''
         utils.make(nprocs)
         utils.make('install')
+        # Remove the source code to squeeze out disk space (LP: #2007978)
+        os.chdir(self.srcdir)
+        shutil.rmtree('ltp', ignore_errors=True)
 
     def should_stop_timesyncd(self, test, action):
         # Check if systemd-timesyncd is running before the test, if not, do not try to stop / start it

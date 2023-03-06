@@ -39,14 +39,6 @@ fi
 export http_proxy
 export https_proxy
 
-URI="http://index.docker.io/v1/repositories/library/ubuntu/images"
-if wget -q -O/dev/null $URI; then
-    echo $INFO
-else
-    unset http_proxy
-    unset https_proxy
-fi
-
 if [ -n "$http_proxy" ]; then
     if [ ! -d /etc/systemd/system/docker.service.d ]; then
         mkdir /etc/systemd/system/docker.service.d
@@ -58,8 +50,10 @@ if [ -n "$http_proxy" ]; then
     systemctl daemon-reload
     systemctl restart docker.service
 
-    echo -ne "[Service]\nEnvironment=\"HTTP_PROXY=$http_proxy\"\n" \
-         > /etc/systemd/system/docker.service.d/http-proxy.conf
+    # Configure Docker Proxy LP2009351
+    echo -ne "[Service]\nEnvironment=HTTP_PROXY=$http_proxy\n" > /etc/systemd/system/docker.service.d/http-proxy.conf
+    echo -ne "Environment=HTTPS_PROXY=$http_proxy\n" >> /etc/systemd/system/docker.service.d/http-proxy.conf
+    echo -ne "Environment=NO_PROXY=127.0.0.1\n" >> /etc/systemd/system/docker.service.d/http-proxy.conf
     systemctl daemon-reload
     systemctl restart docker.service
 fi

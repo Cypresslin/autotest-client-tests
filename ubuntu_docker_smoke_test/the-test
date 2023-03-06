@@ -17,11 +17,14 @@ elif echo "" | nc -w 2 10.245.64.1 3128 >/dev/null 2>&1; then
     export http_proxy="http://10.245.64.1:3128"
 fi
 
+# Configure Docker Proxy LP2009351
 if [ -n "$http_proxy" ]; then
     command -v systemctl &> /dev/null
     if [ $? -eq 0 ]; then
         [ ! -d /etc/systemd/system/docker.service.d ] && mkdir /etc/systemd/system/docker.service.d
-        echo -e "[Service]\nEnvironment=HTTP_PROXY=$http_proxy\n" > /etc/systemd/system/docker.service.d/http-proxy.conf
+        echo -ne "[Service]\nEnvironment=HTTP_PROXY=$http_proxy\n" > /etc/systemd/system/docker.service.d/http-proxy.conf
+        echo -ne "Environment=HTTPS_PROXY=$http_proxy\n" >> /etc/systemd/system/docker.service.d/http-proxy.conf
+        echo -ne "Environment=NO_PROXY=127.0.0.1\n" >> /etc/systemd/system/docker.service.d/http-proxy.conf
         systemctl daemon-reload
         systemctl restart docker
     else

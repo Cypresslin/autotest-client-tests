@@ -46,8 +46,17 @@ class ubuntu_futex(test.test):
 
         # Print test suite HEAD SHA1 commit id for future reference
         os.chdir(os.path.join(self.srcdir, 'futextest'))
-        sha1 = utils.system_output('git rev-parse --short HEAD', retain_output=False, verbose=False)
-        print("Test suite HEAD SHA1: {}".format(sha1))
+        sha1 = None
+        if os.path.isdir('.git'):
+            sha1 = utils.system_output('git rev-parse --short HEAD', retain_output=False, verbose=False)
+        elif os.path.isfile('head-sha1.txt'):
+            with open('head-sha1.txt') as f:
+                sha1 = f.readline()
+
+        if sha1:
+            print("Test suite HEAD SHA1: {}".format(sha1))
+        else:
+            print("Unable to get HEAD SHA1, proceed testing anyway.")
 
         os.chdir(os.path.join(self.srcdir, 'futextest', 'functional'))
         cmd = 'sed -i s/lpthread/pthread/ Makefile'

@@ -108,8 +108,17 @@ class ubuntu_qrt_apparmor(test.test):
         self.results = utils.system_output(cmd, retain_output=True)
         # Print test suite HEAD SHA1 commit id for future reference
         os.chdir(os.path.join(self.srcdir, 'qa-regression-testing'))
-        sha1 = utils.system_output('git rev-parse --short HEAD', retain_output=False, verbose=False)
-        print("Test suite HEAD SHA1: {}".format(sha1))
+        sha1 = None
+        if os.path.isdir('.git'):
+            sha1 = utils.system_output('git rev-parse --short HEAD', retain_output=False, verbose=False)
+        elif os.path.isfile('head-sha1.txt'):
+            with open('head-sha1.txt') as f:
+                sha1 = f.readline()
+
+        if sha1:
+            print("Test suite HEAD SHA1: {}".format(sha1))
+        else:
+            print("Unable to get HEAD SHA1, proceed testing anyway.")
 
     def run_once(self, test_name):
         if test_name == 'setup':

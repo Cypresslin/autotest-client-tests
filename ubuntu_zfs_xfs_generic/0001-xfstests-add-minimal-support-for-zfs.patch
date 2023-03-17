@@ -1,10 +1,10 @@
-From 4d06185605e6c99c7b51ede23390b7fc268fc748 Mon Sep 17 00:00:00 2001
+From 42147099e0c628882cab36127bd09d371ffd74ab Mon Sep 17 00:00:00 2001
 From: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Date: Wed, 18 Sep 2019 16:28:42 +0000
+Date: Thu, 16 Mar 2023 16:10:48 +0000
 Subject: [PATCH] xfstests: add minimal support for zfs
 
 Patch created based on Colin Ian King's commit bb18b1b9 in autotest-client-tests.
-Reworked to make it comply with the lastest xfstest-dev commit 204860fa.
+Reworked to make it comply with the lastest xfstest-dev commit b90914df.
 
 Currently the following tests work:
 
@@ -155,34 +155,35 @@ common/* scripts:
 
 Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
 ---
- check         |  2 ++
- common/attr   |  7 +++++--
+ check         |  3 ++-
+ common/attr   |  3 +++
  common/config |  4 ++++
  common/rc     | 22 ++++++++++++++++++++++
- 4 files changed, 33 insertions(+), 2 deletions(-)
+ 4 files changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/check b/check
-index 3d6a64cd..5970bf16 100755
+index 0bf5b22e..e9979475 100755
 --- a/check
 +++ b/check
-@@ -60,6 +60,7 @@ check options
-     -pvfs2          test PVFS2
-     -tmpfs              test TMPFS
-     -ubifs              test ubifs
-+    -zfs                test zfs
+@@ -66,6 +66,7 @@ check options
+     -pvfs2		test PVFS2
+     -tmpfs		test TMPFS
+     -ubifs		test ubifs
++    -zfs		test zfs
      -l			line mode diff
      -udiff		show unified diff (default)
      -n			show me, do not run tests
-@@ -272,6 +273,7 @@ while [ $# -gt 0 ]; do
- 	-pvfs2)		FSTYP=pvfs2 ;;
- 	-tmpfs)		FSTYP=tmpfs ;;
- 	-ubifs)		FSTYP=ubifs ;;
-+	-zfs)		FSTYP=zfs ;;
+@@ -280,7 +281,7 @@ while [ $# -gt 0 ]; do
+ 	case "$1" in
+ 	-\? | -h | --help) usage ;;
  
- 	-g)	group=$2 ; shift ;
- 		GROUP_LIST="$GROUP_LIST ${group//,/ }"
+-	-nfs|-glusterfs|-cifs|-9p|-fuse|-virtiofs|-pvfs2|-tmpfs|-ubifs)
++	-nfs|-glusterfs|-cifs|-9p|-fuse|-virtiofs|-pvfs2|-tmpfs|-ubifs|-zfs)
+ 		FSTYP="${1:1}"
+ 		;;
+ 	-overlay)
 diff --git a/common/attr b/common/attr
-index 20049de0..d6e543b9 100644
+index cce4d1b2..b89d17b7 100644
 --- a/common/attr
 +++ b/common/attr
 @@ -25,6 +25,9 @@ _acl_get_max()
@@ -193,62 +194,35 @@ index 20049de0..d6e543b9 100644
 +		echo 1024
 +		;;
  	f2fs)
- 		_fs_options $TEST_DEV | grep "inline_xattr" >/dev/null 2>&1
- 		if [ $? -eq 0 ]; then
-@@ -238,7 +241,7 @@ _getfattr()
- 
- # set maximum total attr space based on fs type
- case "$FSTYP" in
--xfs|udf|pvfs2|9p|ceph)
-+xfs|udf|pvfs2|9p|ceph|zfs)
- 	MAX_ATTRS=1000
- 	;;
- *)
-@@ -252,7 +255,7 @@ export MAX_ATTRS
- 
- # Set max attr value size based on fs type
- case "$FSTYP" in
--xfs|udf|btrfs)
-+xfs|udf|btrfs|zfs)
- 	MAX_ATTRVAL_SIZE=64
- 	;;
- pvfs2)
+ 		# If noinline_xattr is enabled, max xattr size should be:
+ 		# (4096 - 24) - (24 + 4) = 4044
 diff --git a/common/config b/common/config
-index 4c86a492..97dc96e9 100644
+index 6c8cb3a5..a987d4a3 100644
 --- a/common/config
 +++ b/common/config
-@@ -362,6 +362,8 @@ _test_mount_opts()
- 		# acls & xattrs aren't turned on by default on older ext$FOO
- 		export TEST_FS_MOUNT_OPTS="-o acl,user_xattr $EXT_MOUNT_OPTIONS"
+@@ -391,6 +391,8 @@ _common_mount_opts()
+ 	ubifs)
+ 		echo $UBIFS_MOUNT_OPTIONS
  		;;
 +	zfs)
 +		;;
  	*)
  		;;
  	esac
-@@ -478,6 +480,8 @@ _check_device()
+@@ -588,6 +590,8 @@ _check_device()
  	fi
  
  	case "$FSTYP" in
 +	zfs)
-+		;;
- 	9p|tmpfs)
- 		# 9p mount tags are just plain strings, so anything is allowed
++ 		;;
+ 	9p|fuse|tmpfs|virtiofs)
+ 		# 9p, fuse and virtiofs mount tags are just plain strings, so anything is allowed
  		# tmpfs doesn't use mount source, ignore
 diff --git a/common/rc b/common/rc
-index 66c7fd4d..51c4f36e 100644
+index 6852af79..600b0617 100644
 --- a/common/rc
 +++ b/common/rc
-@@ -153,6 +153,8 @@ case "$FSTYP" in
-     reiser4)
- 	 [ "$MKFS_REISER4_PROG" = "" ] && _fatal "mkfs.reiser4 not found"
- 	 ;;
-+    zfs)
-+	;;
-     pvfs2)
- 	;;
-     ubifs)
-@@ -624,6 +626,9 @@ _test_mkfs()
+@@ -602,6 +602,9 @@ _test_mkfs()
      ext2|ext3|ext4)
  	$MKFS_PROG -t $FSTYP -- -F $MKFS_OPTIONS $* $TEST_DEV
  	;;
@@ -258,17 +232,17 @@ index 66c7fd4d..51c4f36e 100644
      *)
  	yes | $MKFS_PROG -t $FSTYP -- $MKFS_OPTIONS $* $TEST_DEV
  	;;
-@@ -656,6 +661,9 @@ _mkfs_dev()
- 	$MKFS_PROG -t $FSTYP -- -F $MKFS_OPTIONS $* \
- 		2>$tmp.mkfserr 1>$tmp.mkfsstd
+@@ -638,6 +641,9 @@ _try_mkfs_dev()
+     ext2|ext3|ext4)
+ 	$MKFS_PROG -t $FSTYP -- -F $MKFS_OPTIONS $*
  	;;
 +    zfs)
 +		# do nothing for zfs
 +	;;
      xfs)
- 	$MKFS_PROG -t $FSTYP -- -f $MKFS_OPTIONS $* \
- 		2>$tmp.mkfserr 1>$tmp.mkfsstd
-@@ -757,6 +765,10 @@ _scratch_mkfs()
+ 	$MKFS_PROG -t $FSTYP -- -f $MKFS_OPTIONS $*
+ 	;;
+@@ -741,6 +747,10 @@ _scratch_mkfs()
  		mkfs_cmd="yes | $MKFS_PROG -t $FSTYP --"
  		mkfs_filter="grep -v -e ^mkfs\.ocfs2"
  		;;
@@ -279,7 +253,16 @@ index 66c7fd4d..51c4f36e 100644
  	*)
  		mkfs_cmd="yes | $MKFS_PROG -t $FSTYP --"
  		mkfs_filter="cat"
-@@ -1534,6 +1546,8 @@ _require_scratch_nocheck()
+@@ -1034,6 +1044,8 @@ _scratch_mkfs_sized()
+ 	bcachefs)
+ 		$MKFS_PROG -t $FSTYP -- $MKFS_OPTIONS --fs_size=$fssize --block_size=$blocksize $SCRATCH_DEV
+ 		;;
++	zfs)
++		;;
+ 	*)
+ 		_notrun "Filesystem $FSTYP not supported in _scratch_mkfs_sized"
+ 		;;
+@@ -1663,6 +1675,8 @@ _require_scratch_nocheck()
  			_notrun "this test requires a valid \$SCRATCH_MNT"
  		fi
  		;;
@@ -288,7 +271,7 @@ index 66c7fd4d..51c4f36e 100644
  	*)
  		 if [ -z "$SCRATCH_DEV" -o "`_is_block_dev "$SCRATCH_DEV"`" = "" ]
  		 then
-@@ -1640,6 +1654,11 @@ _require_test()
+@@ -1847,6 +1861,11 @@ _require_test()
  			_notrun "this test requires a valid \$TEST_DIR"
  		fi
  		;;
@@ -300,7 +283,7 @@ index 66c7fd4d..51c4f36e 100644
  	tmpfs)
  		if [ -z "$TEST_DEV" -o ! -d "$TEST_DIR" ];
  		then
-@@ -2712,6 +2731,9 @@ _check_test_fs()
+@@ -3171,6 +3190,9 @@ _check_test_fs()
      tmpfs)
  	# no way to check consistency for tmpfs
  	;;
@@ -312,3 +295,4 @@ index 66c7fd4d..51c4f36e 100644
  	;;
 -- 
 2.17.1
+

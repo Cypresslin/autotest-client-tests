@@ -11,7 +11,7 @@ class ubuntu_zfs_xfs_generic(test.test):
     version = 5
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch = platform.processor()
         try:
             series = platform.dist()[2]
         except AttributeError:
@@ -22,33 +22,20 @@ class ubuntu_zfs_xfs_generic(test.test):
             'acl',
             'attr',
             'autoconf',
-            'automake',
             'autopoint',
             'bc',
             'build-essential',
-            'dbench',
-            'dump',
-            'e2fsprogs',
-            'fio',
-            'gawk',
-            'gdb',
+            'debootstrap',
             'gettext',
-            'git',
-            'kpartx',
-            'ksh',
+            'libblkid-dev',
+            'libicu-dev',
+            'libssl-dev',
             'libtool',
             'patchutils',
-            'pax',
-            'pkg-config',
-            'texinfo',
-            'texlive',
-            'quota',
-            'git',
-            'libblkid-dev',
-            'libssl-dev',
-            'xfsprogs'
+            'pkgconf',
+            'uuid-dev'
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64' ] else 'gcc-multilib'
+        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
         if series in ['precise', 'trusty']:
@@ -83,48 +70,40 @@ class ubuntu_zfs_xfs_generic(test.test):
         utils.system('git clone https://github.com/tytso/xfstests-bld')
 
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
-        commit_bld = 'a4df7d7b31125901cb1fe9b092f495b6aa950448'
+        commit_bld = '8672804daa67855739592070e1732991179c2ba9'
         print("Using head commit for xfstests-bld " + commit_bld)
         utils.system('git reset --hard ' + commit_bld)
 
-        # print("Patching xfstests-bld to add ARM64 xattr syscall support")
-        # utils.system('patch -p1 < %s/0004-Add-syscalls-for-ARM64-platforms-LP-1755499.patch' % self.bindir)
-        print("Fetching all repos..")
+        print("Building tests...")
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld'))
         utils.system('./get-all')
+        utils.system('./build-all')
 
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
-        commit = "82eda8820ddd68dab0bc35199a53a08f58b1d26c"
-        print("Using xfs from known stable commit point " + commit)
-        utils.system('git reset --hard ' + commit)
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld', 'xfstests-dev'))
         print("Patching xfstests-dev to add minimal support for ZFS")
         utils.system('patch -p1 < %s/0001-xfstests-add-minimal-support-for-zfs.patch' % self.bindir)
-        print("Patching xfstests-dev: fix warning with Awk 5.0.1")
-        utils.system('patch -p1 < %s/0006-generic-001-remove-unnecessary-backslash.patch' % self.bindir)
-        print("Running autoreconf --install")
-        utils.system('autoreconf --install')
 
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfsprogs-dev'))
-        print("Patching xfstests-dev: fix linker issues with modern gcc")
-        utils.system('patch -p1 < %s/0007-Fix-linker-issues-with-clashing-objects.patch' % self.bindir)
-
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fio'))
-        print("Patching fio: fix linker issues with modern gcc")
-        utils.system('patch -p1 < %s/0008-Fix-linker-issues-by-making-tsc_reliable-a-weak-refe.patch' % self.bindir)
-        print("Patch out raw support")
-        utils.system('patch -p1 < %s/382975557e632efb506836bc1709789e615c9094.patch' % self.bindir)
-
-#       os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
-#       print("getting xfs tests source")
-#       utils.system('./get-all')
-
-#       os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfsprogs-dev'))
-#       print("Patching xfsprogs-dev to disable blkid")
-#       utils.system('patch -p1 < %s/0005-Disable-blkid-by-setting-enable_blkid-no.patch' % self.bindir)
-#
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
-        print("Building xfstests")
-        utils.system('./build-all')
         utils.system('modprobe zfs')
+
+#        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
+#        commit = "82eda8820ddd68dab0bc35199a53a08f58b1d26c"
+#        print("Using xfs from known stable commit point " + commit)
+#        utils.system('git reset --hard ' + commit)
+#        print("Patching xfstests-dev: fix warning with Awk 5.0.1")
+#        utils.system('patch -p1 < %s/0006-generic-001-remove-unnecessary-backslash.patch' % self.bindir)
+#        print("Running autoreconf --install")
+#        utils.system('autoreconf --install')
+#
+#        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfsprogs-dev'))
+#        print("Patching xfstests-dev: fix linker issues with modern gcc")
+#        utils.system('patch -p1 < %s/0007-Fix-linker-issues-with-clashing-objects.patch' % self.bindir)
+#
+#        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fio'))
+#        print("Patching fio: fix linker issues with modern gcc")
+#        utils.system('patch -p1 < %s/0008-Fix-linker-issues-by-making-tsc_reliable-a-weak-refe.patch' % self.bindir)
+#        print("Patch out raw support")
+#        utils.system('patch -p1 < %s/382975557e632efb506836bc1709789e615c9094.patch' % self.bindir)
+
 
     def run_once(self, test_name):
         #
@@ -133,7 +112,7 @@ class ubuntu_zfs_xfs_generic(test.test):
         #
         if test_name == 'setup':
             return
-        elif test_name == 'post-test-zfs-cleanup':
+        if test_name == 'post-test-zfs-cleanup':
             # Make sure there is no ZFS in use by any filesystem
             try:
                 utils.system('df -t zfs &> /dev/null') # return 1 if not found
@@ -149,11 +128,9 @@ class ubuntu_zfs_xfs_generic(test.test):
                 utils.system(cmd)
             return
 
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld', 'xfstests-dev'))
         cmd = '%s/ubuntu_zfs_xfs_generic.sh %s %s' % (self.bindir, test_name, self.srcdir)
         print("Running: " + cmd)
         self.results = utils.system_output(cmd, retain_output=True)
-        print(self.results)
-        print("Done!")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

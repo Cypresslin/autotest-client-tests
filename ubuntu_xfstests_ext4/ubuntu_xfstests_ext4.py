@@ -1,9 +1,11 @@
-import multiprocessing
-import os, re, glob, logging
+import os
+import re
+import glob
+import logging
 import platform
 import shutil
 from autotest.client.shared import error
-from autotest.client import test, utils, os_dep
+from autotest.client import test, utils
 from autotest.client import canonical
 
 class ubuntu_xfstests_ext4(test.test):
@@ -25,7 +27,7 @@ class ubuntu_xfstests_ext4(test.test):
         return tests_list
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch = platform.processor()
         try:
             series = platform.dist()[2]
         except AttributeError:
@@ -41,32 +43,20 @@ class ubuntu_xfstests_ext4(test.test):
             'build-essential',
             'dbench',
             'dump',
-            'fio',
             'gettext',
-            'git',
-            'keyutils',
-            'kpartx',
-            'libacl1-dev',
-            'libaio-dev',
-            'libattr1-dev',
             'libblkid-dev',
+            'libicu-dev',
             'libssl-dev',
             'libtool',
             'patchutils',
-            'pkg-config',
+            'pkgconf',
             'quota',
-            'texinfo',
-            'texlive',
-            'thin-provisioning-tools',
-            'xfsdump',
-            'xfslibs-dev'
+            'uuid-dev'
         ]
+
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
-        if series not in ['precise', 'trusty']:
-            pkgs.append('btrfs-progs')
-            pkgs.append('libtool-bin')
         if series not in ['precise', 'trusty', 'xenial']:
             pkgs.append('duperemove')
 
@@ -74,7 +64,7 @@ class ubuntu_xfstests_ext4(test.test):
         self.results = utils.system_output(cmd, retain_output=True)
 
     def _run_sub_test(self, test):
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld', 'xfstests-dev'))
         output = utils.system_output('./check %s' % test,
                                      ignore_status=True,
                                      retain_output=True)
@@ -135,12 +125,12 @@ class ubuntu_xfstests_ext4(test.test):
 
 
     def _run_suite(self):
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
-        exclusion = os.path.join(self.srcdir, 'xfstests-bld', 'kvm-xfstests',
-                'test-appliance', 'files', 'root', 'fs', 'ext4', 'exclude')
-        output = utils.system_output('./check -E %s -g auto -x dangerous' % exclusion,
-                                     ignore_status=True,
-                                     retain_output=True)
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld', 'xfstests-dev'))
+        exclusion = os.path.join(self.srcdir, 'xfstests-bld', 'test-appliance', 'files',
+                                 'root', 'fs', 'ext4', 'exclude')
+        utils.system_output('./check -E %s -g auto -x dangerous' % exclusion,
+                            ignore_status=True,
+                            retain_output=True)
 
     def initialize(self):
         pass
@@ -154,22 +144,6 @@ class ubuntu_xfstests_ext4(test.test):
         utils.system_output('useradd -m fsgqa || true', retain_output=True)
         utils.system_output('grep -q fsgqa /etc/sudoers || echo \"fsgqa    ALL=(ALL)NOPASSWD: ALL\" >> /etc/sudoers', retain_output=True)
 
-        #
-        # Anticipate failures due to missing devel tools, libraries, headers
-        # and xfs commands
-        #
-        os_dep.command('autoconf')
-        os_dep.command('autoheader')
-        os_dep.command('libtool')
-        os_dep.library('libuuid.so.1')
-        #os_dep.header('xfs/xfs.h')
-        #os_dep.header('attr/xattr.h')
-        #os_dep.header('sys/acl.h')
-        os_dep.command('mkfs.xfs')
-        os_dep.command('xfs_db')
-        os_dep.command('xfs_bmap')
-        os_dep.command('xfsdump')
-
         self.job.require_gcc()
 
         canonical.setup_proxy()
@@ -178,34 +152,16 @@ class ubuntu_xfstests_ext4(test.test):
         os.chdir(self.srcdir)
         shutil.rmtree('xfstests-bld', ignore_errors=True)
         utils.system('git clone https://github.com/tytso/xfstests-bld')
+
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
-        commit_bld = 'a4df7d7b31125901cb1fe9b092f495b6aa950448'
+        commit_bld = '8672804daa67855739592070e1732991179c2ba9'
         print("Using head commit for xfstests-bld " + commit_bld)
         utils.system('git reset --hard ' + commit_bld)
-        # print("Patching xfstests-bld to add ARM64 xattr syscall support")
-        # utils.system('patch -p1 < %s/0004-Add-syscalls-for-ARM64-platforms-LP-1755499.patch' % self.bindir)
-        #
-        #  Fix build link issues with newer toolchains (this is an ugly hack)
-        #
-        if float(platform.linux_distribution()[1]) > 18.04:
-            print("Patching xfstest-blkd to fix static linking issue")
-            utils.system('patch -p1 < %s/0005-build-all-remove-static-linking-flags-to-fix-build-i.patch' % self.bindir)
-        print("Fetching all repos..")
-        utils.system('./get-all')
 
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'xfstests-dev'))
-        commit = '82eda8820ddd68dab0bc35199a53a08f58b1d26c'
-        print("Using xfs from known stable commit point " + commit)
-        utils.system('git reset --hard ' + commit)
-        print("Patching xfstests..")
-        os.chdir(os.path.join(self.srcdir, 'xfstests-bld'))
-        print("Building xfstests")
-        utils.system('pwd')
-        try:
-            nprocs = '-j' + str(multiprocessing.cpu_count())
-        except:
-            nprocs = ''
-        utils.make(nprocs)
+        print("Building tests...")
+        os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld'))
+        utils.system('./get-all')
+        utils.system('./build-all')
 
         logging.debug("Available tests in srcdir: %s" %
                       ", ".join(self._get_available_tests()))
@@ -215,7 +171,7 @@ class ubuntu_xfstests_ext4(test.test):
         return utils.system('/bin/bash %s/create-test-partitions %s %s' % (self.bindir, os.environ['XFSTESTS_TEST_DRIVE'], filesystem))
 
     def unmount_partitions(self):
-        for mnt_point in [ os.environ['SCRATCH_MNT'], os.environ['TEST_DIR'] ]:
+        for mnt_point in [os.environ['SCRATCH_MNT'], os.environ['TEST_DIR']]:
             utils.system('umount %s' % mnt_point, ignore_status=True)
 
     def run_once(self, test_name, filesystem='ext4', test_number='000', single=False, skip_dangerous=True):

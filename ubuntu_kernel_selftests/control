@@ -62,10 +62,14 @@ else:
             tests = utils.system_output(cmd).split()
             for item in tests:
                 timeout_threshold = arch_scale*60*45
-                if item == 'ftracetest' and arch == 'riscv64':
-                    # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
-                    # It takes about 22 mins on 5.15 and about 35 mins on 5.13
-                    timeout_threshold = 0
+                if item == 'ftracetest':
+                    if arch == 'riscv64':
+                        # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+                        # It takes about 22 mins on 5.15 and about 35 mins on 5.13
+                        timeout_threshold = 0
+                    else:
+                        # ftracetest will take about ~60 minutes to run on some instances (lp:2008063)
+                        timeout_threshold = 60 * 75
                 elif item == 'fcnal-test.sh':
                     timeout_threshold = arch_scale*60*75  # lp:2006499, lp:2012016
                 test = "{}:{}".format(category, item)

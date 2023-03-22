@@ -15,7 +15,9 @@ DOC = ""
 if platform.machine() in ['riscv64', 'riscv']:
     print("Test skipped as it takes too long to run on this platform\n")
 else:
-    results = job.run_test_detail(NAME, test_name='zfs-stress', tag='zfs-stress', timeout=60*60*5) # 5hr. timeout
+    # It can take up to 6h41m to run on Google g1.small, set timeout to 7h50m + 10m
+    # to make it consistent with the change we made in CKCT (8hrs)
+    results = job.run_test_detail(NAME, test_name='zfs-stress', tag='zfs-stress', timeout=60*60*7+50)
     job.run_test_detail(NAME, test_name='post-test-zfs-cleanup', tag='post-test-zfs-cleanup', timeout=60*10)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -29,6 +29,11 @@ class ubuntu_lxc(test.test):
             ]
             gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
             pkgs.append(gcc)
+        if self.series in ['lunar']:
+            pkgs.append('meson')
+            pkgs.append('docbook2x')
+            pkgs.append('docbook-utils')
+            pkgs.append('criu')
 
         pkgs.append('liblxc1')
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
@@ -53,14 +58,15 @@ class ubuntu_lxc(test.test):
             utils.system('apt-get source --download-only lxc')
             utils.system("dpkg-source -x lxc*dsc lxc-pkg-ubuntu")
             os.chdir('/tmp/lxc-pkg-ubuntu')
-            gcc_multiarch = utils.system_output('gcc -print-multiarch',  retain_output=False)
-            utils.system('autoreconf -f -i')
-            cmd = '--enable-tests --disable-rpath --disable-doc --with-distro=ubuntu \
-                   --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-                   --libdir=\${{prefix}}/lib/{0} \
-                   --libexecdir=\${{prefix}}/lib/{0} \
-                    --with-rootfs-path=\${{prefix}}/lib/{0}/lxc'.format(gcc_multiarch)
-            utils.configure(cmd)
+            if self.series not in ['lunar']:
+                gcc_multiarch = utils.system_output('gcc -print-multiarch',  retain_output=False)
+                utils.system('autoreconf -f -i')
+                cmd = '--enable-tests --disable-rpath --disable-doc --with-distro=ubuntu \
+                       --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+                       --libdir=\${{prefix}}/lib/{0} \
+                       --libexecdir=\${{prefix}}/lib/{0} \
+                        --with-rootfs-path=\${{prefix}}/lib/{0}/lxc'.format(gcc_multiarch)
+                utils.configure(cmd)
             try:
                 nprocs = '-j' + str(multiprocessing.cpu_count())
             except:

@@ -2,8 +2,9 @@
 #
 from autotest.client import test, utils
 from autotest.client.shared import error
-import platform
 import os
+import platform
+import re
 
 class ubuntu_bpf(test.test):
     version = 1
@@ -21,6 +22,9 @@ class ubuntu_bpf(test.test):
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
+
+        if self.series == 'jammy' and re.match('5\.19\.0-.*gcp' ,platform.release()):
+            pkgs.append('gcc-12')
 
         if self.series == 'focal':
             if self.kv.startswith('5.6.0'):

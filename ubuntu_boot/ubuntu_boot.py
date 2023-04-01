@@ -15,7 +15,11 @@ class ubuntu_boot(test.test):
     def log_check(self):
         '''Test for checking error patterns in log files'''
         '''Centos Specific Boot Test Checks'''
-        os_dist = platform.linux_distribution()[0].split(' ')[0]
+        try:
+            os_dist = platform.linux_distribution()[0].split(' ')[0]
+        except AttributeError:
+            import distro
+            os_dist = distro.linux_distribution()[0].split(' ')[0]
 
         # dmesg will be cleared out in autotest with dmesg -c before the test starts
         # Let's check for /var/log/syslog instead

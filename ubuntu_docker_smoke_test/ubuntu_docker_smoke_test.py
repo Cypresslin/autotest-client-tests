@@ -13,7 +13,12 @@ class ubuntu_docker_smoke_test(test.test):
             'docker.io',
         ]
         # Exception for arm64 and ppc64le on Trusty
-        if platform.linux_distribution()[2] == 'trusty':
+        try:
+            series = platform.linux_distribution()[2]
+        except AttributeError:
+            import distro
+            series = distro.linux_distribution()[2]
+        if series == 'trusty':
             if platform.machine() in ['aarch64', 'ppc64le']:
                 print("Package docker.io is not available for this arch on Trusty.")
                 sys.exit(0)

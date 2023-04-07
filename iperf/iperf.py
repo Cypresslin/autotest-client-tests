@@ -125,7 +125,7 @@ class iperf(test.test):
             # Get 5 mpstat samples. Since tests with large number of streams
             # take a long time to start up all the streams, we'll toss out the
             # first and last sample when recording results
-            interval = max(1, test_time / 5)
+            interval = int(max(1, test_time / 5))
             cmds.append('mpstat -P ALL %s 5' % interval)
 
             # Add the iperf command

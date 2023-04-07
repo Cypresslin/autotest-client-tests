@@ -9,7 +9,7 @@ class tiobench(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-       try:
+        try:
             series = platform.dist()[2]
         except AttributeError:
             import distro

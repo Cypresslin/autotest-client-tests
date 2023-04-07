@@ -76,7 +76,7 @@ class connectathon(test.test):
             self.results = utils.system_output('./runtests -N %s %s %s' % (cthon_iterations, args, testdir))
             utils.open_write_close(self.results_path, self.results)
 
-        except error.CmdError, e:
+        except error.CmdError as e:
             self.nfail += 1
             logging.error("Test failed: %s", e)
 

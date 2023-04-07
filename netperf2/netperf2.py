@@ -176,7 +176,7 @@ class netperf2(test.test):
             # Log test output
             logging.info(out)
 
-        except error.CmdError, e:
+        except error.CmdError as e:
             """ Catch errors due to timeout, but raise others
             The actual error string is:
               "Command did not complete within %d seconds"

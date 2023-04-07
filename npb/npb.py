@@ -62,7 +62,7 @@ class npb(test.test):
             itest_cmd = os.path.join('NPB3.3-OMP/bin/', itest)
             try:
                 itest = utils.run(itest_cmd)
-            except Exception, e:
+            except Exception as e:
                 logging.error('NPB benchmark %s has failed. Output: %s',
                               itest_cmd, e)
                 self.n_fail += 1
@@ -111,7 +111,7 @@ class npb(test.test):
             itest_single_cmd = ''.join(['OMP_NUM_THREADS=1 ', itest_cmd])
             try:
                 itest_single = utils.run(itest_single_cmd)
-            except Exception, e:
+            except Exception as e:
                 logging.error('NPB benchmark single thread %s has failed. '
                               'Output: %s', itest_single_cmd, e)
                 self.n_fail += 1

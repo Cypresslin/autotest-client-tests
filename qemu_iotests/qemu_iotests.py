@@ -24,7 +24,7 @@ class qemu_iotests(test.test):
         try:
             self.qemu_img_path = os_dep.command('qemu-img')
             self.qemu_io_path = os_dep.command('qemu-io')
-        except ValueError, e:
+        except ValueError as e:
             raise error.TestNAError('Commands qemu-img or qemu-io missing')
         self.job.require_gcc()
 
@@ -83,7 +83,7 @@ class qemu_iotests(test.test):
         try:
             try:
                 result = utils.system(cmd)
-            except error.CmdError, e:
+            except error.CmdError as e:
                 failed_cases = re.findall("Failures: (\d+)", str(e))
                 for num in failed_cases:
                     failed_name = num + ".out.bad"

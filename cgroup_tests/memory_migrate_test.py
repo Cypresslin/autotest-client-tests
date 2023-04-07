@@ -55,7 +55,7 @@ int main(void) {
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             return process.pid
-        except Exception, err:
+        except Exception as err:
             raise error.TestError("Execute malloc process failed!\n"
                                   "%s", err)
 

@@ -30,7 +30,7 @@ done
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         return process.pid
-    except Exception, err:
+    except Exception as err:
         raise error.TestError("Execute process failed!\n"
                               "%s", err)
 
@@ -52,7 +52,7 @@ def get_pid_state(pid_list):
             proc_file.close()
             dic_pid[pid] = proc_stats.split()[2]
         return dic_pid
-    except Exception, detail:
+    except Exception as detail:
         raise error.TestFail("Get pid state failed!\n%s" % detail)
 
 

@@ -27,13 +27,13 @@ class libvirt_tck(test.test):
         # The absence of Module::Build will hange up the testing
         try:
             utils.system('perl -MModule::Build -e 1')
-        except error.CmdError, e:
+        except error.CmdError as e:
             raise error.TestError("Module::Build is required")
 
         # Install cpanminus script
         try:
             utils.system('(curl -L http://cpanmin.us | perl - App::cpanminus)2>&1')
-        except error.CmdError, e:
+        except error.CmdError as e:
             raise error.TestError("Failed to install cpanminus script.")
 
         tarpath = utils.unmap_url(self.bindir, tarball)

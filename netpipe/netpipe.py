@@ -77,7 +77,7 @@ class netpipe(test.test):
             # We don't care about the actual output since the important stuff
             # goes to self.NP_FILE
             utils.system(cmd)
-        except error.CmdError, e:
+        except error.CmdError as e:
             """ Catch errors due to timeout, but raise others
             The actual error string is:
               "Command did not complete within %d seconds"

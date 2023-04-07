@@ -51,7 +51,7 @@ class cgroup(test.test):
                 t_function = getattr(self, "test_%s" % subtest)
                 t_function()
                 logging.info("---< 'test_%s' PASSED >---", subtest)
-            except AttributeError, details:
+            except AttributeError as details:
                 if str(details) == ("'cgroup' object has no attribute"
                                     " 'test_%s'" % subtest):
                     err += "%s, " % subtest
@@ -293,7 +293,7 @@ class cgroup(test.test):
                         time.sleep(1)
                     if i >= 9:
                         logging.error("test_cpuset: Subprocess didn't finish")
-            except Exception, inst:
+            except Exception as inst:
                 err += "\nCan't terminate tasks: %s" % inst
             if item.rm_cgroup(pwd):
                 err += "\nCan't remove cgroup direcotry"
@@ -344,7 +344,7 @@ class cgroup(test.test):
             tasks.append(item.test("cpu"))
             try:
                 item.set_cgroup(tasks[i].pid, pwd)
-            except error.TestError, inst:
+            except error.TestError as inst:
                 cleanup(True)
                 raise error.TestFail("Failed to set cgroup: %s" % inst)
             tasks[i].stdin.write('\n')
@@ -410,7 +410,7 @@ class cgroup(test.test):
                         del(self.item.cgroups[0])
                 try:
                     del(self.item)
-                except Exception, failure_detail:
+                except Exception as failure_detail:
                     err += "\nCan't remove Cgroup: %s" % failure_detail
 
             if err:

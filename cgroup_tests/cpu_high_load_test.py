@@ -44,7 +44,7 @@ def get_cpu_rate(pid_list):
             cpu_rate = result.stdout.strip()
             dic_pid[pid] = cpu_rate.split('\n')[-1]
         return dic_pid
-    except Exception, detail:
+    except Exception as detail:
         raise error.TestFail("Get pid cpu rate failed!\n%s" % detail)
 
 
@@ -58,7 +58,7 @@ def kill_pids(pid):
         elif isinstance(pid, list):
             for sub_pid in pid:
                 os.kill(int(sub_pid), signal.SIGUSR1)
-    except Exception, detail:
+    except Exception as detail:
         logging.info("Kill process failed!\n%s" % detail)
 
 
@@ -128,7 +128,7 @@ def cgconfig_file_modify(cgconfig_file, controller_list,
         session.send('ZZ')
         time.sleep(1)
         session.close()
-    except Exception, detail:
+    except Exception as detail:
         raise error.TestFail("Edit cgconfig file failed!\n%s" % detail)
 
 

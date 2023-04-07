@@ -89,14 +89,14 @@ class parallel_dd(test.test):
             fstype = line.split()[2]
             logging.debug('Found %s is type %s from %s', device, fstype, file)
             return fstype
-        except error.CmdError, e:
+        except error.CmdError as e:
             logging.error('No %s found in %s', device, file)
             return None
 
     def run_once(self):
         try:
             self.fs.unmount()
-        except error.CmdError, e:
+        except error.CmdError as e:
             pass
 
         logging.info('------------- Timing raw operations ------------------')
@@ -132,7 +132,7 @@ class parallel_dd(test.test):
     def cleanup(self):
         try:
             self.fs.unmount()
-        except error.CmdError, e:
+        except error.CmdError as e:
             pass
         logging.debug('\nFormatting %s back to type %s\n', self.fs,
                       self.old_fstype)

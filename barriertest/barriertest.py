@@ -33,7 +33,7 @@ class barriertest(test.test):
                              ).rendezvous(abort=True, *hostnames)
         except error.BarrierAbortError:
             pass
-        except error.BarrierError, e:
+        except error.BarrierError as e:
             # We did get an error from the barrier, but was is acceptable or
             # not?  Site code may not be able to indicate an explicit abort.
             self.job.record('WARN', None, 'barriertest',
@@ -57,7 +57,7 @@ class barriertest(test.test):
                              ).rendezvous_servers(master, *hostnames)
         except error.BarrierAbortError:
             pass
-        except error.BarrierError, e:
+        except error.BarrierError as e:
             # We did get an error from the barrier, but was is acceptable or
             # not?  Site code may not be able to indicate an explicit abort.
             self.job.record('WARN', None, 'barriertest',

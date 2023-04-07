@@ -24,14 +24,14 @@ class autotest_regression(test.test):
         unittest_path = os.path.join(self.srcdir, 'utils', 'unittest_suite.py')
         try:
             utils.system(unittest_path)
-        except error.CmdError, e:
+        except error.CmdError as e:
             n_fail.append('Unittest failed: %s' % e.result_obj.stderr)
 
         logging.info("Running full tree check")
         check_path = os.path.join(self.srcdir, 'utils', 'check_patch.py')
         try:
             utils.system("%s --full --yes" % check_path)
-        except error.CmdError, e:
+        except error.CmdError as e:
             n_fail.append('Full tree check shows errors: %s' %
                           e.result_obj.stderr)
 
@@ -39,7 +39,7 @@ class autotest_regression(test.test):
         alocal_path = os.path.join(self.srcdir, 'client', 'autotest-local')
         try:
             utils.system("%s run sleeptest" % alocal_path)
-        except error.CmdError, e:
+        except error.CmdError as e:
             n_fail.append('Sleeptest failed: %s' %
                           e.result_obj.stderr)
 

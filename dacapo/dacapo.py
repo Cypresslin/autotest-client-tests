@@ -91,7 +91,7 @@ class dacapo(test.test):
                                 stderr_tee=raw_result)
             self.results = results.stderr
             raw_result.close()
-        except error.CmdError, e:
+        except error.CmdError as e:
             raise error.TestError('Dacapo benchmark %s has failed: %s' %
                                   (test, e))
 

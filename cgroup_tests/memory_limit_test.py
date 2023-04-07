@@ -152,7 +152,7 @@ def execute_stresser(memory, memory_file, binary_file):
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         return process.pid
-    except Exception, err:
+    except Exception as err:
         raise error.TestNAError("Execute malloc process failed!\n"
                                 "%s", err)
 

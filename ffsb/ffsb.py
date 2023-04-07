@@ -198,7 +198,7 @@ class ffsb(test.test):
             self.results = utils.system_output(cmd, retain_output=True)
             logging.info(self.results)
             utils.open_write_close(self.results_path, self.results)
-        except error.CmdError, e:
+        except error.CmdError as e:
             self.nfail += 1
             logging.error('Failed to execute FFSB : %s', e)
 

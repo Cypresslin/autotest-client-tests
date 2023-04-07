@@ -155,7 +155,7 @@ class dma_memtest(test.test):
                 try:
                     logging.debug('Comparing linux.orig with %s', tmp_dir)
                     utils.system('diff -U3 -rN linux.orig linux.%s' % j)
-                except error.CmdError, e:
+                except error.CmdError as e:
                     self.nfail += 1
                     logging.error('Error comparing trees: %s', e)
 

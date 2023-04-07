@@ -15,7 +15,7 @@ from autotest.client.shared import error
 # handler for SIGXFSZ before running any test.
 try:
     signal.signal(signal.SIGXFSZ, signal.SIG_DFL)
-except Exception, e:
+except Exception as e:
     print(e)
     sys.stdout.flush()
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from autotest.client import test, utils
 
@@ -40,7 +41,6 @@ class wakeup_events(test.test):
             split = line.split('\t')
             keylist[split[0]] = split[1]
 
-        from __future__ import print_function
         print(sys.stderr, keylist)
         self.write_perf_keyval(keylist)
 

@@ -97,7 +97,7 @@ def compare_results(runs):
             # Print info if results differ
             rc = 1
             testname_cleaned = re.sub('\s+', ',', testname)
-            print "  %-35s:\t" % (testname_cleaned),
+            print("  %-35s:\t".format(testname_cleaned))
             all_results = ""
             for i in range(len(runs)):
                 all_results += runs[i][testname]

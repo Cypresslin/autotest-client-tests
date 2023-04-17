@@ -23,8 +23,11 @@ class ubuntu_bpf(test.test):
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
-        if self.series == 'jammy' and re.match('5\.19\.0-.*gcp' ,platform.release()):
-            pkgs.append('gcc-12')
+        if self.series == 'jammy':
+            if re.match('5\.19\.0-.*gcp' ,platform.release()):
+                pkgs.append('gcc-12')
+            elif re.match('6\.1\.0-.*oem' ,platform.release()):
+                pkgs.extend(['gcc-12', 'libssl-dev'])
 
         if self.series == 'focal':
             if self.kv.startswith('5.6.0'):

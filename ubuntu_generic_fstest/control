@@ -14,16 +14,18 @@ DOC = ""
 # This forces setup() to be run, it is in fact a no-op test
 #
 results = job.run_test_detail('ubuntu_generic_fstest', test_name='setup', timeout=60*30)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    print("Invoking fstest functional tests..")
 
-print("Invoking fstest functional tests..")
+    #
+    #  xfs test fail POSIX tests chown/00.t 141, 145, 159, 153
+    #
+    tests = [ 'ext2', 'ext3', 'ext4', 'xfs', 'btrfs', 'jfs' ]
+    for t in tests:
+        results = job.run_test_detail('ubuntu_generic_fstest', test_name=t, tag=t, timeout=5*60)
 
-#
-#  xfs test fail POSIX tests chown/00.t 141, 145, 159, 153
-#
-tests = [ 'ext2', 'ext3', 'ext4', 'xfs', 'btrfs', 'jfs' ]
-for t in tests:
-    results = job.run_test_detail('ubuntu_generic_fstest', test_name=t, tag=t, timeout=5*60)
-
-print("Done!")
+    print("Done!")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -21,35 +21,37 @@ FS_BLACKLIST = {
 }
 
 result = job.run_test_detail('ubuntu_ecryptfs', test_name='setup', fs_type=None, tag='setup.all', timeout=60*20)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    for dir in ['/mnt/upper', '/mnt/lower', '/mnt/image']:
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
 
-for dir in ['/mnt/upper', '/mnt/lower', '/mnt/image']:
-    if not os.path.isdir(dir):
-        os.makedirs(dir)
+    FS_TYPES = ['ext2', 'ext3', 'ext4', 'xfs', 'btrfs']
 
-FS_TYPES = ['ext2', 'ext3', 'ext4', 'xfs', 'btrfs']
+    tests_rc = os.path.join(job.bindir, 'tmp', NAME, 'src', 'tests', 'kernel', 'tests.rc')
+    if os.path.exists(tests_rc):
+        with open(tests_rc, 'r') as f:
+            content = f.read().split('\n')
 
-tests_rc = os.path.join(job.bindir, 'tmp', NAME, 'src', 'tests', 'kernel', 'tests.rc')
-if os.path.exists(tests_rc):
-    with open(tests_rc, 'r') as f:
-        content = f.read().split('\n')
-
-    tests = []
-    for line in content:
-        if line == '': continue
-        (category, t) = line.split('=')
-        t = t.replace('"', '')
-        for test in t.split(' '):
-            if test in BLACKLIST:
-                print("BLACKLISTED: '%s'" % (test))
-                continue
-            tests.append(test)
-
-    for fs_type in FS_TYPES:
-        for test in tests:
-            if fs_type in FS_BLACKLIST:
-                if test in FS_BLACKLIST[fs_type]:
+        tests = []
+        for line in content:
+            if line == '': continue
+            (category, t) = line.split('=')
+            t = t.replace('"', '')
+            for test in t.split(' '):
+                if test in BLACKLIST:
+                    print("BLACKLISTED: '%s'" % (test))
                     continue
-            tag = "%s.%s" % (test, fs_type)
-            result = job.run_test_detail('ubuntu_ecryptfs', test_name=test, fs_type=fs_type, tag=tag, timeout=60*6)
+                tests.append(test)
+
+        for fs_type in FS_TYPES:
+            for test in tests:
+                if fs_type in FS_BLACKLIST:
+                    if test in FS_BLACKLIST[fs_type]:
+                        continue
+                tag = "%s.%s" % (test, fs_type)
+                result = job.run_test_detail('ubuntu_ecryptfs', test_name=test, fs_type=fs_type, tag=tag, timeout=60*6)
 
 # vi:set ts=4 sw=4 expandtab:

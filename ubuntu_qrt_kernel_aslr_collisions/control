@@ -9,9 +9,7 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = 'client'
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
-if result == 'ERROR':
-    print("ERROR: test setup has failed, skipping all the sub tests")
-else:
+if result == 'GOOD':
     fn = os.path.join(job.bindir, 'tmp', NAME, 'src', 'qa-regression-testing', 'scripts', 'test-kernel-aslr-collisions.py')
     cmd = 'grep -e "class .*Test.*:" -e "def test_.*:" {} | sed "s/(.*)://"'.format(fn)
     output = utils.system_output(cmd, verbose=False).splitlines()
@@ -30,5 +28,7 @@ else:
             for sub_test in all_tests[category]:
                 test = '{}.{}'.format(category, sub_test)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*60)
+else:
+    print("ERROR: test setup has failed, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

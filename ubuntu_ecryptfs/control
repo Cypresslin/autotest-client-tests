@@ -21,9 +21,7 @@ FS_BLACKLIST = {
 }
 
 result = job.run_test_detail('ubuntu_ecryptfs', test_name='setup', fs_type=None, tag='setup.all', timeout=60*20)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     for dir in ['/mnt/upper', '/mnt/lower', '/mnt/image']:
         if not os.path.isdir(dir):
             os.makedirs(dir)
@@ -53,5 +51,7 @@ else:
                         continue
                 tag = "%s.%s" % (test, fs_type)
                 result = job.run_test_detail('ubuntu_ecryptfs', test_name=test, fs_type=fs_type, tag=tag, timeout=60*6)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab:

@@ -12,9 +12,7 @@ DOC = ""
 
 # This test will take about 50min to run on google cloud
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*40)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     fn = '/opt/ltp/runtest/kernel_misc'
     with open(fn , 'r') as f:
         for line in f:
@@ -31,6 +29,8 @@ else:
                 if testcase == 'zram01':
                     timeout_threshold = 60*30
                 job.run_test_detail(NAME, test_name=testcase, tag=testcase, timeout=timeout_threshold)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

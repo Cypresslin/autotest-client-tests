@@ -28,9 +28,7 @@ if 'seccomp' in categories and kver > 418 and arch not in ['x86_64', 'ppc64le']:
     categories.remove('seccomp')
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_scale*60*45)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     for category in categories:
         build = '{}-build'.format(category)
         result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=arch_scale*60*60)
@@ -74,5 +72,7 @@ else:
                     timeout_threshold = arch_scale*60*75  # lp:2006499, lp:2012016
                 test = "{}:{}".format(category, item)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
+    else:
+        print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

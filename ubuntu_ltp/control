@@ -12,8 +12,6 @@ DOC = ""
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=40*60)
 if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
     categories = [
         'fs',         'mm',  'irq',    'sched', 'pty',
         'cpuhotplug', 'crypto', 'uevent'
@@ -31,5 +29,7 @@ else:
                     testcase = '{}:{}'.format(category, line.split()[0])
                     timeout_threshold = 60*105
                     job.run_test_detail(NAME, test_name=testcase, tag=testcase, timeout=timeout_threshold)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

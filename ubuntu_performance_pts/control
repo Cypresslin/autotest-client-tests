@@ -13,10 +13,8 @@ DOC = ""
 import os
 hostname = os.uname()[1]
 
-results = job.run_test_detail(NAME, test_name='setup', tag='setup', subtest='setup', timeout=60*30)
-if results == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', subtest='setup', timeout=60*30)
+if result == 'GOOD':
     jobs = [
         [ 'john-the-ripper', 'john-the-ripper-blowfish', 30 ],
         [ 'john-the-ripper', 'john-the-ripper-des', 30 ],
@@ -46,6 +44,8 @@ else:
 
     for j in jobs:
         results += job.run_test_detail(NAME, test_name=j[0], tag=NAME + '_' + j[1], subtest=j[1], timeout=j[2] * 60)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # print(results)
 

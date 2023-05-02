@@ -14,9 +14,7 @@ DOC = ""
 # This forces setup() to be run, it is in fact a no-op test
 #
 results = job.run_test_detail('ubuntu_generic_fstest', test_name='setup', timeout=60*30)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     print("Invoking fstest functional tests..")
 
     #
@@ -27,5 +25,7 @@ else:
         results = job.run_test_detail('ubuntu_generic_fstest', test_name=t, tag=t, timeout=5*60)
 
     print("Done!")
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

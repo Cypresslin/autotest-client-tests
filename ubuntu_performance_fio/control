@@ -31,10 +31,8 @@ tests = [
 if 'TEST_FILESYSTEM' in os.environ and os.environ['TEST_FILESYSTEM'] =='zfs':
     tests.append('post-test-zfs-cleanup')
 
-results = job.run_test_detail('ubuntu_performance_fio', test_name='setup', tag='setup', media='', timeout=60*30)
-if results == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+result = job.run_test_detail('ubuntu_performance_fio', test_name='setup', tag='setup', media='', timeout=60*30)
+if result == 'GOOD':
     if 'TEST_DRIVE_DEV' in os.environ and 'TEST_FILESYSTEM' in os.environ:
         #
         #  Normal ubuntu kernel team regression fio tests (for graphana profile data)
@@ -72,5 +70,7 @@ else:
         for media_type in media_types:
             for test in tests:
                 results += job.run_test_detail('ubuntu_performance_fio', test_name=test, tag='ubuntu-performance-fio-' + media_type + '-' + test, media=media_type, timeout=120*60)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -11,9 +11,9 @@ TEST_TYPE = "client"
 DOC = ""
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*20)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     results = job.run_test_detail(NAME, test_name='blktrace-smoke-test', tag='blktrace-smoke-test', timeout=60*20)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

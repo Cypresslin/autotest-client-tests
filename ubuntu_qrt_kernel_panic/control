@@ -9,9 +9,9 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = 'client'
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
-if result == 'ERROR':
-    print("ERROR: failed to setup test envrionment, skipping all the sub tests")
-else:
+if result == 'GOOD':
     result = job.run_test_detail(NAME, test_name='test-kernel-panic.py', tag='test-kernel-panic.py', timeout=60*30)
+else:
+    print("ERROR: failed to setup test envrionment, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -13,10 +13,10 @@ DOC = ""
 name = 'ubuntu_unionmount_ovlfs'
 
 result = job.run_test_detail('ubuntu_unionmount_ovlfs', test_name='setup', tag='setup', timeout=60*30)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     results = job.run_test_detail('ubuntu_unionmount_ovlfs', test_name='overlayfs',  tag='overlayfs',  timeout=60*60*1) # 1hr. timeout
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
     # The unionmount tests require a patched util-linux to work so
     # for now, just don't run them.

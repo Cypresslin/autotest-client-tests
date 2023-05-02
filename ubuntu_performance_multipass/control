@@ -10,11 +10,11 @@ TEST_CATEGORY = 'Benchmark'
 TEST_TYPE = "client"
 DOC = ""
 
-results = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*30)
-if results == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+result = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*30)
+if result == 'GOOD':
     results = job.run_test_detail(NAME, tag='multipassboot', test_name='multipassboot', timeout=1800)
     print(results)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

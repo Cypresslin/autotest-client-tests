@@ -12,9 +12,9 @@ DOC = "https://github.com/kubernetes/community/blob/master/contributors/devel/te
 name = 'ubuntu_k8s_unit_tests'
 
 result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*15)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     results = job.run_test_detail(name, test_name='all', tag='all', timeout=60*90)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

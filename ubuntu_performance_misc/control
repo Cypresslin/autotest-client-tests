@@ -18,12 +18,12 @@ tests = [ 'kernel-wakeups',
           'context-switches',
           'forks' ]
 
-results = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*20)
-if results == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+result = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*20)
+if result == 'GOOD':
     for test in sorted(tests):
         results = job.run_test_detail(NAME, tag=test, test_name=test, timeout=600)
         print(results)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

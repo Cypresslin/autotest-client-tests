@@ -12,9 +12,7 @@ DOC = ""
 
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*20)
-if result == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+if result == 'GOOD':
     tests_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'libseccomp', 'tests')
     files_list = os.listdir(tests_dir)
     files_list.sort()
@@ -22,5 +20,7 @@ else:
         if test.endswith('.tests'):
             target = test.replace('.tests', '')
             job.run_test_detail(NAME, test_name=target, tag=target, timeout=60*3)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

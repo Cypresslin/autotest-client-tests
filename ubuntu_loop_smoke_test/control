@@ -10,10 +10,10 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
 DOC = ""
 
-results = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*20)
-if results == 'ERROR':
-    print("ERROR: test failed to build, skipping all the sub tests")
-else:
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*20)
+if result == 'GOOD':
     results = job.run_test_detail(NAME, test_name='loop-smoke-test', tag='loop-smoke-test', timeout=60*85)
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

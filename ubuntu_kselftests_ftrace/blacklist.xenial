@@ -1,0 +1,2 @@
+Blacklisted as in ubuntu_kernel_selftests we don't run ftrace test on Xenial
+see ubuntu_kernel_selftests/control.ubuntu.xenial

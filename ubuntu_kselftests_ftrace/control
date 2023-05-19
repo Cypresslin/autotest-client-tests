@@ -1,0 +1,68 @@
+AUTHOR = "Ubuntu"
+NAME = 'ubuntu_kernel_selftests'
+CRITERIA = """
+Uses built-in kernel repository self tests for ftrace.
+"""
+SUITE = "None"
+TIME = "SHORT"
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = "client"
+DOC = ""
+
+
+categories = ['ftrace']
+arch = platform.machine()
+arch_scale = 1
+# Scale timeouts by 2 for riscv64, some tests timeout due to lack of
+# timeout, despite progressing fine
+if arch in ['riscv64']:
+   arch_scale = 2
+
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_scale*60*45)
+if result == 'GOOD':
+    for category in categories:
+        build = '{}-build'.format(category)
+        result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=arch_scale*60*60)
+        if result == 'ERROR':
+            print("ERROR: test suite '{}' failed to build, skipping all the sub tests".format(category))
+            continue
+        mk_helper = os.path.join(job.testdir, NAME, 'helper.mk')
+        dir_root = os.path.join(job.bindir, 'tmp', NAME, 'src', 'linux/tools/testing/selftests/')
+        dir_src = os.path.join(dir_root, category)
+        mk_src = os.path.join(dir_src, 'Makefile')
+        os.chdir(dir_src)
+        cmd = 'grep SUB_DIRS {}'.format(mk_src)
+        timeout_threshold = arch_scale*60*30
+        if utils.system_output(cmd, verbose=False, ignore_status=True):
+            cmd = 'make -f {} -f {} getsubdirs'.format(mk_helper, mk_src)
+            subdirs = utils.system_output(cmd).split()
+            for subdir in subdirs:
+                dir_src = os.path.join(dir_root, category, subdir)
+                os.chdir(dir_src)
+                mk_src = os.path.join(dir_src, 'Makefile')
+                if os.path.isfile(mk_src):
+                   cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
+                   tests = utils.system_output(cmd).split()
+                   for item in tests:
+                       test = "{}/{}:{}".format(category, subdir, item)
+                       job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
+        elif os.path.isfile(mk_src):
+            cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
+            tests = utils.system_output(cmd).split()
+            for item in tests:
+                timeout_threshold = arch_scale*60*45
+                if item == 'ftracetest':
+                    if arch == 'riscv64':
+                        # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+                        # It takes about 22 mins on 5.15 and about 35 mins on 5.13
+                        timeout_threshold = 0
+                    else:
+                        # ftracetest will take about ~60 minutes to run on some instances (lp:2008063)
+                        timeout_threshold = 60 * 75
+                test = "{}:{}".format(category, item)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
+    else:
+        print("ERROR: test failed to build, skipping all the sub tests")
+
+# vi:set ts=4 sw=4 expandtab syntax=python:

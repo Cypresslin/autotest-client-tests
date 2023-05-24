@@ -72,7 +72,7 @@ if result == 'GOOD':
                     timeout_threshold = arch_scale*60*75  # lp:2006499, lp:2012016
                 test = "{}:{}".format(category, item)
                 job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
-    else:
-        print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    print("ERROR: test failed to build, skipping all the sub tests")
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

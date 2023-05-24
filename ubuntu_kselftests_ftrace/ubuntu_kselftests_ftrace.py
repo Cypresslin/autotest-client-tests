@@ -6,7 +6,7 @@ import re
 from autotest.client                        import test, utils
 from autotest.client.shared                 import error
 
-class ubuntu_kernel_selftests(test.test):
+class ubuntu_kselftests_ftrace(test.test):
     version = 1
 
     def install_required_pkgs(self):

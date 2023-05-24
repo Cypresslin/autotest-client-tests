@@ -1,5 +1,5 @@
 AUTHOR = "Ubuntu"
-NAME = 'ubuntu_kernel_selftests'
+NAME = 'ubuntu_kselftests_ftrace'
 CRITERIA = """
 Uses built-in kernel repository self tests for ftrace.
 """

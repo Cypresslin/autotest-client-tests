@@ -115,7 +115,7 @@ function _set_globals()
 						 tr -d '\0\n')
 
 	# Find the board
-	if [ $(cat /proc/device-tree/compatible | grep -ao k26 | head -1) ] ; then
+	if [ $(cat /proc/device-tree/compatible | grep -ao -e k26 -e kv26 | head -1) ] ; then
 		RT_XILINX_BOARD="kv260"
 	fi
 

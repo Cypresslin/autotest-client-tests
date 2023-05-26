@@ -238,7 +238,11 @@ class ubuntu_performance_pts(test.test):
         self.print_stats('john_the_ripper_blowfish', cmd)
 
     def run_openssl(self, test_name, tag):
-        cmd = '%s phoronix-test-suite batch-benchmark openssl-1.11.0' % force_times_to_run
+        #If series is greater than focal(20) we need to use Openssl-3
+        if self.get_platform_distro()[1].split('.')[0] > "20":
+            cmd = 'export PRESET_OPTIONS="openssl.algo=RSA4096"; %s phoronix-test-suite batch-benchmark openssl-3.0.1' % force_times_to_run
+        else:
+            cmd = 'export PRESET_OPTIONS="openssl.algo=RSA4096"; %s phoronix-test-suite batch-benchmark openssl-1.11.0' % force_times_to_run
         self.print_stats(test_name, cmd)
 
     def run_povray(self, test_name, tag):

@@ -234,10 +234,6 @@ class ubuntu_performance_pts(test.test):
         cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Blowfish"; %s phoronix-test-suite batch-benchmark john-the-ripper-1.7.2' % force_times_to_run
         self.print_stats('john_the_ripper_blowfish', cmd)
 
-    def run_john_the_ripper_des(self, test_name, tag):
-        cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Traditional DES"; %s phoronix-test-suite batch-benchmark john-the-ripper-1.6.2' % force_times_to_run
-        self.print_stats('john_the_ripper_des', cmd)
-
     def run_openssl(self, test_name, tag):
         cmd = '%s phoronix-test-suite batch-benchmark openssl-1.11.0' % force_times_to_run
         self.print_stats(test_name, cmd)
@@ -280,7 +276,6 @@ class ubuntu_performance_pts(test.test):
             'git': self.run_generic,
             'build-llvm': self.run_generic,
             'john-the-ripper-blowfish' : self.run_john_the_ripper_blowfish,
-            'john-the-ripper-des': self.run_john_the_ripper_des,
             'openssl': self.run_openssl,
             'osbench-files': self.run_osbench_files,
             'osbench-processes': self.run_osbench_files,

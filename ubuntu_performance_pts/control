@@ -17,7 +17,6 @@ result = job.run_test_detail(NAME, test_name='setup', tag='setup', subtest='setu
 if result == 'GOOD':
     jobs = [
         [ 'john-the-ripper', 'john-the-ripper-blowfish', 30 ],
-        [ 'john-the-ripper', 'john-the-ripper-des', 30 ],
         [ 'openssl', 'openssl', 30 ],
         [ 'povray', 'povray', 80 ],
         [ 'ttsiod-renderer', 'ttsiod-renderer', 30 ],

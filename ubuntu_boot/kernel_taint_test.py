@@ -94,31 +94,13 @@ def process_known_issues(issue, modules):
                               'mlxfw':          'OE',
                               'mdev':           'OE',
                               'mlx_compat':     'OE'}}
-    rpi_modules = {'kinetic': {'snd_bcm2835':        'C',
-                               'rpivid_hevc':        'CE',
-                               'bcm2835_codec':      'C',
-                               'bcm2835_v4l2':       'C',
-                               'bcm2835_isp':        'C',
-                               'bcm2835_mmal_vchiq': 'C',
-                               'vc_sm_cma':          'C'},
-                   'jammy':   {'bcm2835_codec':      'C',
-                               'bcm2835_isp':        'C',
-                               'bcm2835_v4l2':       'C',
-                               'bcm2835_mmal_vchiq': 'C',
-                               'snd_bcm2835':        'C',
-                               'vc_sm_cma':          'C'},
-                   'focal':   {'bcm2835_codec':      'CE',
-                               'bcm2835_isp':        'CE',
-                               'bcm2835_v4l2':       'CE',
-                               'bcm2835_mmal_vchiq': 'CE',
-                               'snd_bcm2835':        'CE',
-                               'vc_sm_cma':          'CE'},
-                   # For bionic-5.4 only, 4.15 does not need this
-                   'bionic':  {'bcm2835_codec':      'CE',
-                               'bcm2835_isp':        'CE',
-                               'bcm2835_v4l2':       'CE',
-                               'bcm2835_mmal_vchiq': 'CE',
-                               'vc_sm_cma':          'CE'}}
+    rpi_modules = {'all': {'snd_bcm2835':        'CE',
+                           'rpivid_hevc':        'CE',
+                           'bcm2835_codec':      'CE',
+                           'bcm2835_v4l2':       'CE',
+                           'bcm2835_isp':        'CE',
+                           'bcm2835_mmal_vchiq': 'CE',
+                           'vc_sm_cma':          'CE'}}
     try:
         with open('/sys/class/dmi/id/product_name', 'r') as f:
             product_name = f.read().strip()
@@ -135,9 +117,6 @@ def process_known_issues(issue, modules):
     if 'DGX' in product_name:
         module_flags = dgx_modules
     elif 'raspi' in platform.release():
-        # Special case for B-5.4 raspi
-        if series == 'bionic' and platform.release().startswith('5.4.0'):
-            module_flags = rpi_modules
         module_flags = rpi_modules
 
     # Filter out modules flagged with corresponding taint flag
@@ -148,11 +127,10 @@ def process_known_issues(issue, modules):
             status = f.read()
             if issue_flags[issue] in status:
                 # Check with the allow list
-                if series in module_flags:
-                    if mod in module_flags[series]:
-                        if issue_flags[issue] in module_flags[series][mod]:
-                            print('Exception made in test script for: ' + mod)
-                            continue
+                mod_flags = module_flags.get(series, module_flags.get("all", {}))
+                if mod in mod_flags and issue_flags[issue] in mod_flags[mod]:
+                    print('Exception made in test script for: ' + mod)
+                    continue
                 mod_list.append(mod)
     return mod_list
 

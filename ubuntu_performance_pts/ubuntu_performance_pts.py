@@ -86,13 +86,16 @@ class ubuntu_performance_pts(test.test):
         if result.returncode != 0:
             print("WARNING: could not set swap %s" % ("on" if swap_on else "off"))
 
-    def install_required_pkgs(self):
-        arch    = platform.processor()
+    def get_platform_distro(self):
         try:
-            series = platform.dist()[2]
+            return platform.dist()
         except AttributeError:
             import distro
-            series = distro.codename()
+            return distro.linux_distribution(full_distribution_name=False)
+
+    def install_required_pkgs(self):
+        arch    = platform.processor()
+        series = self.get_platform_distro()[2]
         release = platform.release()
 
         pkgs = [

@@ -24,9 +24,7 @@ class ubuntu_bpf(test.test):
         pkgs.append(gcc)
 
         if self.series == 'jammy':
-            if re.match('5\.19\.0-.*gcp' ,platform.release()):
-                pkgs.append('gcc-12')
-            elif re.match('6\.1\.0-.*oem' ,platform.release()):
+            if not re.match('5\.15\.0-.*' ,platform.release()):
                 pkgs.extend(['gcc-12', 'libssl-dev'])
 
         if self.series == 'focal':

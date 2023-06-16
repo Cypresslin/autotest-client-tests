@@ -11,7 +11,7 @@ TEST_TYPE = "client"
 DOC = ""
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=40*60)
-if result == 'GODD':
+if result == 'GOOD':
     categories = [
         'fs',         'mm',  'irq',    'sched', 'pty',
         'cpuhotplug', 'crypto', 'uevent'

@@ -13,7 +13,7 @@ DOC = ""
 name = 'ubuntu_ltp_stable'
 
 result = job.run_test_detail('ubuntu_ltp_stable', test_name='setup', tag='setup', timeout=40*60)
-if result == 'ERROR':
+if result == 'GOOD':
     tests = [
         'fs_perms_simple', 'fsx',                    'dio',          'io',
         'ipc',             'math',                   'nptl',         'containers',

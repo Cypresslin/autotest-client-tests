@@ -15,9 +15,8 @@ class ubuntu_qrt_kernel_security(test.test):
         ]
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
-        # Special case for J-oem-6.1 (LP: #2009782)
         if self.series == 'jammy':
-            if re.match('6\.1\.0-.*oem', platform.release()) or re.match('5\.19\.0-.*' ,platform.release()):
+            if not re.match('5\.15\.0-.*', platform.release()):
                 pkgs.append('gcc-12')
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)

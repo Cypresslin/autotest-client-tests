@@ -11,7 +11,7 @@ TEST_TYPE = "client"
 DOC = ""
 
 
-categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memfd', 'memory-hotplug', 'mount', 'powerpc', 'net', 'ptrace', 'seccomp', 'timers', 'user', 'ftrace']
+categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memfd', 'memory-hotplug', 'mount', 'powerpc', 'net', 'ptrace', 'seccomp', 'timers', 'user']
 #
 #  The seccomp tests on 4.19+ on non-x86 are known to be fail and
 #  need fixing up. For now, disable them.

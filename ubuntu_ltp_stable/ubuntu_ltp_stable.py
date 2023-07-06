@@ -104,9 +104,10 @@ class ubuntu_ltp_stable(test.test):
 
         fn = '/opt/ltp/runtest/%s' % (test_name)
 
-        print("Setting LTP_TIMEOUT_MUL exceptions...")
-        print("Setting LTP_TIMEOUT_MUL=3 for cve-2018-1000204 / ioctl_sg01 (lp:1899413, lp:1936886, lp:1949934)")
-        timeout_cases = {'zram01': '5', 'ioctl_sg01': '3', 'in6_02': '4'}
+        timeout_cases = {'zram01': '5',
+                         'ioctl_sg01': '3',  # cve-2018-1000204 / ioctl_sg01 (LP: #1899413, LP: #1936886, LP: #1949934)
+                         'in6_02': '4',
+                         'hugemmap15': '10'} # LP: #2026248
         if utils.system_output('virt-what', verbose=False):
             print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL=3 for memcg_test_3 (lp:1836694)")
             timeout_cases['memcg_test_3'] = '3'
@@ -124,6 +125,7 @@ class ubuntu_ltp_stable(test.test):
 
                     for _case in timeout_cases:
                         if _case in line:
+                            print("Setting LTP_TIMEOUT_MUL={} for {}".format(timeout_cases[_case], _case))
                             os.environ["LTP_TIMEOUT_MUL"] = timeout_cases[_case]
                             break
 

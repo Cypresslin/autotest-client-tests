@@ -14,13 +14,13 @@ for uarg in args:
     key, val = uarg.split('=')
     argdict[key] = val
 
-# For right now, all of our (Ubuntu) testing makes use of a single,
-# scratch device.
+# Use a free loop device for the test, so it's less hardware dependent and safer.
+# Only use a scratch device when requested.
 #
 if 'UBUNTU_SCRATCH_DEVICE' in argdict:
     device = argdict['UBUNTU_SCRATCH_DEVICE']
 else:
-    device = '/dev/sdb'
+    device = utils.system_output('losetup -f')
 
 
 # Create all the partitions we want. These are determined by looking
@@ -38,7 +38,7 @@ else:
 os.environ['XFSTESTS_TEST_DRIVE'] = device
 
 # TEST_DEV: "device containing TEST PARTITION"
-os.environ['TEST_DEV'] = '%s1' % device
+os.environ['TEST_DEV'] = '%sp1' % device
 
 # TEST_DIR: "mount point of TEST PARTITION"
 test_mountpoint = os.path.join(job.tmpdir, 'xfstests-test')
@@ -47,7 +47,7 @@ if not os.path.isdir(test_mountpoint):
 os.environ['TEST_DIR'] = test_mountpoint
 
 # SCRATCH_DEV "device containing SCRATCH PARTITION"
-os.environ['SCRATCH_DEV'] = '%s2' % device
+os.environ['SCRATCH_DEV'] = '%sp2' % device
 
 # SCRATCH_MNT "mount point for SCRATCH PARTITION"
 # By default, we create a directory under autotest
@@ -59,7 +59,7 @@ if not os.path.isdir(scratch_mountpoint):
 os.environ['SCRATCH_MNT'] = scratch_mountpoint
 
 # SCRATCH_LOGDEV "device for scratch-fs external log"
-os.environ['SCRATCH_LOGDEV'] = '/dev/sdb3'
+os.environ['SCRATCH_LOGDEV'] = '%sp3' % device
 
 # SCRATCH_RTDEV "device for scratch-fs realtime data"
 # os.environ['SCRATCH_RTDEV'] = ''

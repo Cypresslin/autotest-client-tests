@@ -3,7 +3,12 @@
 
 set +x
 
-DEVICE=$1
+# Create the block_file and loop device, this would require 20G (count=20 * 1G)
+# disk space as suggested in what-is-xfstests.md from XFSTests doc
+sudo dd if=/dev/zero of=/block_file bs=1G count=20
+sudo losetup -fP /block_file
+DEVICE=$(sudo losetup -a|grep block_file|cut -d":" -f1)
+
 FS=$2
 
 if [ -z $DEVICE ]; then
@@ -48,11 +53,12 @@ fi
 
 sleep 60 # Give things a minute to settle before creating new partitions
 
+ORIG_DEVICE=${DEVICE}
 [[ $DEVICE =~ ^/dev/loop[0-9]{1,}$ ]] && DEVICE=${DEVICE}p
 
 for i in `seq 1 5`
 do
     sudo mkfs.$FS $FS_OPT ${DEVICE}$i
 done
-sudo parted $DEVICE print
+sudo parted $ORIG_DEVICE print
 

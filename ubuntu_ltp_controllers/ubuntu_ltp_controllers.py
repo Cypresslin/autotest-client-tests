@@ -44,6 +44,7 @@ class ubuntu_ltp_controllers(test.test):
             'libtirpc-dev',
             'pkg-config',
             'quota',
+            'virt-what',
             'xfslibs-dev',
             'xfsprogs',
         ]
@@ -125,6 +126,11 @@ class ubuntu_ltp_controllers(test.test):
             # Default 30 seconds timeout will fail on node helo-kernel with J-5.17
             print("Set timeout multiplier LTP_TIMEOUT_MUL=5 for memcontrol03")
             os.environ["LTP_TIMEOUT_MUL"] = '5'
+
+        # Special case to fail cpuset_hotplug on X-aws-4.4 VM (LP: #2026722)
+        if test_name == 'cpuset_hotplug' and re.search('4.4.0-.*aws', platform.uname()[2]):
+            if utils.system_output('virt-what', verbose=False) and os.cpu_count() <= 2:
+                raise error.TestError('cpuset_hotplug will hang on X-aws-4.4 VM (LP: #2026722)')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
         print(utils.system_output(cmd, verbose=False))

@@ -1,0 +1,13 @@
+AUTHOR = 'Taihsiang Ho <taihsiang.ho@canonical.com>'
+TIME = 'SHORT'
+NAME = 'NVIDIA GPUDirect performance test'
+TEST_TYPE = 'client'
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Benchmark'
+
+DOC = """
+Perform testing of NVIDIA GPUDirect performance test. At this moment, it is exercised with Infinite Band Peer Memory
+ technology.
+"""
+
+job.run_test_detail('ubuntu_performance_gpudirect_rdma', test_name='ib_peer_memory', tag='ib_peer_memory', timeout=1200)

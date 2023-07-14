@@ -96,19 +96,11 @@ class ubuntu_kselftests_ftrace(test.test):
 
         category = test_name.split(':')[0]
         sub_test = test_name.split(':')[1]
-        dir_root = os.path.join(self.srcdir, 'linux', 'tools', 'testing', 'selftests')
+        dir_root = os.path.join(self.srcdir, 'linux', 'tools', 'testing', 'selftests', 'ftrace')
         os.chdir(dir_root)
-        cmd = "make run_tests -C {} TEST_PROGS={} TEST_GEN_PROGS='' TEST_CUSTOM_PROGS=''".format(category, sub_test)
+        # Run sub-tests with ftracetest script, convert test name back to path
+        test = sub_test.replace('--', '/')
+        cmd = './ftracetest -vvv {}'.format(test)
         result = utils.system_output(cmd, retain_output=True)
-
-        # Old pattern for Xenial
-        pattern = re.compile('selftests: *(?P<case>[\w\-\.]+) \[FAIL\]\n')
-        if re.search(pattern, result):
-            raise error.TestError(test_name + ' failed.')
-        # If the test was not end by previous check, check again with new pattern
-        pattern = re.compile('not ok [\d\.]* selftests: {}: {} # (?!.*SKIP)'.format(category, sub_test))
-        if re.search(pattern, result):
-            raise error.TestError(test_name + ' failed.')
-
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

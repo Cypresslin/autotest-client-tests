@@ -17,7 +17,7 @@ arch_scale = 1
 # Scale timeouts by 2 for riscv64, some tests timeout due to lack of
 # timeout, despite progressing fine
 if arch in ['riscv64']:
-   arch_scale = 2
+    arch_scale = 2
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_scale*60*45)
 if result == 'GOOD':
@@ -32,36 +32,26 @@ if result == 'GOOD':
         dir_src = os.path.join(dir_root, category)
         mk_src = os.path.join(dir_src, 'Makefile')
         os.chdir(dir_src)
-        cmd = 'grep SUB_DIRS {}'.format(mk_src)
-        timeout_threshold = arch_scale*60*30
-        if utils.system_output(cmd, verbose=False, ignore_status=True):
-            cmd = 'make -f {} -f {} getsubdirs'.format(mk_helper, mk_src)
-            subdirs = utils.system_output(cmd).split()
-            for subdir in subdirs:
-                dir_src = os.path.join(dir_root, category, subdir)
-                os.chdir(dir_src)
-                mk_src = os.path.join(dir_src, 'Makefile')
-                if os.path.isfile(mk_src):
-                   cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
-                   tests = utils.system_output(cmd).split()
-                   for item in tests:
-                       test = "{}/{}:{}".format(category, subdir, item)
-                       job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
-        elif os.path.isfile(mk_src):
+        timeout_threshold = 60 * 10
+        if arch == 'riscv64':
+            # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
+            timeout_threshold = 0
+
+        if os.path.isfile(mk_src):
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
             tests = utils.system_output(cmd).split()
             for item in tests:
-                timeout_threshold = arch_scale*60*45
-                if item == 'ftracetest':
-                    if arch == 'riscv64':
-                        # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
-                        # It takes about 22 mins on 5.15 and about 35 mins on 5.13
-                        timeout_threshold = 0
-                    else:
-                        # ftracetest will take about ~60 minutes to run on some instances (lp:2008063)
-                        timeout_threshold = 60 * 75
-                test = "{}:{}".format(category, item)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
+                # Get all sub-tests for ftracetest and run them one-by-one
+                cmd = 'find {}/test.d/ -name *.tc | sort'.format(dir_src)
+                ftrace_tests = utils.system_output(cmd).split()
+                for ftrace_sub_test in ftrace_tests:
+                    # Replace the '/' in test pathname with '--' (as '-' and '_' have been used)
+                    # to avoid dir name collisions, otherwise autotest will try to create a dir
+                    # for it. The next test in the same dir will error out with:
+                    # "multiple tests cannot run with the same subdirectory"
+                    clean_name = ftrace_sub_test.split('/selftests/ftrace/')[1].replace('/', '--')
+                    test = "{}:{}".format(category, clean_name)
+                    job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")
 

@@ -1,17 +1,31 @@
 AUTHOR = "Ubuntu"
 NAME = "ubuntu_overlayfs_smoke_test"
 CRITERIA = """
-Overlayfs Kernel Smoke Test
+Overlayfs and Shiftfs Kernel Test
 """
 SUITE = "None"
 TIME = "SHORT"
 TEST_CLASS = 'kernel'
 TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
-DOC = ""
+DOC = "Test basic and sauce patch overlay/shiftfs functionality"
 
 name = 'ubuntu_overlayfs_smoke_test'
 
-results = job.run_test_detail('ubuntu_overlayfs_smoke_test', test_name='overlayfs-smoke-test', tag='overlayfs-smoke-test', timeout=60*30)
+# For skipping specific unit tests in incompatible environments
+SKIP_LIST = [
+]
+
+result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*5)
+if result == 'GOOD':
+    tests_dir = os.path.join(job.bindir, 'tmp', name, 'src', 'overlay-shiftfs-tests', 'tests')
+    tests_list = os.listdir(tests_dir)
+    print("Test list: {}".format(tests_list))
+    tests_list.sort()
+    for test in tests_list:
+        if test in SKIP_LIST:
+            print("SKIPPED: " + test)
+            continue
+        job.run_test_detail(name, test_name=test, tag=test, timeout=60*5)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

@@ -32,10 +32,10 @@ if result == 'GOOD':
         dir_src = os.path.join(dir_root, category)
         mk_src = os.path.join(dir_src, 'Makefile')
         os.chdir(dir_src)
-        timeout_threshold = 60 * 10
+        default_timeout = 60 * 10
         if arch == 'riscv64':
             # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
-            timeout_threshold = 0
+            default_timeout = 0
 
         if os.path.isfile(mk_src):
             cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
@@ -51,6 +51,9 @@ if result == 'GOOD':
                     # "multiple tests cannot run with the same subdirectory"
                     clean_name = ftrace_sub_test.split('/selftests/ftrace/')[1].replace('/', '--')
                     test = "{}:{}".format(category, clean_name)
+                    timeout_threshold = default_timeout
+                    if test == 'ftrace:test.d--direct--ftrace-direct.tc' and arch != 'riscv64':
+                        timeout_threshold = 60 * 60 # LP: #2028839, it will take 46 mins to run on system with 224 CPUs
                     job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")

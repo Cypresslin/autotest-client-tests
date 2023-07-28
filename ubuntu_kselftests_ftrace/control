@@ -54,6 +54,8 @@ if result == 'GOOD':
                     timeout_threshold = default_timeout
                     if test == 'ftrace:test.d--direct--ftrace-direct.tc' and arch != 'riscv64':
                         timeout_threshold = 60 * 60 # LP: #2028839, it will take 46 mins to run on system with 224 CPUs
+                    elif test == 'ftrace:test.d--event--subsystem-enable.tc' and arch == 'amd64':
+                        timeout_threshold = 60 * 30 # LP: #2028839, it will take 18 mins to run on some amd64 systems
                     job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")

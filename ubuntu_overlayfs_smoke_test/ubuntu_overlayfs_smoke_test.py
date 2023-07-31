@@ -29,7 +29,7 @@ class ubuntu_overlayfs_smoke_test(test.test):
             return
 
         cmd = os.path.join(self.srcdir, TEST_DIR, 'tests', test_name)
-        cmd = 'sudo -iu ubuntu {}'.format(cmd)
+        cmd = 'sudo -iu {} {}'.format(os.getlogin(), cmd)
         self.results = utils.system_output(cmd, retain_output=True)
         print(self.results)
 

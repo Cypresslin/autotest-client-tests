@@ -1,8 +1,10 @@
 #
 #
-from autotest.client import test, utils
 import os
 import shutil
+
+from autotest.client import test, utils
+from autotest.client.shared import error
 
 TEST_REPOSITORY = 'git://git.launchpad.net/~canonical-kernel-team/+git/raspi-rt-tests'
 
@@ -27,6 +29,13 @@ class ubuntu_raspberry_pi(test.test):
             return
 
         cmd = os.path.join(self.srcdir, 'raspi-rt-tests', 'tests', test_name)
-        utils.system_output(cmd, retain_output=True)
+        try:
+            utils.system_output(cmd, retain_output=True)
+        except error.CmdError as e:
+            if e.result_obj.exit_status != 125:
+                # Exit status 125 indicates a skipped test which is considered
+                # a GOOD result. Any other non-0 exit status is a real failure,
+                # so re-raise the exception.
+                raise e
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

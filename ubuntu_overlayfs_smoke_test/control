@@ -20,8 +20,12 @@ result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*5)
 if result == 'GOOD':
     tests_dir = os.path.join(job.bindir, 'tmp', name, 'src', 'overlay-shiftfs-tests', 'tests')
     tests_list = os.listdir(tests_dir)
-    print("Test list: {}".format(tests_list))
     tests_list.sort()
+    # The 'shiftfs-hung.sh' test is dangerous as it might cause system hang
+    # Put it in the end of the queue
+    if 'shiftfs-hung.sh' in tests_list:
+        tests_list.remove('shiftfs-hung.sh')
+        tests_list.append('shiftfs-hung.sh')
     for test in tests_list:
         if test in SKIP_LIST:
             print("SKIPPED: " + test)

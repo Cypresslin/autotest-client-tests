@@ -1,0 +1,16 @@
+AUTHOR = "NVIDIA"
+NAME = "NVIDIA kernel configuration verification"
+PURPOSE = "Certain kernel configuration options are to be set for the Nvidia optimized Ubuntu kernels."
+CRITERIA = """
+"""
+SUITE = "None"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DOC = """
+Should just fail every time.
+"""
+
+name = 'nvidia_kernel_config_verification'
+job.run_test_detail(name, tag=name, timeout=60*10)

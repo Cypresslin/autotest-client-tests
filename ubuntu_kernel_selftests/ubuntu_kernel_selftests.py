@@ -22,6 +22,7 @@ class ubuntu_kernel_selftests(test.test):
             'iptables',
             'jq',
             'kernel-wedge',
+            'libssl-dev',
             'netsniff-ng',
             'net-tools',
             'pkg-config',

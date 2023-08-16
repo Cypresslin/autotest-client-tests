@@ -220,6 +220,12 @@ class ubuntu_kernel_selftests(test.test):
                 cmd = 'sed -i "/^TEST_PROGS += txtimestamp.sh$/d" ' + fn
                 utils.system(cmd)
 
+            # Build header first (LP: #2031400)
+            if not self.series in ['trusty', 'xenial', 'bionic', 'focal']:
+                cmd = "make -C linux/ headers"
+                utils.system_output(cmd, retain_output=True)
+
+
     def run_once(self, test_name):
         if test_name == 'setup':
             return

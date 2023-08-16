@@ -43,6 +43,11 @@ class ubuntu_bpf(test.test):
         else:
             pkgs.extend(['clang', 'llvm', 'lld'])
 
+        # Build header first (LP: #2031400)
+        if not self.series in ['trusty', 'xenial', 'bionic', 'focal']:
+            cmd = "make -C linux/ headers"
+            utils.system_output(cmd, retain_output=True)
+
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)
 

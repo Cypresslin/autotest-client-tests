@@ -84,6 +84,11 @@ class ubuntu_kselftests_ftrace(test.test):
                 if os.path.exists(fn):
                     os.remove(fn)
 
+            # Build header first (LP: #2031400)
+            if not self.series in ['trusty', 'xenial', 'bionic', 'focal']:
+                cmd = "make -C linux/ headers"
+                utils.system_output(cmd, retain_output=True)
+
 
     def run_once(self, test_name):
         if test_name == 'setup':

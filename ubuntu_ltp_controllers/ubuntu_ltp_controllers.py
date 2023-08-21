@@ -129,7 +129,7 @@ class ubuntu_ltp_controllers(test.test):
 
         # Special case to fail cpuset_hotplug on X-aws-4.4 VM (LP: #2026722)
         if test_name == 'cpuset_hotplug' and re.search('4.4.0-.*aws', platform.uname()[2]):
-            if utils.system_output('virt-what', verbose=False) and os.cpu_count() <= 2:
+            if utils.system_output('virt-what', verbose=False) and multiprocessing.cpu_count() <= 2:
                 raise error.TestError('cpuset_hotplug will hang on X-aws-4.4 VM (LP: #2026722)')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'

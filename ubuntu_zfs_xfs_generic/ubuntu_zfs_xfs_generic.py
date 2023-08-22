@@ -80,6 +80,9 @@ class ubuntu_zfs_xfs_generic(test.test):
         utils.system('./build-all')
 
         os.chdir(os.path.join(self.srcdir, 'xfstests-bld', 'fstests-bld', 'xfstests-dev'))
+        tag_xfs = 'v2023.04.09'
+        print("Using version " + tag_xfs + " for xfstests-dev")
+        utils.system('git reset --hard ' + tag_xfs)
         print("Patching xfstests-dev to add minimal support for ZFS")
         utils.system('patch -p1 < %s/0001-xfstests-add-minimal-support-for-zfs.patch' % self.bindir)
 

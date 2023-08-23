@@ -12,6 +12,12 @@ DOC = "Test basic and sauce patch overlay/shiftfs functionality"
 
 name = 'ubuntu_overlayfs_smoke_test'
 
+try:
+    series = platform.dist()[2]
+except AttributeError:
+    import distro
+    series = distro.codename()
+
 # For skipping specific unit tests in incompatible environments
 SKIP_LIST = [
 ]
@@ -26,6 +32,9 @@ if result == 'GOOD':
     if 'shiftfs-hung.sh' in tests_list:
         tests_list.remove('shiftfs-hung.sh')
         tests_list.append('shiftfs-hung.sh')
+    # Just run the old ubuntu_overlayfs_smoke_test.sh test on older releases LP: #2032779
+    if 'ubuntu_overlayfs_smoke_test.sh' and series in ['trusty', 'xenial', 'bionic']:
+        tests_list = ['ubuntu_overlayfs_smoke_test.sh']
     for test in tests_list:
         if test in SKIP_LIST:
             print("SKIPPED: " + test)

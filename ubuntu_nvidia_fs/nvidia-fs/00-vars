@@ -5,7 +5,7 @@ CUDA_CONTAINER_NAME="nvcr.io/nvidia/cuda"
 NVIDIA_BRANCH="470-server"
 LXD_INSTANCE="nvidia-fs-test"
 MLNX_REPO="https://linux.mellanox.com/public/repo/mlnx_ofed"
-MLNX_OFED_VER="5.4-1.0.3.0"
+MLNX_OFED_VER="5.4-3.7.5.0"
 if [ -f 00-vars.gen ]; then
     source ./00-vars.gen
 fi

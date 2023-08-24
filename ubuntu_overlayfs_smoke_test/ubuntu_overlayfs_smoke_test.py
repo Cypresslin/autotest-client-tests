@@ -16,6 +16,12 @@ class ubuntu_overlayfs_smoke_test(test.test):
         pass
 
     def setup(self, test_name):
+        pkgs = [
+            'git',
+        ]
+        cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
+        utils.system(cmd)
+
         os.chdir(self.srcdir)
         shutil.rmtree('overlay-shiftfs-tests', ignore_errors=True)
         cmd = 'git clone --depth=1 -b {} {} {}'.format(TEST_BRANCH, TEST_REPOSITORY, TEST_DIR)

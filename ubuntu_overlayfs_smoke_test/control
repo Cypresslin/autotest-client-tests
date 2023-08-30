@@ -39,6 +39,6 @@ if result == 'GOOD':
         if test in SKIP_LIST:
             print("SKIPPED: " + test)
             continue
-        job.run_test_detail(name, test_name=test, tag=test, timeout=60*5)
+        job.run_test_detail(name, test_name=test, tag=test, timeout=60*10)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

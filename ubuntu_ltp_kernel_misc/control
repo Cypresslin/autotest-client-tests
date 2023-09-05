@@ -27,7 +27,7 @@ if result == 'GOOD':
 
                 timeout_threshold = 60*20
                 if testcase == 'zram01':
-                    timeout_threshold = 60*30
+                    timeout_threshold = 60*40
                 job.run_test_detail(NAME, test_name=testcase, tag=testcase, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")

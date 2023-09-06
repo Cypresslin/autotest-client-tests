@@ -22,6 +22,8 @@ class ubuntu_kernel_selftests(test.test):
             'iptables',
             'jq',
             'kernel-wedge',
+            'libfuse-dev'
+            'libnuma-dev',
             'libssl-dev',
             'netsniff-ng',
             'net-tools',
@@ -30,9 +32,6 @@ class ubuntu_kernel_selftests(test.test):
         ]
         if not self.series in ['trusty', 'xenial', 'bionic']:
             pkgs.append('socat')
-        if not (self.arch == 's390x' and self.series in ['trusty', 'xenial']):
-            pkgs.append('libnuma-dev')
-            pkgs.append('libfuse-dev')
         if not self.arch == 's390x':
             if not self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy']:
                 # With recent kernels BPF requires lld (LLVM-based linker) to

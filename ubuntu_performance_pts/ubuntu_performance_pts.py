@@ -109,7 +109,8 @@ class ubuntu_performance_pts(test.test):
             'libpng-dev',
             'autoconf',
             'linux-tools-generic',
-            'linux-tools-' + release
+            'linux-tools-' + release,
+            'numactl'
         ]
         if series in ['bionic']:
             pkgs.append('libssl1.0-dev')
@@ -234,6 +235,13 @@ class ubuntu_performance_pts(test.test):
         if not test_run:
             print("NOTRUN: test not run, no data")
 
+    def get_platform(self):
+        bpn = utils.system_output('dmidecode -s baseboard-product-name | head -1', retain_output=True)
+        if bpn == 'DGXA100':
+            return 'DGXA100'
+        else:
+            return 'Default'
+
     def run_john_the_ripper_blowfish(self, test_name, tag):
         if self.get_platform_distro()[1].split('.')[0] > "20":
             cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Blowfish"; %s phoronix-test-suite batch-benchmark john-the-ripper-1.8.0' % force_times_to_run
@@ -254,7 +262,11 @@ class ubuntu_performance_pts(test.test):
         self.print_stats(test_name, cmd)
 
     def run_ttsiod_renderer(self, test_name, tag):
-        cmd = '%s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
+        #if on DGXA100 bind cpu and mem to stable numa range
+        if self.get_platform() == 'DGXA100':
+            cmd = 'numactl -N 0-3 -m 0-3 %s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
+        else:
+            cmd = '%s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
         self.print_stats(test_name, cmd)
 
     def run_generic(self, test_name, subtest):

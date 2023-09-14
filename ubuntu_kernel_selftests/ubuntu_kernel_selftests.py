@@ -165,26 +165,6 @@ class ubuntu_kernel_selftests(test.test):
                     utils.system(cmd)
 
             #
-            # Disable new ftrace tests that don't work reliably across
-            # architectures because of various symbols being checked
-            #
-            filenames = [
-                'ftrace/func_stack_tracer.tc',
-                'ftrace/func-filter-glob.tc',
-                'trigger/inter-event/trigger-inter-event-combined-hist.tc',
-                'trigger/inter-event/trigger-synthetic-event-createremove.tc',
-                'trigger/trigger-hist.tc',
-                'trigger/trigger-trace-marker-hist.tc',
-                'kprobe/probepoint.tc',
-                'kprobe/kprobe_module.tc',
-            ]
-
-            for fn in filenames:
-                fn = 'linux/tools/testing/selftests/ftrace/test.d/' + fn
-                if os.path.exists(fn):
-                    os.remove(fn)
-
-            #
             # ptrace/vmaccess was introduced in 5.7-rc1 and is broken ATM,
             # see https://lkml.org/lkml/2020/4/9/648
             #

@@ -22,7 +22,7 @@ class ubuntu_kernel_selftests(test.test):
             'iptables',
             'jq',
             'kernel-wedge',
-            'libfuse-dev'
+            'libfuse-dev',
             'libnuma-dev',
             'libssl-dev',
             'netsniff-ng',

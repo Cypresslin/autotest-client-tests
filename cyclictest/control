@@ -10,4 +10,6 @@ TEST_CLASS = 'kernel'
 TEST_CATEGORY = 'Functional'
 TEST_TYPE = 'client'
 
-job.run_test('cyclictest')
+result = job.run_test_detail('cyclictest', test_name='setup', tag='setup', timeout=60*5)
+if result == 'GOOD':
+    job.run_test('cyclictest', test_name='cyclictest', tag='cyclictest')

@@ -172,10 +172,13 @@ class ubuntu_performance_pts(test.test):
                         #  add pretty colors. Skip over all these and
                         #  grab the last number in the field
                         #
+                        if field not in values:
+                            values[field] = []
+
                         if n > 0:
-                            values[field] = numbers[n - 1]
+                            values[field].append(numbers[n - 1])
                         else:
-                            values[field] = 0
+                            values[field].append(0)
 
         return values
 
@@ -198,7 +201,8 @@ class ubuntu_performance_pts(test.test):
                 print("Test %d of %d:" % (i + 1, test_iterations))
                 for field in fields:
                     if field in values[i]:
-                        print(benchmark + "_" + field.lower() + "[%d] %s" % (i, values[i][field]))
+                        for j, value in enumerate(values[i][field]):
+                            print(benchmark + "_" + field.lower() + "[%d][%d] %s" % (i, j, value))
 
         #
         #  Compute min/max/average:
@@ -206,26 +210,26 @@ class ubuntu_performance_pts(test.test):
         field = 'Average'
         if values[i] != {}:
             test_run = True
-            v = [ float(values[i][field]) for i in values ]
-            test_run = True
-            maximum = max(v)
-            minimum = min(v)
-            average = sum(v) / float(len(v))
-            max_err = (maximum - minimum) / average * 100.0
+            for test_num in range(len(values[i][field])):
+                v = [ float(values[i][field][test_num]) for i in values ]
+                maximum = max(v)
+                minimum = min(v)
+                average = sum(v) / float(len(v))
+                max_err = (maximum - minimum) / average * 100.0
 
-            print("")
-            print(benchmark + "_" + field.lower() + "_minimum %.2f" % (minimum))
-            print(benchmark + "_" + field.lower() + "_maximum %.2f" % (maximum))
-            print(benchmark + "_" + field.lower() + "_average %.2f" % (average))
-            print(benchmark + "_" + field.lower() + "_maximum_error %.2f%%" % (max_err))
-            print("")
+                print("")
+                print(benchmark + "_" + field.lower() + "_minimum %.2f" % (minimum))
+                print(benchmark + "_" + field.lower() + "_maximum %.2f" % (maximum))
+                print(benchmark + "_" + field.lower() + "_average %.2f" % (average))
+                print(benchmark + "_" + field.lower() + "_maximum_error %.2f%%" % (max_err))
+                print("")
 
-            if max_err > 5.0:
-                print("FAIL: maximum error is greater than 5%")
-                test_pass = False
+                if max_err > 5.0:
+                    print("FAIL: maximum error is greater than 5%")
+                    test_pass = False
 
-            if test_pass:
-                print("PASS: test passes specified performance thresholds")
+                if test_pass:
+                    print("PASS: test passes specified performance thresholds")
 
         if not test_run:
             print("NOTRUN: test not run, no data")

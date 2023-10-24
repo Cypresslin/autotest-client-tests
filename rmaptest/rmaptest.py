@@ -40,7 +40,9 @@ class rmaptest(test.test):
         os.chdir(self.srcdir)
         utils.system(utils.get_cc() + ' -Wall -o rmaptest rmap-test.c')
 
-    def execute(self, args=''):
+    def run_once(self, test_name, args=''):
+        if test_name == 'setup':
+            return
         os.chdir(self.tmpdir)
         for test in tests:
             cmd = '%s/%s %s %s' % (self.srcdir, test[name], args, test[arglist])

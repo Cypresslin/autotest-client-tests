@@ -28,20 +28,23 @@ class ubuntu_bpf(test.test):
             if not re.match('5\.15\.0-.*', platform.release()):
                 pkgs.append('gcc-12')
 
-        if self.series == 'focal':
-            if self.kv.startswith('5.6.0'):
-                # Specical case of F-oem-5.6 (lp:1879360)
-                pkgs.extend(['clang-10', 'llvm-10'])
-            else:
-                pkgs.extend(['clang-9', 'llvm-9'])
-        elif self.series == 'bionic':
-            if self.kv.startswith('5.4.0') or self.kv.startswith('5.3.0'):
+        clang = 'clang'
+        llvm = 'llvm'
+        lld = ''  # lld is required for Jammy+ (added in commit 254624a8), add it later in series check
+        if self.series == 'bionic':
+            if self.kv.startswith('5.4.0'):
                 # Special case for B-5.4 (lp:1882559) B-5.3 (lp:1845860)
-                pkgs.extend(['clang-9', 'llvm-9'])
-            else:
-                pkgs.extend(['clang', 'llvm'])
+                clang = 'clang-9'
+                llvm = 'llvm-9'
+        elif self.series == 'focal':
+            clang = 'clang-9'
+            llvm = 'llvm-9'
         else:
-            pkgs.extend(['clang', 'llvm', 'lld'])
+            lld = 'lld'
+            # Special case for J/L s390x (lp:2040987), M-s390x is not affected
+            if arch == 's390x' and self.series in ['jammy', 'lunar']:
+                lld = ''
+        pkgs.extend([clang, llvm, lld])
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

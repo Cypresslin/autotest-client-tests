@@ -62,6 +62,9 @@ class ubuntu_qrt_apparmor(test.test):
             pkgs.append('python3-notify2')
             pkgs.append('python3-psutil')
 
+        if self.series not in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'lunar']:
+            pkgs.append('liburing-dev') # LP: #2044230
+
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)
 

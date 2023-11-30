@@ -302,6 +302,7 @@ class ubuntu_performance_fio(test.test):
         fin = open(os.path.join(self.bindir, platform, media, file), "r")
         fout = open(os.path.join(self.srcdir, file), "w")
 
+        values = {}
         for line in fin:
             if TEST_FILESYSTEM == None or TEST_DRIVE_DEV == None:
                 line = line.replace("DIRECTORY", test_dir)
@@ -309,6 +310,8 @@ class ubuntu_performance_fio(test.test):
                 line = line.replace("DIRECTORY", TEST_MNT)
             if line.startswith("size="):
                 file_size_mb = line.split("size=", 1)[1].rstrip('\n')
+            if line.startswith("[") and line.rstrip('\n').endswith("]") and not line.startswith("[global]"):
+                values['testname'] = line.rstrip('\n').strip('[]')
             #
             #  zfs and ramdisk can't do O_DIRECT, so skip this
             #
@@ -344,6 +347,10 @@ class ubuntu_performance_fio(test.test):
             for s in l.split():
                 if s.startswith("BW="):
                     bw = float(re.findall(r"[-+]?\d*\.*\d+", s)[0])
+                    if "read: " in l:
+                        values['rd_bandwidth_per_sec'] = bw
+                    if "write: " in l:
+                        values['wr_bandwidth_per_sec'] = bw
                     for sc in kb_scale:
                         if sc in s:
                             bw = bw * kb_scale[sc]
@@ -361,7 +368,6 @@ class ubuntu_performance_fio(test.test):
 
         testname = testname.replace("-","_")
 
-        values = {}
         values['file_size_mb'] = file_size_mb
         values['bandwidth_kb_per_sec'] = bw
         values['latency_usec_average'] = avg
@@ -385,6 +391,10 @@ class ubuntu_performance_fio(test.test):
             print("Test %d of %d:" % (i + 1, test_iterations))
             values[i] = self.run_fio(testname, ramdisk_bytes, media)
             print("fio_%s%s_%s_file_size_mb[%d] %s" % (media, config, testname, i, values[i]['file_size_mb']))
+            if 'rd_bandwidth_per_sec' in values[i] and 'testname' in values[i]:
+                print("fio_%s%s_%s,rd_bandwidth_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['rd_bandwidth_per_sec']))
+            if 'wr_bandwidth_per_sec' in values[i] and 'testname' in values[i]:
+                print("fio_%s%s_%s,wr_bandwidth_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['wr_bandwidth_per_sec']))
             print("fio_%s%s_%s_bandwidth_kb_per_sec[%d] %.2f" % (media, config, testname, i, values[i]['bandwidth_kb_per_sec']))
             print("fio_%s%s_%s_latency_usec_average[%d] %.2f" % (media, config, testname, i, values[i]['latency_usec_average']))
             print("fio_%s%s_%s_latency_stddev[%d] %.2f" % (media, config, testname, i, values[i]['latency_stddev']))

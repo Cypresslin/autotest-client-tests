@@ -108,7 +108,6 @@ class ubuntu_performance_pts(test.test):
             'libssl-dev',
             'libpng-dev',
             'autoconf',
-            'linux-tools-generic',
             'linux-tools-' + release,
             'numactl'
         ]

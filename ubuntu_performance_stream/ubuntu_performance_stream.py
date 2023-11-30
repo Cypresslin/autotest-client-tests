@@ -107,7 +107,6 @@ class ubuntu_performance_stream(test.test):
         pkgs = [
             'gfortran',
             'libgomp1',
-            'linux-tools-generic',
             'linux-tools-' + release
 
         ]

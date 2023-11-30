@@ -68,6 +68,7 @@ if result == 'GOOD':
         #  Media is 'ramdisk' (/dev/shm) or 'dataset' (normally a raid device)
         #
         for media_type in media_types:
+            results = []
             for test in tests:
                 results += job.run_test_detail('ubuntu_performance_fio', test_name=test, tag='ubuntu-performance-fio-' + media_type + '-' + test, media=media_type, timeout=120*60)
 else:

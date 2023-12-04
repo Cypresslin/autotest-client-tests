@@ -1,0 +1,33 @@
+AUTHOR = "Ubuntu"
+NAME = 'ubuntu_kselftests_net'
+CRITERIA = """
+Uses built-in kernel repository self tests for net.
+"""
+SUITE = "None"
+TIME = "SHORT"
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = "client"
+DOC = ""
+
+
+categories = ['net']
+
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
+if result == 'ERROR':
+    print("ERROR: test failed to build, skipping all the sub tests")
+else:
+    for category in categories:
+        build = '{}-build'.format(category)
+        job.run_test_detail(NAME, test_name=build, tag=build, timeout=60*10)
+        mk_helper = os.path.join(job.testdir, NAME, 'helper.mk')
+        dir_src = os.path.join(job.bindir, 'tmp', NAME, 'src', 'linux/tools/testing/selftests/', category)
+        mk_src = os.path.join(dir_src, 'Makefile')
+        os.chdir(dir_src)
+        cmd = 'make -f {} -f {} gettests'.format(mk_helper, mk_src)
+        tests = utils.system_output(cmd).split()
+        for item in tests:
+            test = "{}:{}".format(category, os.path.basename(item))
+            job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*30)
+
+# vi:set ts=4 sw=4 expandtab syntax=python:

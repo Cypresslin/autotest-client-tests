@@ -10,10 +10,63 @@ TEST_CATEGORY = 'Functional'
 TEST_TYPE = "client"
 DOC = ""
 
+
+#
+# Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
+#
+lockup1 = ["rdrand", "numa", "quota", "apparmor", "cpu-online", "kcmp", "copy-file", "exec"]
+lockup2 = ["spawn", "remap", "stack", "oom-pipe", "resources", "opcode", "sockfd" ,"vforkmany"]
+lockup3 = ["sockpair", "bind-mount", "funccall", "ioport", "watchdog", "mlockmany", "idle-page", "clone"]
+lockup = lockup1 + lockup2 + lockup3
+
+#
+# Tests that are not kernel specific
+#
+generic1 = ["atomic", "bsearch", "heapsort", "hsearch", "longjmp", "lsearch", "matrix" ,"memcpy"]
+generic2 = ["rdrand", "str", "tsc", "vecmath", "wcs", "zlib", "matrix-3d", "l1cache"]
+generic3 = ["nop", "qsort"]
+generic = generic1 + generic2 + generic3
+
+#
+# Tests that are known to cause breakage
+#
+breakage = ["xattr", "efivar", "sysinfo", "sysinval"]
+
+#
+# Currenly a new stress test can causes problems with s390x on older kernels
+# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1905438
+#
+legacy = ["uprobe"]
+
+exclude = lockup + generic + breakage + legacy
+
+#
+# Tests that should be skipped on KVM kernels
+#
+cmd = "uname -r | awk -F'-' '{print $NF}'"
+flavour = utils.system_output(cmd, retain_output=True)
+if flavour == 'kvm':
+    exclude.append('dnotify')
+
+
+test_dir = os.path.join(job.bindir, 'tests', NAME)
+cmd = '%s/ubuntu_stress_smoke_test_init.sh' % (test_dir)
+utils.system_output(cmd, retain_output=True)
+
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
 if result == 'GOOD':
-    results = job.run_test_detail(NAME, test_name='stress-smoke-test', tag='stress-smoke-test', timeout=35*60)
+    stressng_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'stress-ng')
+    cmd = '%s/stress-ng --stressor' % (stressng_dir)
+    stressors = utils.system_output(cmd, retain_output=True).split()
 else:
-    print("ERROR: test failed to build, skipping all the sub tests")
+    print("ERROR: can't get a list of available stressors")
+    exit(1)
+
+for stress in stressors:
+    if stress not in exclude:
+        job.run_test_detail(NAME, test_name=stress , tag=stress, timeout=35*60)
+
+cmd = '%s/ubuntu_stress_smoke_test_cleanup.sh' % (test_dir)
+utils.system_output(cmd, retain_output=True)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

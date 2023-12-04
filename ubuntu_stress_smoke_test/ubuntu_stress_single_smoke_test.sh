@@ -1,5 +1,8 @@
 #!/bin/bash 
 
+[ $# -lt 1 ] && echo "$0 requires STRESSOR name to be run" && exit 1
+STRESSOR=${1}
+
 # Maximum machine age in years
 MAX_AGE=5
 # minimum required memory in MB
@@ -59,45 +62,7 @@ INSTANCES=4
 #
 #STRESS_OPTIONS="--ignite-cpu --maximize --syslog --verbose --verify"
 STRESS_OPTIONS="--ignite-cpu --syslog --verbose --verify --oomable"
-#
-# Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
-#
-EXCLUDE="rdrand numa quota apparmor cpu-online kcmp copy-file exec "
-EXCLUDE+="spawn remap stack oom-pipe resources opcode sockfd vforkmany sockpair "
-EXCLUDE+="bind-mount funccall ioport watchdog mlockmany idle-page clone "
-#
-# Tests that are not kernel specific
-#
-EXCLUDE+="atomic bsearch heapsort hsearch longjmp lsearch matrix memcpy nop qsort "
-EXCLUDE+="rdrand str tsc vecmath wcs zlib matrix-3d l1cache "
-#
-# Tests that are known to cause breakage
-#
-EXCLUDE+="xattr efivar sysinfo sysinval "
-#
-# Currenly a new stress test can causes problems with s390x on older kernels
-# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1905438
-#
-EXCLUDE+="uprobe "
-#
-# Tests that should be skipped on KVM kernels
-#
-[ "$(uname -r | awk -F'-' '{print $NF}')" == "kvm" ] && EXCLUDE+="dnotify "
-#
-# Tests that break on specific kernel versions and we won't fix
-#
-ver=$(uname -r | cut -d'.' -f1-2)
-if [ "$ver" == "4.20" ]; then
-	#
-	#  Broken on 4.20, fixed in 5.0-rc2
-	#
-	EXCLUDE+="dccp sctp "
-fi
 
-#
-# Get built-in stressor names
-#
-STRESSORS=$(./stress-ng --stressors)
 rc=0
 TMP_FILE=/tmp/stress-$$.log
 
@@ -185,18 +150,6 @@ secs_now()
 	date "+%s"
 }
 
-not_exclude()
-{
-	for x in $2
-	do
-		if [ $x == $1 ]
-		then
-			return 1
-		fi
-	done
-	return 0
-}
-
 #
 #  Try an ensure that this script and parent won't be oom'd
 #
@@ -239,25 +192,6 @@ else
 	SYS_ZSWAP_SETTING="N"
 fi
 
-#
-#  Always add 1GB of swap to ensure swapping is exercised
-#
-SWPIMG=$PWD/swap.img
-
-#
-#  Create 1GB swap file
-#
-swapoff ${SWPIMG} >& /dev/null
-fallocate -l 1G ${SWPIMG}
-if [ $? -ne 0 ]; then
-	echo "FAILED: Count not create 1GB swap file, file system:"
-	df
-	exit 1
-fi
-chmod 0600 ${SWPIMG}
-mkswap ${SWPIMG}
-swapon ${SWPIMG}
-
 echo " "
 echo "Machine Configuration"
 echo "Physical Pages:  $(getconf _PHYS_PAGES)"
@@ -295,95 +229,86 @@ fi
 
 count=0
 s1=$(secs_now)
-for s in ${STRESSORS}
-do
-	if not_exclude $s "$EXCLUDE"
-	then
-		count=$((count + 1))
-		dmesg -c >& /dev/null
-		echo "$s STARTING"
-		${RUN_STRESS} -v -t ${DURATION} --${s} ${INSTANCES} --${s}-ops ${MAX_BOGO_OPS} ${STRESS_OPTIONS} >& ${TMP_FILE}
-		ret=$?
-		echo "$s RETURNED $ret"
+count=$((count + 1))
+dmesg -c >& /dev/null
+echo "$STRESSOR STARTING"
+${RUN_STRESS} -v -t ${DURATION} --${STRESSOR} ${INSTANCES} --${STRESSOR}-ops ${MAX_BOGO_OPS} ${STRESS_OPTIONS} >& ${TMP_FILE}
+ret=$?
+echo "$STRESSOR RETURNED $ret"
 
-		n=$(dmesg | grep "Out of memory:" | wc -l)
-		if [ $ret -ne 0 -a $n -gt 0 ]; then
-			ret=88
-		fi
+n=$(dmesg | grep "Out of memory:" | wc -l)
+if [ $ret -ne 0 -a $n -gt 0 ]; then
+	ret=88
+fi
 
-		n=$(dmesg | grep "Oops" | wc -l)
-		if [ $n -gt 0 ]; then
-			ret=99
-		fi
+n=$(dmesg | grep "Oops" | wc -l)
+if [ $n -gt 0 ]; then
+	ret=99
+fi
 
-		case $ret in
-		0)
-			echo "$s PASSED"
-			passed="$passed $s"
-			;;
-		1)
-			echo "$s SKIPPED (test framework out of resources or test should not be run)"
-			skipped="$skipped $s"
-			;;
-		2)
-			echo "$s FAILED"
-			failed="$failed $s"
-			cat ${TMP_FILE}
-			echo " "
-			dmesg
-			echo " "
-			rc=1
-			;;
-		3)
-			echo "$s SKIPPED (stressor out of resources)"
-			skipped="$skipped $s"
-			;;
-		4)
-			echo "$s SKIPPED (stressor not implemented on this arch)"
-			skipped="$skipped $s"
-			;;
-		5)
-			echo "$s SKIPPED (premature signal killed stressor)"
-			skipped="$skipped $s"
-			;;
-		6)
-			echo "$s SKIPPED (premature child exit, this is a bug in the stress test)"
-			skipped="$skipped $s"
-			;;
-		7)
-			echo "$s PASSED (child bogo-ops metrics were not accurate)"
-			passed="$passed $s"
-			;;
-		88)
-			echo "$s OOMED (out of memory kills detected)"
-			oomed="$oomed $s"
-			;;
-		99)
-			echo "$s FAILED (kernel oopsed)"
-			oopsed="$oopsed $s"
-			dmesg
-			echo " "
-			rc=1
-			;;
-		137)
-			echo "$s OOMED (out of memory kills detected)"
-			oomed="$oomed $s"
-			;;
-		*)
-			echo "$s BADRET (unknown return status $ret)"
-			badret="$badret $s"
-			dmesg
-			echo " "
-			;;
-		esac
-		rm -f ${TMP_FILE}
-	fi
-done
+case $ret in
+0)
+	echo "$STRESSOR PASSED"
+	passed="$passed $STRESSOR"
+	;;
+1)
+	echo "$STRESSOR SKIPPED (test framework out of resources or test should not be run)"
+	skipped="$skipped $STRESSOR"
+	;;
+2)
+	echo "$STRESSOR FAILED"
+	failed="$failed $STRESSOR"
+	cat ${TMP_FILE}
+	echo " "
+	dmesg
+	echo " "
+	rc=1
+	;;
+3)
+	echo "$STRESSOR SKIPPED (stressor out of resources)"
+	skipped="$skipped $STRESSOR"
+	;;
+4)
+	echo "$STRESSOR SKIPPED (stressor not implemented on this arch)"
+	skipped="$skipped $STRESSOR"
+	;;
+5)
+	echo "$STRESSOR SKIPPED (premature signal killed stressor)"
+	skipped="$skipped $STRESSOR"
+	;;
+6)
+	echo "$STRESSOR SKIPPED (premature child exit, this is a bug in the stress test)"
+	skipped="$skipped $STRESSOR"
+	;;
+7)
+	echo "$STRESSOR PASSED (child bogo-ops metrics were not accurate)"
+	passed="$passed $STRESSOR"
+	;;
+88)
+	echo "$STRESSOR OOMED (out of memory kills detected)"
+	oomed="$oomed $STRESSOR"
+	;;
+99)
+	echo "$STRESSOR FAILED (kernel oopsed)"
+	oopsed="$oopsed $STRESSOR"
+	dmesg
+	echo " "
+	rc=1
+	;;
+137)
+	echo "$STRESSOR OOMED (out of memory kills detected)"
+	oomed="$oomed $STRESSOR"
+	;;
+*)
+	echo "$STRESSOR BADRET (unknown return status $ret)"
+	badret="$badret $STRESSOR"
+	dmesg
+	echo " "
+	;;
+esac
+rm -f ${TMP_FILE}
 s2=$(secs_now)
 dur=$((s2 - $s1))
-
-#kill -9 $pid >& /dev/null
-#wait $pid
 
 echo " "
 echo "Summary:"
@@ -396,9 +321,6 @@ echo "  Passed:  $(echo $passed | wc -w), $passed"
 echo "  Badret:  $(echo $badret | wc -w), $badret"
 echo " "
 echo "Tests took $dur seconds to run"
-
-swapoff -a ${SWPIMG}
-rm ${SWPIMG}
 
 if [ -e ${SYS_ZSWAP_ENABLED} ]; then
 	echo ${ORIGINAL_SYS_ZSWAP_SETTING} > ${SYS_ZSWAP_ENABLED}

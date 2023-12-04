@@ -82,7 +82,7 @@ class ubuntu_stress_smoke_test(test.test):
         if os.uname()[1] == '202008-28164-ZCU106':
             raise error.TestFail('Test marked as failed for ZCU106 as requested by portias, dev test hang (LP: #1998738)')
         os.chdir(os.path.join(self.srcdir, 'stress-ng'))
-        cmd = '%s/ubuntu_stress_smoke_test.sh' % (self.bindir)
+        cmd = '%s/ubuntu_stress_single_smoke_test.sh %s' % (self.bindir, test_name)
         self.results = utils.system_output(cmd, retain_output=True)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

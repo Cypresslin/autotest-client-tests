@@ -13,6 +13,7 @@ class ubuntu_kselftests_ftrace(test.test):
         '''Function to install necessary packages.'''
         pkgs = [
             'debhelper',
+            'devscripts',
             'dpkg-dev',
             'git',
         ]

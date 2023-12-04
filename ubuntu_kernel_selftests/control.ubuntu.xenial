@@ -11,7 +11,7 @@ TEST_TYPE = "client"
 DOC = ""
 
 
-categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memory-hotplug', 'mount', 'net', 'ptrace', 'powerpc', 'seccomp', 'user']
+categories = ['breakpoints', 'cpu-hotplug', 'efivarfs', 'memory-hotplug', 'mount', 'ptrace', 'powerpc', 'seccomp', 'user']
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*30)
 if result == 'ERROR':

@@ -238,6 +238,8 @@ class ubuntu_performance_pts(test.test):
         bpn = utils.system_output('dmidecode -s baseboard-product-name | head -1', retain_output=True)
         if bpn == 'DGXA100':
             return 'DGXA100'
+        elif bpn == 'DGXH100':
+            return 'DGXH100'
         else:
             return 'Default'
 
@@ -261,14 +263,18 @@ class ubuntu_performance_pts(test.test):
         self.print_stats(test_name, cmd)
 
     def run_ttsiod_renderer(self, test_name, tag):
+        platform = self.get_platform()
         #if on DGXA100 bind cpu and mem to stable numa range
-        if self.get_platform() == 'DGXA100':
+        if platform == 'DGXA100':
             #If series is greater than focal(20), remove OMP_PROC_BIND, kernel scheduling provides better results.
             #Improved numa support allows for better performance using a lower bind range.
             if self.get_platform_distro()[1].split('.')[0] > "20":
                 cmd = 'export OMP_PROC_BIND=false; numactl -N 0-1 -m 0-1 %s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
             else:
                 cmd = 'numactl -N 0-3 -m 0-3 %s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
+        elif platform == 'DGXH100':
+            #if on DGXH100 bind cpu and mem to stable numa range
+            cmd = 'export OMP_PROC_BIND=false; numactl -N 0 -m 0 %s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
         else:
             cmd = '%s phoronix-test-suite batch-benchmark ttsiod-renderer-1.7.0' % force_times_to_run
         self.print_stats(test_name, cmd)

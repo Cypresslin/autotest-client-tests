@@ -78,6 +78,15 @@ class ubuntu_stress_smoke_test(test.test):
     def run_once(self, test_name):
         if test_name == 'setup':
             return
+        elif test_name == 'setup-check':
+            cmd = '%s/ubuntu_stress_smoke_test_checks.sh' % (self.bindir)
+            utils.system_output(cmd, retain_output=True)
+            return
+        elif test_name == 'setup-init':
+            cmd = '%s/ubuntu_stress_smoke_test_init.sh' % (self.bindir)
+            utils.system_output(cmd, retain_output=True)
+            return
+
 
         if os.uname()[1] == '202008-28164-ZCU106':
             raise error.TestFail('Test marked as failed for ZCU106 as requested by portias, dev test hang (LP: #1998738)')

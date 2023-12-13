@@ -3,12 +3,6 @@
 [ $# -lt 1 ] && echo "$0 requires STRESSOR name to be run" && exit 1
 STRESSOR=${1}
 
-# Maximum machine age in years
-MAX_AGE=5
-# minimum required memory in MB
-MIN_MEM=$((3 * 1024))
-# minimum free disk required in GB
-MIN_DISK=$((4))
 # maximum bogo ops per stressor
 MAX_BOGO_OPS=3000
 
@@ -66,91 +60,11 @@ STRESS_OPTIONS="--ignite-cpu --syslog --verbose --verify --oomable"
 rc=0
 TMP_FILE=/tmp/stress-$$.log
 
-check_message()
-{
-	echo "NOTE: $1, skipping test"
-}
-
-check_machine()
-{
-	hostname=$(hostname)
-	processor=$(uname -p)
-	skip=0
-	case "$processor" in
-	i386 | i486 | i586 | i686 | x86_64)
-		datecheck=1
-
-		manufacturer=$(dmidecode -s system-manufacturer)
-		if [ "$manufacturer" == "QEMU" ]; then
-			echo "QEMU instance, no firmware date checking"
-			datecheck=0
-		fi
-
-		vendor=$(dmidecode -t 0x0000 | grep Vendor: | awk '{ print $2}')
-		if [ -z "$vendor" ]; then
-			vendor=$(dmidecode -t 0x000e | grep Vendor: | awk '{ print $2}')
-		fi
-
-		case "$vendor" in
-		unknown | Unknown)
-			check_message "Unknown BIOS vendor, ignoring machine"
-			skip=1
-			datecheck=0
-			;;
-		SeaBIOS)
-			echo "SeaBIOS BIOS, using a VM, no date checking"
-			datecheck=0
-			;;
-		*)
-			;;
-		esac
-
-		if [ $datecheck -eq 1 ]; then
-			year=$(date +%Y)
-			year=$((year - $MAX_AGE))
-			date=$(dmidecode -t 0x0000 | grep "Release Date:" | cut -d'/' -f3)
-			if [ -z "$date" ]; then
-				date=$(dmidecode -t 0x000e | grep "Release Date:" | cut -d'/' -f3)
-			fi
-			if [ ! -z "$date" ]; then
-				if [ $date -lt $year  ]; then
-					check_message "BIOS indicates machine is more then $MAX_AGE years old"
-					skip=1
-				fi
-			fi
-		fi
-		;;
-	*)
-		echo "other"
-		;;
-	esac
-
-	mem=$(free | grep Mem: | awk '{print $2}')
-	mem=$((mem / 1024))
-	if [ $mem -lt $MIN_MEM ]; then
-		check_message "Machine has only $mem MB memory, requires at least $MIN_MEM MB"
-		skip=1
-	fi
-	disk=$(df . -B 1024  | awk '{print $4}' | tail -1)
-	disk=$((disk / 1048576))
-	if [ $disk -lt $MIN_DISK ]; then
-		check_message "Machine has only $disk GB free disk space, requires at least $MIN_DISK GB"
-		skip=1
-	fi
-
-	if [ $skip -ne 0 ]; then
-		exit 0
-	fi
-
-	echo "$hostname: $processor $mem MB memory, $disk GB disk"
-}
-
 secs_now()
 {
 	date "+%s"
 }
 
-check_machine
 
 passed=""
 failed=""

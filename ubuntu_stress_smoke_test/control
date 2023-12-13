@@ -49,9 +49,9 @@ if flavour == 'kvm':
     exclude.append('dnotify')
 
 
-test_dir = os.path.join(job.bindir, 'tests', NAME)
-cmd = '%s/ubuntu_stress_smoke_test_init.sh' % (test_dir)
-utils.system_output(cmd, retain_output=True)
+job.run_test_detail(NAME, test_name='setup-check' , tag='setup-check', timeout=35*60)
+
+job.run_test_detail(NAME, test_name='setup-init' , tag='setup-init', timeout=35*60)
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
 if result == 'GOOD':

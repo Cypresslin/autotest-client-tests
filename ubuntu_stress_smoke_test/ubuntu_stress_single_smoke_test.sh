@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 [ $# -lt 1 ] && echo "$0 requires STRESSOR name to be run" && exit 1
 STRESSOR=${1}
@@ -150,27 +150,6 @@ secs_now()
 	date "+%s"
 }
 
-#
-#  Try an ensure that this script and parent won't be oom'd
-#
-set_max_oom_level()
-{
-	if [ -e /proc/self/oom_score_adj ]; then
-		echo -900 > /proc/self/oom_score_adj
-		echo -900 > /proc/$PPID/oom_score_adj
-	elif [ -e /proc/self/oom_adj ]; then
-		echo -14 > /proc/self/oom_adj
-		echo -14 > /proc/$PPID/oom_adj
-	fi
-	#
-	# Ensure oom killer kills the stressor hogs rather
-	# than the wrong random process (e.g. autotest!)
-	#
-	if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
-		echo 0 > /proc/sys/vm/oom_kill_allocating_task
-	fi
-}
-
 check_machine
 
 passed=""
@@ -207,9 +186,6 @@ echo "Number of CPUs Online: $(getconf _NPROCESSORS_ONLN)"
 echo
 echo "Maximum bogo ops: ${MAX_BOGO_OPS}"
 echo " "
-set_max_oom_level
-sleep 15
-sync
 
 #
 #  Handle cases where cgroup settings are enabled or not

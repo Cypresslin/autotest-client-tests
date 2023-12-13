@@ -1,6 +1,4 @@
-#!/bin/bash 
-
-SYS_ZSWAP_ENABLED=/sys/module/zswap/parameters/enabled
+#!/bin/bash
 
 #
 #  Try an ensure that this script and parent won't be oom'd

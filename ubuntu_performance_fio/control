@@ -57,7 +57,7 @@ if result == 'GOOD':
         #
         #  Legacy fio tests for large host testing
         #
-        media_types = [ 'ramdisk', 'dataset' ]
+        media_types = [ 'dataset', 'ramdisk' ]
         #
         # Spec states that config1 should not run ramdisk tests
         #

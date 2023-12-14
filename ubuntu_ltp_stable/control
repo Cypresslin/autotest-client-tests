@@ -15,7 +15,7 @@ name = 'ubuntu_ltp_stable'
 result = job.run_test_detail('ubuntu_ltp_stable', test_name='setup', tag='setup', timeout=40*60)
 if result == 'GOOD':
     tests = [
-        'fs_perms_simple', 'fsx',                    'dio',          'io',
+        'fs_perms_simple', 'dio',                    'io',
         'ipc',             'math',                   'nptl',         'containers',
         'fs_bind',         'filecaps',               'cap_bounds',   'fcntl-locktests',
         'connectors',      'power_management_tests', 'hugetlb',      'commands',

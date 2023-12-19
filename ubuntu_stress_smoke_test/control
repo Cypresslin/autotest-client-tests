@@ -48,26 +48,26 @@ flavour = utils.system_output(cmd, retain_output=True)
 if flavour == 'kvm':
     exclude.append('dnotify')
 
-
-job.run_test_detail(NAME, test_name='setup-check' , tag='setup-check', timeout=5*60)
-
-job.run_test_detail(NAME, test_name='setup-init' , tag='setup-init', timeout=5*60)
-
-result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*60)
+result = job.run_test_detail(NAME, test_name='setup-check', tag='setup-check', timeout=5*60)
 if result == 'GOOD':
-    stressng_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'stress-ng')
-    cmd = '%s/stress-ng --stressor' % (stressng_dir)
-    stressors = utils.system_output(cmd, retain_output=True).split()
-else:
-    print("ERROR: can't get a list of available stressors")
-    exit(1)
+    job.run_test_detail(NAME, test_name='setup-init', tag='setup-init', timeout=5*60)
+    # Change the test build step from "setup" to "setup-test" so it won't get confused
+    # with the setup() that triggered automatically (which we intetionally left blank)
+    result = job.run_test_detail(NAME, test_name='setup-test', tag='setup-test', timeout=60*60)
+    if result == 'GOOD':
+        stressng_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'stress-ng')
+        cmd = '%s/stress-ng --stressor' % (stressng_dir)
+        stressors = utils.system_output(cmd, retain_output=True).split()
+    else:
+        print("ERROR: can't get a list of available stressors")
+        exit(1)
 
-for stress in stressors:
-    if stress not in exclude:
-        job.run_test_detail(NAME, test_name=stress , tag=stress, timeout=35*60)
+    for stress in stressors:
+        if stress not in exclude:
+            job.run_test_detail(NAME, test_name=stress , tag=stress, timeout=35*60)
 
-src_dir = os.path.dirname(job.control)
-cmd = '%s/ubuntu_stress_smoke_test_cleanup.sh' % (src_dir)
-utils.system_output(cmd)
+    src_dir = os.path.dirname(job.control)
+    cmd = '%s/ubuntu_stress_smoke_test_cleanup.sh' % (src_dir)
+    utils.system_output(cmd)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

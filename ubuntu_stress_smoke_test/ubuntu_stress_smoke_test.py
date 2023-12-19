@@ -47,9 +47,19 @@ class ubuntu_stress_smoke_test(test.test):
     def initialize(self):
         pass
 
+
     def setup(self):
-        self.install_required_pkgs()
-        self.job.require_gcc()
+        '''
+        We used to run code in build_source() here. Since we want to bail out early
+        if the requirement in ubuntu_stress_smoke_test_checks.sh does not met, we
+        can't build source here anymore. setup() will be triggered after initalize()
+        There is no chace to run check before setup(), this is an ugly hack we need
+        to keep until we have a better solution.
+        '''
+        pass
+
+
+    def build_source(self):
         os.chdir(self.srcdir)
         shutil.rmtree('stress-ng', ignore_errors=True)
         cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/stress-ng'
@@ -75,8 +85,11 @@ class ubuntu_stress_smoke_test(test.test):
             nprocs = ''
         utils.make(nprocs)
 
+
     def run_once(self, test_name):
-        if test_name == 'setup':
+        if test_name == 'setup-test':
+            self.install_required_pkgs()
+            self.build_source()
             return
         elif test_name == 'setup-check':
             cmd = '%s/ubuntu_stress_smoke_test_checks.sh' % (self.bindir)

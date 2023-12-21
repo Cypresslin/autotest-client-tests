@@ -3,9 +3,7 @@
 #
 #  Garbage collect swap file
 #
-SWPIMG=$PWD/swap.img
+SWPIMG=$HOME/stress-smoke-test-swap.img
 
 swapoff ${SWPIMG}
 rm ${SWPIMG}
-
-exit $rc

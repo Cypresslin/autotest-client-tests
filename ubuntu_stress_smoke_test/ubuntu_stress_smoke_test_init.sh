@@ -24,7 +24,7 @@ set_max_oom_level()
 #
 #  Always add 1GB of swap to ensure swapping is exercised
 #
-SWPIMG=$PWD/swap.img
+SWPIMG=$HOME/stress-smoke-test-swap.img
 
 #
 #  Create 1GB swap file

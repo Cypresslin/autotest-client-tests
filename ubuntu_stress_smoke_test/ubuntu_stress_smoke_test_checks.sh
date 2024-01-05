@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Maximum machine age in years
-MAX_AGE=5
+# Maximum machine age was set to 5 years by Colin in 2020, let's use 2015 as the bar
+MIN_YEAR=2015
 # minimum required memory in MB
 MIN_MEM=$((3 * 1024))
 # minimum free disk required in GB
@@ -22,8 +22,8 @@ check_machine()
 		datecheck=1
 
 		manufacturer=$(dmidecode -s system-manufacturer)
-		if [ "$manufacturer" == "QEMU" ]; then
-			echo "QEMU instance, no firmware date checking"
+		if [ "$manufacturer" == "QEMU" ] || [ "$manufacturer" == "Xen" ]; then
+			echo "$manufacturer instance, no firmware date checking"
 			datecheck=0
 		fi
 
@@ -47,15 +47,13 @@ check_machine()
 		esac
 
 		if [ $datecheck -eq 1 ]; then
-			year=$(date +%Y)
-			year=$((year - $MAX_AGE))
 			date=$(dmidecode -t 0x0000 | grep "Release Date:" | cut -d'/' -f3)
 			if [ -z "$date" ]; then
 				date=$(dmidecode -t 0x000e | grep "Release Date:" | cut -d'/' -f3)
 			fi
 			if [ ! -z "$date" ]; then
-				if [ $date -lt $year  ]; then
-					check_message "BIOS indicates machine is more then $MAX_AGE years old"
+				if [ $date -lt $MIN_YEAR ]; then
+					check_message "BIOS indicates machine was released in $date, older then $MIN_YEAR."
 					skip=1
 				fi
 			fi

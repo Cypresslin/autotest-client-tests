@@ -3,9 +3,9 @@
 # Maximum machine age was set to 5 years by Colin in 2020, let's use 2015 as the bar
 MIN_YEAR=2015
 # minimum required memory in MB
-MIN_MEM=$((3 * 1024))
+MIN_MEM=$((1 * 1024 + 512))
 # minimum free disk required in GB
-MIN_DISK=$((4))
+MIN_DISK=$((3))
 
 check_message()
 {

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Maximum machine age was set to 5 years by Colin in 2020, let's use 2015 as the bar
-MIN_YEAR=2015
+MIN_YEAR=2011
 # minimum required memory in MB
 MIN_MEM=$((1 * 1024 + 512))
 # minimum free disk required in GB

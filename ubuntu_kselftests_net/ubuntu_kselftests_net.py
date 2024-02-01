@@ -24,6 +24,7 @@ class ubuntu_kselftests_net(test.test):
             'netsniff-ng',      # For net:altnames.sh
             'net-tools',        # For net:rtnetlink.sh
             'pkg-config',
+            'tcpdump',          # For net:cmsg_ipv6.sh
             'uuid-runtime',     # For net:rtnetlink.sh
         ]
         # For net:fib_tests.sh

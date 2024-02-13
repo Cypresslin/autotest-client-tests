@@ -1,0 +1,139 @@
+import multiprocessing
+import os
+import platform
+import re
+import shutil
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from autotest.client import test, utils
+from autotest.client.shared import error
+
+class rteval(test.test):
+    version = 1
+
+    def initialize(self):
+        self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
+        self.arch = platform.processor()
+
+    def install_required_pkgs(self):
+        try:
+            series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            series = distro.codename()
+
+        pkgs = [
+            'build-essential',
+            'git',
+            'libnuma-dev',
+            'python3-distutils',
+            'python3-dmidecode',
+            'python3-lxml',
+            'python3-ethtool',
+            'python3-requests',
+            'flex',
+            'bison',
+            'libelf-dev',
+            'libncurses-dev',
+            'gawk', 
+            'openssl',
+            'libssl-dev',
+            'dkms',
+            'libudev-dev',
+            'libpci-dev',
+            'libiberty-dev',
+            'autoconf',
+            'llvm',
+            'rt-tests'
+        ]
+        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
+        pkgs.append(gcc)
+
+        cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
+        self.results = utils.system_output(cmd, retain_output=True)
+
+    # setup
+    #
+    #    Automatically run when there is no autotest/client/tmp/<test-suite> directory
+    #
+    def setup(self):
+        self.install_required_pkgs()
+        self.job.require_gcc()
+        os.chdir(self.srcdir)
+        shutil.rmtree('rteval', ignore_errors=True)
+        branch = 'main'
+        cmd = 'git clone -b {} https://git.kernel.org/pub/scm/utils/rteval/rteval.git'.format(branch)
+        utils.system_output(cmd, retain_output=True)
+
+        # Print test suite HEAD SHA1 commit id for future reference
+        os.chdir(os.path.join(self.srcdir, 'rteval'))
+        title_local = utils.system_output("git log --oneline -1 | sed 's/(.*)//'", retain_output=False, verbose=False)
+        title_upstream = utils.system_output("git log --oneline | grep -v SAUCE | head -1", retain_output=False, verbose=False)
+        print("Latest commit in '{}' branch: {}".format(branch, title_local))
+        print("Latest upstream commit: {}".format(title_upstream))
+        os.mkdir("install")
+
+        # Download Linux tarball referenced in the Makefile
+        with open("Makefile", mode="rt", encoding="utf-8") as makefile:
+            makefile_content = makefile.read()
+            linux_version_match = re.search(r'KLOAD\s*:=\s*\$\(LOADDIR\)\/linux-(\d+\.\d+(\.\d+)?)\.tar\.xz', makefile_content)
+            if linux_version_match:
+                linux_version = linux_version_match.group(1)
+                print("Linux version download used in testing:", linux_version)
+                cmd = 'wget -nv -P loadsource https://cdn.kernel.org/pub/linux/kernel/v'+linux_version.split('.')[0]+'.x/linux-'+linux_version+'.tar.xz'
+                utils.system_output(cmd, retain_output=True)
+            else:
+                print("Linux version download for testing not found.")
+
+        # Build test
+        try:
+            nprocs = 'install -j' + str(multiprocessing.cpu_count())
+        except:
+            nprocs = 'install'
+        utils.make(nprocs)
+
+        # Copy in config file
+        shutil.copy2( self.bindir+"/rteval.conf", self.srcdir+"/rteval/" )
+
+
+    # run_once
+    #
+    #    Driven by the control file for each individual test.
+    #
+    #    Runs rteval. Test passes if max latency is not over 200us.
+    #
+    def run_once(self, test_name, args='', exit_on_error=True):
+        if test_name == 'setup':
+            return
+
+        # Run rteval
+        os.chdir(self.srcdir+"/rteval")
+        utils.make('runit')
+
+        # Find the summary XML results
+        results_count = 0
+        subfolders = [ f.name for f in os.scandir(self.srcdir+"/rteval/run/") if f.is_dir() ]
+        for folder in subfolders:
+            folder_match = re.search(r"rteval-"+datetime.now().strftime('%Y%m%d')+"-(\d)+[^(.tar.bz2)]?", folder)
+            if folder_match:
+                results_count += 1
+
+        if 0 == results_count:
+            raise error.TestError('FAIL: rteval results not found.')
+
+        xml_path = self.srcdir+"/rteval/run/rteval-"+datetime.now().strftime('%Y%m%d')+"-"+str(results_count)+"/summary.xml"
+
+        # Parse the XML results and find the first "maximum" tag, which gives 
+        # max system latency
+        with open(xml_path, 'r') as results_file:
+            results_string = results_file.read()
+
+        xml_root = ET.fromstring(results_string)
+        maximum_tag = xml_root.find(".//maximum")
+        latency = maximum_tag.text
+        print("Maximum latency: "+latency+"us")
+
+        if int(latency) > 200:
+            raise error.TestError('FAIL: Max latency too high.')
+
+        return

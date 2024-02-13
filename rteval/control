@@ -1,0 +1,18 @@
+AUTHOR = '''
+Clark Williams <williams@redhat.com>
+ '''
+NAME = "rteval"
+DOC = '''
+URL https://git.kernel.org/pub/scm/utils/rteval/rteval.git
+'''
+SUITE = "None"
+TIME = "MEDIUM"
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = 'client'
+
+result = job.run_test_detail('rteval', test_name='setup', tag='setup', timeout=60*5)
+if result == 'GOOD':
+    job.run_test('rteval', test_name='rteval', tag='rteval')
+else:
+    print("ERROR: test failed to build")

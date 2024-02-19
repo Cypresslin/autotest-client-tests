@@ -185,7 +185,7 @@ def main():
                 if proprietary_modules:
                     print("*   Modules with GPL Incompatible Licenses:")
                     for mod in proprietary_modules:
-                        print("     %s: %s" % (mod[0], mod[1]))
+                        print("     %s" % mod)
                     count += 1
                 else:
                     print("*   Proprietary modules found, "

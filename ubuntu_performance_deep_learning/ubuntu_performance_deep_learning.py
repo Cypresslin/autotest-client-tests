@@ -1,5 +1,6 @@
 import os
 import helper
+import subprocess
 from autotest.client import test, utils
 
 
@@ -46,7 +47,11 @@ class ubuntu_performance_deep_learning(test.test):
         cmd = "{} test".format(uptf_cmd)
 
         for i in range(TEST_ITERATION):
+            nv_dmon_log_path = "nv_dmon_{}.log".format(i)
+            with open(nv_dmon_log_path, "w") as nv_dmon_log:
+                nv_dmon_process = subprocess.Popen(["nvidia-smi", "dmon", "-d", "1"], stdout=nv_dmon_log)
             stdout_result = utils.system_output(cmd, retain_output=True)
+            nv_dmon_process.terminate()
             values[i] = helper.get_stats(stdout_result)
 
             if values[i]:

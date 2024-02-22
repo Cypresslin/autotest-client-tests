@@ -3,7 +3,7 @@ import os
 import platform
 import re
 import shutil
-from autotest.client import test, utils
+from autotest.client import canonical, test, utils
 from autotest.client.shared import error
 
 class rt_tests_ptsematest(test.test):
@@ -40,6 +40,7 @@ class rt_tests_ptsematest(test.test):
         self.job.require_gcc()
         os.chdir(self.srcdir)
         shutil.rmtree('rt-tests', ignore_errors=True)
+        canonical.setup_proxy()
         branch = 'main'
         cmd = 'git clone -b {} https://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git'.format(branch)
         utils.system_output(cmd, retain_output=True)

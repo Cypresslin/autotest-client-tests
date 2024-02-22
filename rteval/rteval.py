@@ -5,7 +5,7 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from autotest.client import test, utils
+from autotest.client import canonical, test, utils
 from autotest.client.shared import error
 
 class rteval(test.test):
@@ -61,6 +61,7 @@ class rteval(test.test):
         self.job.require_gcc()
         os.chdir(self.srcdir)
         shutil.rmtree('rteval', ignore_errors=True)
+        canonical.setup_proxy()
         branch = 'main'
         cmd = 'git clone -b {} https://git.kernel.org/pub/scm/utils/rteval/rteval.git'.format(branch)
         utils.system_output(cmd, retain_output=True)

@@ -113,7 +113,7 @@ class rteval(test.test):
 
         # Find the summary XML results
         results_count = 0
-        subfolders = [ f.name for f in os.scandir(self.srcdir+"/rteval/run/") if f.is_dir() ]
+        subfolders = [f for f in os.listdir(self.srcdir+"/rteval/run/") if os.path.isdir(os.path.join(self.srcdir+"/rteval/run/", f))]
         for folder in subfolders:
             folder_match = re.search(r"rteval-"+datetime.now().strftime('%Y%m%d')+"-(\d)+[^(.tar.bz2)]?", folder)
             if folder_match:

@@ -75,7 +75,7 @@ class rteval(test.test):
         os.mkdir("install")
 
         # Download Linux tarball referenced in the Makefile
-        with open("Makefile", mode="rt", encoding="utf-8") as makefile:
+        with open("Makefile", mode="rt") as makefile:
             makefile_content = makefile.read()
             linux_version_match = re.search(r'KLOAD\s*:=\s*\$\(LOADDIR\)\/linux-(\d+\.\d+(\.\d+)?)\.tar\.xz', makefile_content)
             if linux_version_match:

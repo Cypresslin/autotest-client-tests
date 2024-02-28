@@ -75,9 +75,8 @@ elif kernel >= 419:
         '2365dd3ca02bbb6d3412404482e1d85752549953.sh',
     ]
 
-if kernel >= 517:
+if kernel >= 511:
     # 'inode_cache' option is deprecated and has no effect since 5.11
-    # But OEM-5.14 can pass with it, so just blacklist it with >= 5.17
     blacklist.append('ff76b0565523319d7c1c0b51d5a5a8915d33efab.sh')
 
 if release == '14.04':

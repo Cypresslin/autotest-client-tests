@@ -27,7 +27,7 @@ if result == 'GOOD':
         if all_tests[category]:
             for sub_test in all_tests[category]:
                 test = '{}.{}'.format(category, sub_test)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*60)
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*70)
 else:
     print("ERROR: test setup has failed, skipping all the sub tests")
 

@@ -67,61 +67,6 @@ ubuntu_mirror() {
     esac
 }
 
-install_cuda_perftest() {
-    local release
-    local components
-    if dpkg-query -W -f '${Version}' perftest | grep -q \+cuda\.1$; then
-	# Looks like it is already build and installed
-	return
-    fi
-    release=$(lsb_release -cs)
-    components="main universe restricted multiverse"
-    # Rebuild perftest w/ CUDA support
-    sudo sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list
-    sudo_apt update
-    sudo_apt build-dep -y perftest
-    sudo_apt install -y devscripts fakeroot pbuilder
-    tmpdir="$(mktemp -d)"
-    pushd "$tmpdir"
-    apt source perftest
-    pushd perftest-*
-    # There's a libnvidia-compute-<branch> package for every driver
-    # branch - each one provides a libcuda.1. dpkg-shlibdeps will
-    # generate a dependency for which package is installed at build-time.
-    # That will end up being whatever branch nvidia-cuda-dev was built for
-    # - and that may not match the driver version currently loaded. Using
-    # a mismatched libnvidia-compute/driver combo will cause ib_write_bw to
-    # error out (803 = cudaErrorSystemDriverMismatch). Override this
-    # dependency with the libnvidia-compute virtual package. We'll let
-    # apt figure out the best libnvidia-compute-<branch> package to
-    # install - it tends to pick the one that matches the installed driver.
-    echo "libcuda 1 libnvidia-compute" >> debian/shlibs.local
-    ver="$(dpkg-parsechangelog | grep ^Version: | cut -d' ' -f2)+cuda.1"
-    DEBFULLNAME="Canonical Kernel Team" \
-	       DEBEMAIL="canonical-kernel-team@lists.canonical.com" \
-	       dch -v "$ver" "Rebuild with CUDA support"
-    dpkg-buildpackage -rfakeroot -uc -us -S
-    popd
-    # We build in a pbuilder chroot instead of on the host because
-    # nvidia-cuda-dev depends may pull in nvidia package versions
-    # from branches that mismatch with the host driver branch
-    if [ ! -f "/var/cache/pbuilder/${release}.tgz" ]; then
-	sudo pbuilder create --distribution "$release" \
-	     --mirror "$(ubuntu_mirror)" \
-	     --components "$components" \
-	     --othermirror "deb $(ubuntu_mirror) ${release}-updates $components" \
-	     --basetgz "/var/cache/pbuilder/${release}.tgz"
-    fi
-    mkdir result
-    sudo sed -i 's/^export CUDA_H_PATH=.*//' /etc/pbuilderrc
-    echo "export CUDA_H_PATH=/usr/include/cuda.h" | sudo tee -a /etc/pbuilderrc
-    sudo pbuilder build --basetgz "/var/cache/pbuilder/${release}.tgz" \
-	 --extrapackages nvidia-cuda-dev \
-	 --buildresult result perftest_*cuda.1.dsc
-    sudo dpkg -i result/perftest_*cuda.1_*.deb || sudo_apt -f install -y
-    popd
-}
-
 use_cuda_needs_devid() {
     if ib_write_bw --help | grep use_cuda=; then
 	return 0
@@ -132,7 +77,14 @@ use_cuda_needs_devid() {
 # Avoid dpkg lock contention
 sudo service unattended-upgrades stop || true
 
-install_cuda_perftest
+sudo apt-add-repository ppa:canonical-nvidia/perftest+cuda -y
+sudo apt install perftest -y
+
+if ! ldd /usr/bin/ib_write_bw | grep -q libcuda; then
+    echo "ERROR: Installed perftest does not have CUDA support" 1>&2
+    echo "ERROR: Is the PPA up to date?" 1>&2
+    exit 1
+fi
 
 for ibdev in /sys/class/infiniband/*; do
     # is this lisp?

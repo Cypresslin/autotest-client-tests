@@ -133,7 +133,7 @@ if [ "$mode" = "peermem" ]; then
 fi
 
 sudo_apt install -y opensm
-sudo service opensm start
+sudo service opensm start || sudo service opensmd start
 
 # Sometime after focal, ib_write_bw --use_cuda began requiring a device id
 if use_cuda_needs_devid; then

@@ -119,23 +119,37 @@ sudo ip netns exec peermemclient ip link set dev "$CLIENT_IFACE" up
 sudo ip addr add dev "$SERVER_IFACE" "$SERVER_IP"
 sudo ip link set dev "$SERVER_IFACE" up
 
+# IB Peer Memory is out of tree kernel patch carried in Ubuntu
+# 4.15 -> 6.5. It is also provided by the Mellanox OFED modules.
+if grep -q ib_register_peer_memory_client /proc/kallsyms; then
+    mode=peermem
+else
+    mode=dma_buf
+fi
+
 sudo modprobe ib_umad # bro?
-sudo modprobe nvidia-peermem
+if [ "$mode" = "peermem" ]; then
+    sudo modprobe nvidia-peermem
+fi
 
 sudo_apt install -y opensm
 sudo service opensm start
 
 # Sometime after focal, ib_write_bw --use_cuda began requiring a device id
 if use_cuda_needs_devid; then
-    server_use_cuda_arg="--use_cuda=0"
-    client_use_cuda_arg="--use_cuda=1"
+    server_args="--use_cuda=0"
+    client_args="--use_cuda=1"
 else
-    server_use_cuda_arg="--use_cuda"
-    client_use_cuda_arg="--use_cuda"
+    server_args="--use_cuda"
+    client_args="--use_cuda"
 fi
-sudo ib_write_bw -a -d "$server_ib_dev" "$server_use_cuda_arg" &
+if [ "$mode" = "dma_buf" ]; then
+    server_args="$server_args --use_cuda_dmabuf"
+    client_args="$client_args --use_cuda_dmabuf"
+fi
+sudo ib_write_bw -a -d "$server_ib_dev" $server_args &
 srvpid=$!
 # Give server a chance to start up
 sleep 5
 sudo ip netns exec peermemclient ib_write_bw -a \
-     -d "$client_ib_dev" "${SERVER_IP%/*}" "$client_use_cuda_arg"
+     -d "$client_ib_dev" "${SERVER_IP%/*}" $client_args

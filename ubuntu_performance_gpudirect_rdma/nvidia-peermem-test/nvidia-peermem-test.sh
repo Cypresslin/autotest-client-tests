@@ -74,6 +74,30 @@ use_cuda_needs_devid() {
     return 1
 }
 
+usage() {
+    echo "Usage: $0 [-m <peermem|dma_buf>]"
+}
+
+while getopts "hm:" arg; do
+    case $arg in
+	h)
+	    echo "Usage: $0 [-m <peermem|dma_buf>]"
+	    exit 0
+	    ;;
+	m)
+	    mode="$OPTARG"
+	    if [ "$mode" != "peermem" ] && [ "$mode" != "dma_buf" ]; then
+		echo "Error: Invalid mode: $mode" 1>&2
+		usage 1>&2
+		exit 1
+	    fi
+	    ;;
+	*)
+	    usage 1>&2
+	    ;;
+    esac
+done
+
 # Avoid dpkg lock contention
 sudo service unattended-upgrades stop || true
 
@@ -119,12 +143,14 @@ sudo ip netns exec peermemclient ip link set dev "$CLIENT_IFACE" up
 sudo ip addr add dev "$SERVER_IFACE" "$SERVER_IP"
 sudo ip link set dev "$SERVER_IFACE" up
 
-# IB Peer Memory is out of tree kernel patch carried in Ubuntu
-# 4.15 -> 6.5. It is also provided by the Mellanox OFED modules.
-if grep -q ib_register_peer_memory_client /proc/kallsyms; then
-    mode=peermem
-else
-    mode=dma_buf
+if [ -z "$mode" ]; then
+    # IB Peer Memory is out of tree kernel patch carried in Ubuntu
+    # 4.15 -> 6.5. It is also provided by the Mellanox OFED modules.
+    if grep -q ib_register_peer_memory_client /proc/kallsyms; then
+	mode=peermem
+    else
+	mode=dma_buf
+    fi
 fi
 
 sudo modprobe ib_umad # bro?

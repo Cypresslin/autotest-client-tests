@@ -70,6 +70,7 @@ def process_known_issues(issue, modules):
 
     from kernel_taint_test_known_issues import (dgx_modules,
                                                 rpi_modules,
+                                                tegra_modules,
                                                 )
 
     try:
@@ -89,6 +90,8 @@ def process_known_issues(issue, modules):
         module_flags = dgx_modules
     elif 'raspi' in platform.release():
         module_flags = rpi_modules
+    elif 'nvidia-tegra' in platform.release():
+        module_flags = tegra_modules
 
     # Filter out modules flagged with corresponding taint flag
     mod_list = []

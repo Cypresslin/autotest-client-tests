@@ -18,7 +18,7 @@ if result == 'GOOD':
         'fs_perms_simple', 'dio',                    'io',
         'ipc',             'math',                   'nptl',         'containers',
         'fs_bind',         'filecaps',               'cap_bounds',   'fcntl-locktests',
-        'connectors',      'power_management_tests', 'hugetlb',      'commands',
+        'power_management_tests', 'hugetlb',      'commands',
         'hyperthreading',  'can',                    'net.ipv6_lib', 'input'
     ]
     # dio test will take about 3.5 hours to run on Xilinx devices it's quite

@@ -21,7 +21,6 @@ class ubuntu_kselftests_net(test.test):
             'libfuse-dev',      # For net:reuseport_bpf_numa
             'libnuma-dev',      # For net:reuseport_bpf_numa
             'libssl-dev',       # For net:tcp_mmap
-            'netsniff-ng',      # For net:altnames.sh
             'net-tools',        # For net:rtnetlink.sh
             'pkg-config',
             'tcpdump',          # For net:cmsg_ipv6.sh
@@ -30,6 +29,11 @@ class ubuntu_kselftests_net(test.test):
         # For net:fib_tests.sh
         if not self.series in ['trusty', 'xenial', 'bionic']:
             pkgs.append('socat')
+        # For net:altnames.sh
+        if 'fips' not in self.flavour:
+            # netsniff-ng depends on ntp, it will try to perorm a MD5 sum which is not allowed with FIPS kernels (LP: #2054609)
+            pkgs.append('netsniff-ng')
+
         if not self.arch == 's390x':
             if not self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy']:
                 # With recent kernels BPF requires lld (LLVM-based linker) to

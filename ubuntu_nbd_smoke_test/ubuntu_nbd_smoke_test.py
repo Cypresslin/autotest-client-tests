@@ -52,6 +52,9 @@ class ubuntu_nbd_smoke_test(test.test):
         #
         #  stress-ng "quick fire" short life tests
         #
+        if test_name == 'setup':
+            return
+
         cmd = self.bindir + '/ubuntu_nbd_smoke_test.sh'
         self.results = utils.system_output(cmd, retain_output=True)
         #

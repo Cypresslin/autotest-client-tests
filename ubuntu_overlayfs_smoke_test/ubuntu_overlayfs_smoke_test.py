@@ -4,7 +4,7 @@ from autotest.client import test, utils
 import os
 import shutil
 
-TEST_REPOSITORY = 'git://git.launchpad.net/~canonical-kernel-team/+git/overlay-shiftfs-tests'
+TEST_REPOSITORY = 'https://git.launchpad.net/~canonical-kernel-team/+git/overlay-shiftfs-tests'
 TEST_BRANCH = 'main'
 TEST_DIR = 'overlay-shiftfs-tests'
 

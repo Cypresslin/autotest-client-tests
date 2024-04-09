@@ -6,7 +6,7 @@ import shutil
 from autotest.client import test, utils
 from autotest.client.shared import error
 
-TEST_REPOSITORY = 'git://git.launchpad.net/~canonical-kernel-team/+git/raspi-rt-tests'
+TEST_REPOSITORY = 'https://git.launchpad.net/~canonical-kernel-team/+git/raspi-rt-tests'
 
 
 class ubuntu_raspberry_pi(test.test):

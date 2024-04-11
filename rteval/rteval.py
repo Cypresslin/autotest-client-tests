@@ -130,6 +130,10 @@ class rteval(test.test):
 
         xml_root = ET.fromstring(results_string)
         maximum_tag = xml_root.find(".//maximum")
+
+        if maximum_tag is None:
+            raise error.TestError('FAIL: Max latency not found.')
+
         latency = maximum_tag.text
         print("Maximum latency: "+latency+"us")
 

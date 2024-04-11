@@ -26,7 +26,6 @@ class rteval(test.test):
             'build-essential',
             'git',
             'libnuma-dev',
-            'python3-distutils',
             'python3-dmidecode',
             'python3-lxml',
             'python3-ethtool',

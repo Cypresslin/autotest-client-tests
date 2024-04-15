@@ -2,6 +2,7 @@
 #
 import os
 import platform
+import re
 from autotest.client                        import test, utils
 
 class ubuntu_kvm_smoke_test(test.test):
@@ -14,6 +15,7 @@ class ubuntu_kvm_smoke_test(test.test):
         except AttributeError:
             import distro
             series = distro.codename()
+        flavour = re.split('-\d*-', platform.uname()[2])[-1]
         pkgs = [
             'cpu-checker',
             'uvtool',
@@ -23,6 +25,9 @@ class ubuntu_kvm_smoke_test(test.test):
         # available since Artful
         if arch == 'aarch64' and series not in ['trusty', 'xenial']:
             pkgs.append('qemu-efi-aarch64')
+        if 'fips' in flavour and series in ['xenial', 'bionic']:
+            # Ensure openssh-client-hmac is installed for fips kernel, this is available on X/B only LP: #2061365
+            pkgs.append('openssh-client-hmac')
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

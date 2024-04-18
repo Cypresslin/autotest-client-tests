@@ -29,11 +29,14 @@ class ubuntu_lxc(test.test):
             ]
             gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
             pkgs.append(gcc)
-        if self.series in ['lunar', 'mantic']:
+        # For Mantic and newer
+        if self.series not in ['precise', 'trusty', 'xenial', 'bionic', 'focal', 'jammy']:
             pkgs.append('meson')
             pkgs.append('docbook2x')
             pkgs.append('docbook-utils')
-            pkgs.append('criu')
+            # criu is not available on Noble
+            if self.series in ['mantic']:
+                pkgs.append('criu')
 
         pkgs.append('liblxc1')
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
@@ -58,7 +61,8 @@ class ubuntu_lxc(test.test):
             utils.system('apt-get source --download-only lxc')
             utils.system("dpkg-source -x lxc*dsc lxc-pkg-ubuntu")
             os.chdir('/tmp/lxc-pkg-ubuntu')
-            if self.series not in ['lunar', 'mantic']:
+            # For > Xenial and <= Jammy
+            if self.series in ['bionic', 'focal', 'jammy']:
                 gcc_multiarch = utils.system_output('gcc -print-multiarch',  retain_output=False)
                 utils.system('autoreconf -f -i')
                 cmd = '--enable-tests --disable-rpath --disable-doc --with-distro=ubuntu \

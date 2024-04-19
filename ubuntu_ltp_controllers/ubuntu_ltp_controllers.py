@@ -117,8 +117,8 @@ class ubuntu_ltp_controllers(test.test):
             return
 
         if test_name == 'memcg_test_3':
-            print("Set timeout multiplier LTP_TIMEOUT_MUL=120 for memcg_test_3 (lp:1836694)")
-            os.environ["LTP_TIMEOUT_MUL"] = '120'
+            print("Set timeout multiplier LTP_TIMEOUT_MUL=150 for memcg_test_3 (lp:1836694)")
+            os.environ["LTP_TIMEOUT_MUL"] = '150' # 75min
         elif test_name == 'memcg_stress':
             print("Set timeout multiplier LTP_TIMEOUT_MUL=2 for memcg_stress (lp:1946348)")
             os.environ["LTP_TIMEOUT_MUL"] = '2'

@@ -135,6 +135,9 @@ function _set_globals()
 		RT_XILINX_BOARD="kr260"
 	fi
 
+        if [ $(cat /proc/device-tree/compatible | grep -ao -e kd240 | head -1) ] ; then
+                RT_XILINX_BOARD="kd240"
+        fi
 
 	# Compute the model revision
 	RT_XILINX_REV=${RT_XILINX_MODEL#* Rev}

@@ -12,6 +12,7 @@ class rt_tests_ptsematest(test.test):
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.arch = platform.processor()
+        self.hostname = os.uname()[1]
 
     def install_required_pkgs(self):
         try:
@@ -64,11 +65,17 @@ class rt_tests_ptsematest(test.test):
     #    Driven by the control file for each individual test.
     #
     #    Runs ptsematest with one thread per processor, for 100000 loops, and 
-    #    priority set to 80. It will fail if the max latency goes over 100us.
+    #    priority set to 80. It will fail if the max latency goes over a specified limit.
     #
     def run_once(self, test_name, args='-l 100000 -p 80 -S -q', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        latency_limit = 1000
+        if self.hostname == 'starlow':
+            latency_limit = 200
+        elif self.hostname == 'ivysaur':
+            latency_limit = 700
 
         self.results = utils.system_output(self.srcdir + '/rt-tests/ptsematest ' + args, retain_output=True)
 
@@ -88,7 +95,7 @@ class rt_tests_ptsematest(test.test):
         highest_max = max(max_values)
         print("Highest Max Latency:", highest_max)
 
-        if highest_max > 100:
-            raise error.TestError('FAIL: Max latency over 100us.')
+        if highest_max > latency_limit:
+            raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

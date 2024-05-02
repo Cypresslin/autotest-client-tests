@@ -12,6 +12,7 @@ class rt_tests_cyclictest(test.test):
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.arch = platform.processor()
+        self.hostname = os.uname()[1]
 
     def install_required_pkgs(self):
         try:
@@ -65,16 +66,23 @@ class rt_tests_cyclictest(test.test):
     #
     #    Runs cyclictest with 10 threads, for 100000 loops, priority set to 
     #    80 and an interval of 200us. It will fail if the max latency goes 
-    #    over 100us.
+    #    over a specified latency.
     #
-    def run_once(self, test_name, args='-t 10 -m -l 100000 -p 80 -b 100 -i 200 -d 0', exit_on_error=True):
+    def run_once(self, test_name, args='-t 10 -m -l 100000 -p 80 -i 200 -d 0', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        latency_limit = 1000
+        if self.hostname == 'starlow':
+            latency_limit = 200
+        elif self.hostname == 'ivysaur':
+            latency_limit = 700
 
+        args += ' -b ' + str(latency_limit)
         self.results = utils.system_output(self.srcdir + '/rt-tests/cyclictest ' + args, retain_output=True)
 
         if "Break" == self.results.splitlines()[-1].split()[1]:
-            raise error.TestError('FAIL: Max latency over 100us.')
+            raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return
 

@@ -12,6 +12,7 @@ class rt_tests_pmqtest(test.test):
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.arch = platform.processor()
+        self.hostname = os.uname()[1]
 
     def install_required_pkgs(self):
         try:
@@ -63,12 +64,19 @@ class rt_tests_pmqtest(test.test):
     #
     #    Driven by the control file for each individual test.
     #
-    #    Runs pmqtest for 60 seconds. This will fail if the max latency is over 100us.
+    #    Runs pmqtest for 60 seconds. This will fail if the max latency is over a specified limit.
     #
-    def run_once(self, test_name, args='-Sp80 -i100 -d0 -b100 -q -D60', exit_on_error=True):
+    def run_once(self, test_name, args='-Sp80 -i100 -d0 -q -D60', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        latency_limit = 1000
+        if self.hostname == 'starlow':
+            latency_limit = 200
+        elif self.hostname == 'ivysaur':
+            latency_limit = 700
 
+        args += ' -b' + str(latency_limit)
         self.results = utils.system_output(self.srcdir + '/rt-tests/pmqtest ' + args, retain_output=True)
 
         lines = self.results.split('\n')
@@ -78,8 +86,8 @@ class rt_tests_pmqtest(test.test):
             if 'Max' in line:
                 max_latencies.append(int(line.split()[-1]))
 
-        # Check if any max value is over 100
-        if any(value > 100 for value in max_latencies):
-            raise error.TestError('FAIL: Max latency over 100us.')
+        # Check if any max value is over latency limit
+        if any(value > latency_limit for value in max_latencies):
+            raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

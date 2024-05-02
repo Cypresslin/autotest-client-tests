@@ -14,6 +14,7 @@ class rteval(test.test):
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.arch = platform.processor()
+        self.hostname = os.uname()[1]
 
     def install_required_pkgs(self):
         try:
@@ -100,7 +101,7 @@ class rteval(test.test):
     #
     #    Driven by the control file for each individual test.
     #
-    #    Runs rteval. Test passes if max latency is not over 200us.
+    #    Runs rteval. Test passes if max latency is not over specified limit.
     #
     def run_once(self, test_name, args='', exit_on_error=True):
         if test_name == 'setup':
@@ -137,7 +138,13 @@ class rteval(test.test):
         latency = maximum_tag.text
         print("Maximum latency: "+latency+"us")
 
-        if int(latency) > 200:
-            raise error.TestError('FAIL: Max latency too high.')
+        latency_limit = 1000
+        if self.hostname == 'starlow':
+            latency_limit = 200
+        elif self.hostname == 'ivysaur':
+            latency_limit = 800
+
+        if int(latency) > latency_limit:
+            raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

@@ -27,7 +27,10 @@ if result == 'GOOD':
         if all_tests[category]:
             for sub_test in all_tests[category]:
                 test = '{}.{}'.format(category, sub_test)
-                job.run_test_detail(NAME, test_name=test, tag=test, timeout=60*35)
+                timeout_threshold = 60*35
+                if test == 'ApparmorTestsuites.test_parser_testsuite':
+                    timeout_threshold = 60*50  # LP:2064586
+                job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 
     # Extra clean up task for Jammy
     job.run_test_detail(NAME, test_name='cleanup', tag='cleanup', timeout=60*5)

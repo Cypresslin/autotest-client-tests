@@ -28,14 +28,19 @@ class ubuntu_boot(test.test):
         else:
             logfile = '/var/log/syslog'
         patterns = [
-            'kernel: \[ *\d+\.\d+\] BUG:.*',
-            'kernel: \[ *\d+\.\d+\] Oops:.*',
-            'kernel: \[ *\d+\.\d+\] kernel BUG at.*',
-            'kernel: \[ *\d+\.\d+\] WARNING:.*'
+            'kernel:( \[ *\d+\.\d+\])? BUG:.*',
+            'kernel:( \[ *\d+\.\d+\])? Oops:.*',
+            'kernel:( \[ *\d+\.\d+\])? kernel BUG at.*',
+            'kernel:( \[ *\d+\.\d+\])? WARNING:.*'
         ]
         test_passed = True
-        print('Checking error message in {}:'.format(logfile))
+        if not os.path.exists(logfile):
+            # Hack for systems without syslog (Ubuntu Core)
+            logfile = '/tmp/journalctl-syslog'
+            utils.system('journalctl -k > {}'.format(logfile))
+
         if os.path.exists(logfile):
+            print('Checking error message in {}:'.format(logfile))
             with open(logfile) as f:
                 content = f.read()
                 for pat in patterns:

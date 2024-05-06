@@ -10,6 +10,10 @@ class TestRevocationList(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config_file = "/boot/config-" + os.uname()[2]
+        # For Ubuntu Core
+        if not os.path.isfile(config_file):
+            config_file = "/run/mnt/kernel/config-"+ os.uname()[2]
+
         revocation_list_available = False
         with open(config_file) as f:
             for line in f:

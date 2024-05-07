@@ -99,5 +99,5 @@ class ubuntu_boot(test.test):
 
         cmd = "uname -a"
         utils.system(cmd)
-        cmd = "lsb_release -a"
+        cmd = "cat /etc/os-release"
         utils.system(cmd)

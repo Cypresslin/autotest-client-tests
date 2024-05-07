@@ -8,9 +8,14 @@ from autotest.client.shared import error
 class ubuntu_boot(test.test):
     version = 1
     def setup(self):
-        pkgs = [ 'python3', 'keyutils' ]
-        cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
-        self.results = utils.system_output(cmd, retain_output=True)
+        with open('/proc/cmdline', 'r') as fh:
+            content = fh.read()
+        if 'snapd_recovery_mode' in content:
+            print('Running Ubuntu Core system, skipping apt commands.')
+        else:
+            pkgs = [ 'python3', 'keyutils' ]
+            cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
+            self.results = utils.system_output(cmd, retain_output=True)
 
     def log_check(self):
         '''Test for checking error patterns in log files'''

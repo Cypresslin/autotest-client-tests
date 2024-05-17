@@ -136,6 +136,17 @@ class ubuntu_kernel_selftests(test.test):
                 utils.system(cmd)
 
             #
+            # Disable ptrace/get_set_sud on architectures without CONFIG_GENERIC_ENTRY
+            # LP: #2044079
+            #
+            config_file = '/boot/config-{}'.format(platform.uname()[2])
+            if os.path.exists(config_file) and not 'CONFIG_GENERIC_ENTRY=y' in open(config_file).read():
+                mk = 'linux/tools/testing/selftests/ptrace/Makefile'
+                if os.path.exists(mk):
+                    cmd = 'sed -i "s/ get_set_sud//" ' + mk
+                    utils.system(cmd)
+
+            #
             # memory hotplug test will fail on arm and several cloud platforms from 5.6+
             # as it was enabled in 5.6 but needs memory that does not
             # have boot time pages in the regions to be offlined and

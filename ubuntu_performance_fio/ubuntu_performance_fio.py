@@ -367,14 +367,17 @@ class ubuntu_performance_fio(test.test):
         for l in results.splitlines():
             for s in l.split():
                 if s.startswith("BW="):
-                    bw = float(re.findall(r"[-+]?\d*\.*\d+", s)[0])
-                    if "read: " in l:
-                        values['rd_bandwidth_per_sec'] = bw
-                    if "write: " in l:
-                        values['wr_bandwidth_per_sec'] = bw
+                    bw_scaled = float(re.findall(r"[-+]?\d*\.*\d+", s)[0])
+                    bw_kb = bw_scaled
                     for sc in kb_scale:
                         if sc in s:
-                            bw = bw * kb_scale[sc]
+                            bw_kb = bw_scaled * kb_scale[sc]
+                    if "read: " in l:
+                        values['rd_bandwidth_per_sec'] = bw_scaled
+                        values['rd_bandwidth_gib_per_sec'] = bw_kb / kb_scale['GiB']
+                    if "write: " in l:
+                        values['wr_bandwidth_per_sec'] = bw_scaled
+                        values['wr_bandwidth_gib_per_sec'] = bw_kb / kb_scale['GiB']
 
             idx_avg = l.find("avg=")
             idx_stdev = l.find("stdev=")
@@ -390,7 +393,7 @@ class ubuntu_performance_fio(test.test):
         testname = testname.replace("-","_")
 
         values['file_size_mb'] = file_size_mb
-        values['bandwidth_kb_per_sec'] = bw
+        values['bandwidth_kb_per_sec'] = bw_kb
         values['latency_usec_average'] = avg
         values['latency_stddev'] = stdev
 
@@ -414,8 +417,10 @@ class ubuntu_performance_fio(test.test):
             print("fio_%s%s_%s_file_size_mb[%d] %s" % (media, config, testname, i, values[i]['file_size_mb']))
             if 'rd_bandwidth_per_sec' in values[i] and 'testname' in values[i]:
                 print("fio_%s%s_%s,rd_bandwidth_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['rd_bandwidth_per_sec']))
+                print("fio_%s%s_%s,rd_bandwidth_gib_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['rd_bandwidth_gib_per_sec']))
             if 'wr_bandwidth_per_sec' in values[i] and 'testname' in values[i]:
                 print("fio_%s%s_%s,wr_bandwidth_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['wr_bandwidth_per_sec']))
+                print("fio_%s%s_%s,wr_bandwidth_gib_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['wr_bandwidth_gib_per_sec']))
             print("fio_%s%s_%s_bandwidth_kb_per_sec[%d] %.2f" % (media, config, testname, i, values[i]['bandwidth_kb_per_sec']))
             print("fio_%s%s_%s_latency_usec_average[%d] %.2f" % (media, config, testname, i, values[i]['latency_usec_average']))
             print("fio_%s%s_%s_latency_stddev[%d] %.2f" % (media, config, testname, i, values[i]['latency_stddev']))

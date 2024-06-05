@@ -108,7 +108,8 @@ class ubuntu_ltp_stable(test.test):
                          'ioctl_sg01': '3',  # cve-2018-1000204 / ioctl_sg01 (LP: #1899413, LP: #1936886, LP: #1949934)
                          'in6_02': '4',
                          'hugefork02': '5',  # LP: #2026543
-                         'hugemmap15': '10'} # LP: #2026248
+                         'hugemmap06': '5',  # LP: #2068006
+                         'hugemmap15': '25'} # LP: #2026248, LP: #2068006
         if utils.system_output('virt-what', verbose=False):
             print("Running in VM, set timeout multiplier LTP_TIMEOUT_MUL=3 for memcg_test_3 (lp:1836694)")
             timeout_cases['memcg_test_3'] = '3'

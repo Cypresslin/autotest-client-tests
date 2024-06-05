@@ -238,10 +238,11 @@ class ubuntu_performance_multipass(test.test):
                     minimum = min(results)
                     maximum = max(results)
                     average = sum(results) / len(results)
-                    if average > 0:
+                    if average > 0 and len(results) > 1:
                         stddev = sqrt(float(reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, results))) / (len(results) - 1))
                         percent_stddev = (stddev / average) * 100.0 if average > 0.0 else 0.0
                     else:
+                        print("Not enough results to calculate sample standard deviation!")
                         stddev = 0.0
                         percent_stddev = 0.0
                     print("%s_%s_%s_minimum %.3f" % (test_name, release, key, minimum))

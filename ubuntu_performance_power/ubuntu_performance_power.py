@@ -67,11 +67,6 @@ class ubuntu_performance_power(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
 
         pkgs = [
             'apparmor',
@@ -94,13 +89,22 @@ class ubuntu_performance_power(test.test):
         pass
 
     def setup(self):
+        try:
+            series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            series = distro.codename()
         self.install_required_pkgs()
         self.job.require_gcc()
         os.chdir(self.srcdir)
         shutil.rmtree('stress-ng', ignore_errors=True)
         self.results = utils.system_output('git clone https://git.launchpad.net/~canonical-kernel-team/+git/stress-ng', retain_output=True)
         os.chdir(os.path.join(self.srcdir, 'stress-ng'))
-        self.results = utils.system_output('git checkout -b V0.09.56 V0.09.56', retain_output=True)
+        branch = 'V0.09.56'
+        if series not in ['xenial', 'bionic', 'focal']:
+            branch = 'V0.18.00'  # LP: #1959090
+        cmd = 'git checkout -b {} {}'.format(branch, branch)
+        self.results = utils.system_output(cmd, retain_output=True)
         self.results = utils.system_output('make', retain_output=True)
 
     def get_sysinfo(self):

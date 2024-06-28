@@ -3,6 +3,7 @@
 import os
 from autotest.client import test, utils
 from math import sqrt
+import functools
 import platform
 import time
 import json
@@ -613,7 +614,7 @@ class ubuntu_performance_lkp(test.test):
             test_run = True
 
             if len(values) > 1:
-                stddev = sqrt(float(reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, values))) / (len(values) - 1))
+                stddev = sqrt(float(functools.reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, values))) / (len(values) - 1))
             else:
                 stddev = 0.0
             percent_stddev = (stddev / average) * 100.0 if average > 0 else 0.0

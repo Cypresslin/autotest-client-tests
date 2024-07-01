@@ -108,7 +108,7 @@ class ubuntu_kselftests_ftrace(test.test):
         os.chdir(dir_root)
         # Run sub-tests with ftracetest script, convert test name back to path
         test = sub_test.replace('--', '/')
-        cmd = './ftracetest -vvv {}'.format(test)
+        cmd = './ftracetest -v {}'.format(test)
         result = utils.system_output(cmd, retain_output=True)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

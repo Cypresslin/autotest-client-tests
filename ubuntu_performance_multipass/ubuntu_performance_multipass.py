@@ -13,7 +13,7 @@ import resource
 # Number of test iterations to get min/max/average stats
 #
 test_iterations = 5
-releases = [ 'xenial', 'bionic', 'eoan', 'focal' ]
+releases = [ 'xenial', 'bionic', 'focal', 'jammy' ]
 
 class ubuntu_performance_multipass(test.test):
     version = 0

@@ -197,8 +197,27 @@ class ubuntu_performance_multipass(test.test):
         else:
             kernel = 'unknown'
 
-        results = self.multipass_run_cmd_output(vm, 'systemd-analyze')
-        stats = self.parse_systemd_analyze(results)
+        attempts = 18
+        interval = 10
+        retval = None
+        # Deal with cases where systemd-analyze is not ready yet (LP: #2071635)
+        while attempts >= 0:
+            attempts -= 1
+            try:
+                results = self.multipass_run_cmd_output(vm, 'systemd-analyze')
+                stats = self.parse_systemd_analyze(results)
+                retval = [ kernel, stats ]
+                break
+            except error.CmdError as err:
+                if 'Bootup is not yet finished' in err.result_obj.stderr:
+                    if attempts >= 0:
+                        print('Wait for {} seconds and try again.'.format(interval))
+                        time.sleep(interval)
+                    else:
+                        raise error.TestError('Failed to finish boot within {}*{} seconds'.format(attempt, interval))
+                else:
+                    raise error.TestError('Unknown command error: {}', err)
+                continue
 
         cmd = 'multipass delete ' + vm
         if self.multipass_run_cmd(cmd):
@@ -206,7 +225,7 @@ class ubuntu_performance_multipass(test.test):
         cmd = 'multipass purge'
         if self.multipass_run_cmd(cmd):
             print("failed to purge")
-        return [ kernel, stats ]
+        return retval
 
     def run_once(self, test_name):
         if test_name == 'setup':

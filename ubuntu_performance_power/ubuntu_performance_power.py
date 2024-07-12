@@ -3,6 +3,7 @@
 import os
 from autotest.client                        import test, utils
 from math import sqrt
+import functools
 import platform
 import time
 import shutil
@@ -125,7 +126,7 @@ class ubuntu_performance_power(test.test):
                 max_err = (maximum - minimum) / average * 100.0
 
                 if len(watts) > 1:
-                    stddev = sqrt(float(reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, watts))) / (len(watts) - 1))
+                    stddev = sqrt(float(functools.reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, watts))) / (len(watts) - 1))
                 else:
                     stddev = 0.0
                 percent_stddev = (stddev / average) * 100.0

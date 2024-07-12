@@ -3,6 +3,7 @@
 import os
 from autotest.client                        import test, utils
 from math import sqrt
+import functools
 import platform
 import time
 import subprocess
@@ -156,7 +157,7 @@ class ubuntu_performance_misc(test.test):
         maximum = max(results)
         average = sum(results) / len(results)
         max_err = (maximum - minimum) / average * 100.0 if average > 0.0 else 0.0
-        stddev = sqrt(float(reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, results))) / (len(results) - 1))
+        stddev = sqrt(float(functools.reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, results))) / (len(results) - 1))
         percent_stddev = (stddev / average) * 100.0 if average > 0.0 else 0.0
 
         print("")

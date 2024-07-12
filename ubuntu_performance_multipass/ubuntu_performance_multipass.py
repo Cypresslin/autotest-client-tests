@@ -4,6 +4,7 @@ import os
 import re
 from autotest.client                        import test, utils
 from math import sqrt
+import functools
 import platform
 import time
 import subprocess
@@ -239,7 +240,7 @@ class ubuntu_performance_multipass(test.test):
                     maximum = max(results)
                     average = sum(results) / len(results)
                     if average > 0 and len(results) > 1:
-                        stddev = sqrt(float(reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, results))) / (len(results) - 1))
+                        stddev = sqrt(float(functools.reduce(lambda x, y: x + y, map(lambda x: (x - average) ** 2, results))) / (len(results) - 1))
                         percent_stddev = (stddev / average) * 100.0 if average > 0.0 else 0.0
                     else:
                         print("Not enough results to calculate sample standard deviation!")

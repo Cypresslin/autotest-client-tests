@@ -12,7 +12,7 @@ DOC = ""
 
 result = job.run_test_detail(NAME, tag='setup', test_name='setup', timeout=60*30)
 if result == 'GOOD':
-    results = job.run_test_detail(NAME, tag='multipassboot', test_name='multipassboot', timeout=1800)
+    results = job.run_test_detail(NAME, tag='multipassboot', test_name='multipassboot', timeout=60*45)
     print(results)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")

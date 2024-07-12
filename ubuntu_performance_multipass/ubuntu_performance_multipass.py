@@ -226,7 +226,7 @@ class ubuntu_performance_multipass(test.test):
                 if ret != None:
                      [ kernel, result ] = ret
                      boot_results.append(result)
-                     keys = keys + result.keys()
+                     keys = keys + list(result.keys())
 
             keys = list(set(keys)) # find all unique keys in the results
             for key in keys:

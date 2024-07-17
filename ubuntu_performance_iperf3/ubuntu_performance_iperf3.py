@@ -43,6 +43,8 @@ class ubuntu_performance_iperf3(test.test):
             config = 'dgx2.yaml'
         elif bpn == 'DGXA100':
             config = 'a100.yaml'
+        elif bpn.startswith("DGXH100\n"):
+            config = 'h100.yaml'
         else:
             raise KeyError("No iperf3 config file for server {}".format(bpn))
 

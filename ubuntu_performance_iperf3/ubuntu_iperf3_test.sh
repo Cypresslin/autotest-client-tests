@@ -111,7 +111,9 @@ for nic in $server_iface $client_iface; do
     tx_max="$(ethtool -g $nic | awk '/TX:/ {print $NF; exit}')"
     sudo ethtool -G $nic tx ${tx_max} || [ $? -eq 80 ] # Already at max
     sudo ethtool -g $nic
-    sudo ethtool -K $nic lro on
+    if [ "$skip_lro_on" != "true" ]; then
+        sudo ethtool -K $nic lro on
+    fi
     sudo ethtool -k $nic
     sudo env PATH="${PATH}:${mlnx_tools}/ofed_scripts" set_irq_affinity.sh $nic
     sudo ip link set dev ${nic} txqueuelen 20000
@@ -146,6 +148,7 @@ do_iteration() {
 		unset server_args
 		unset client_args
 		iperf3_instances=$(cat /tmp/iperf3-config.json | jq --arg test "${tests}" --arg nt "numinstances" '.[$test][$nt]')
+		expected_throughput=$(cat /tmp/iperf3-config.json | jq --arg test "${tests}" --arg et "expected_throughput" '.[$test][$et]')
 		server_args=$(cat /tmp/iperf3-config.json | jq --arg test "${tests}" --arg so "serveroptions" '.[$test][$so]' | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" | sed 's/[^ ]* */--&/g' | sed 's/=null/ /' | tr '"\r\n' ' ')
 		client_args=$(cat /tmp/iperf3-config.json | jq --arg test "${tests}" --arg co "clientoptions" '.[$test][$co]' | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" | sed 's/[^ ]* */--&/g' | sed 's/=null/ /' |  tr '"\r\n' ' ')
 
@@ -238,8 +241,10 @@ do_iteration() {
 		max_bps_rx=$(echo "${bps_rx[*]}" | tr ' ' '\n' | sort -nr | head -n1)
 		err_bps_tx=$(printf "%.5f" $(bc -l <<< "($max_bps_tx-$min_bps_tx)/$avg_bps_tx*100"))
 		err_bps_rx=$(printf "%.5f" $(bc -l <<< "($max_bps_rx-$min_bps_rx)/$avg_bps_rx*100"))
-		# Max throughput for Mellanox nic on DGX2 is 100G, 
-		expected_throughput=$(printf "%.5f" $(bc -l <<< "100000000000*0.90"))
+		# Max throughput for Mellanox nic on DGX2 is 100G, use 90% of that as a fallback
+		if [ "$expected_throughput" = "null" ]; then
+			expected_throughput=$(printf "%.5f" $(bc -l <<< "100000000000*0.90"))
+		fi
 
 		# Sender information
 		printf "iperf3_%s_clients%d_%s_%s_mbit_per_sec_minimum[%d] %.2f\n" "${config_title}" "${iperf3_instances}" "${direction}" "sender_rate" "${iteration}" $(bc -l <<< "${min_bps_tx}/1000000")
@@ -247,7 +252,7 @@ do_iteration() {
 		printf "iperf3_%s_clients%d_%s_%s_mbit_per_sec_average[%d] %.2f\n" "${config_title}" "${iperf3_instances}" "${direction}" "sender_rate" "${iteration}" $(bc -l <<< "${avg_bps_tx}/1000000")
 		printf "iperf3_%s_clients%d_%s_%s_mbit_per_sec_maximum_error[%d] %.2f%%\n" "${config_title}" "${iperf3_instances}" "${direction}" "sender_rate" "${iteration}" "${err_bps_tx}"
 		# Sum of Mbps rates for all instances of iperf3 should be 
-		# greater than 90% of expected throughput.
+		# greater than expected throughput.
 		if (( $(echo "${expected_throughput} > ${bps_tx_tot}" | bc -l) )); then
 			printf "FAIL: average bitrate of %.2f Mbit/sec by is less than minimum threshold of %.2f Mbit/sec\n" $(bc -l <<< "${bps_tx_tot}/1000000") $(bc -l <<< "${expected_throughput}/1000000")
 		else

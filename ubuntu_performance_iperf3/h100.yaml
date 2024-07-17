@@ -1,0 +1,49 @@
+setup:
+        server_iface: enp41s0f0np0
+        client_iface: enp170s0f0np0
+        server_ip: 192.168.5.1
+        client_ip: 192.168.5.2
+        start_port: 5001
+        skip_lro_on: true
+test01:
+        numinstances: 15
+        serveroptions:
+                interval: 0
+        clientoptions:
+                interval: 0
+                time: 60
+                json:
+                title: config6
+        expected_throughput: 360000000000
+test02:
+        numinstances: 15
+        serveroptions:
+                interval: 0
+        clientoptions:
+                interval: 0
+                time: 60
+                json:
+                reverse:
+                title: config6
+        expected_throughput: 360000000000
+test03:
+        numinstances: 1
+        serveroptions:
+                interval: 0
+        clientoptions:
+                interval: 0
+                time: 60
+                json:
+                title: config6
+        expected_throughput: 50000000000
+test04:
+        numinstances: 1
+        serveroptions:
+                interval: 0
+        clientoptions:
+                interval: 0
+                time: 60
+                json:
+                reverse:
+                title: config6
+        expected_throughput: 50000000000

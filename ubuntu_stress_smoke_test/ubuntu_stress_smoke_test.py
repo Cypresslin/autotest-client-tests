@@ -60,9 +60,17 @@ class ubuntu_stress_smoke_test(test.test):
 
 
     def build_source(self):
+        try:
+            series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            series = distro.codename()
         os.chdir(self.srcdir)
         shutil.rmtree('stress-ng', ignore_errors=True)
-        cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/stress-ng'
+        branch = 'sru'
+        if series in ['trusty']:
+            branch = 'sru-trusty'
+        cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/stress-ng -b {}'.format(branch)
         self.results = utils.system_output(cmd, retain_output=True)
 
         # Print test suite HEAD SHA1 commit id for future reference

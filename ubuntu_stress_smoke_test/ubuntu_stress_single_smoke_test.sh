@@ -28,8 +28,8 @@ CGROUP_MEM1=/sys/fs/cgroup/memory/stress-ng-test
 CGROUP_LIMIT1=${CGROUP_MEM1}/memory.limit_in_bytes
 CGROUP_MEM2=/sys/fs/cgroup/stress-ng-test
 CGROUP_LIMIT2=${CGROUP_MEM2}/memory.max
-CGROUP=$(grep "/sys/fs/cgroup" /proc/mounts | cut -d' ' -f1)
-if [ $CGROUP == "cgroup2" ]; then
+CGROUP=$(grep -o "^cgroup2 /sys/fs/cgroup " /proc/mounts | grep -o cgroup2)
+if [ "$CGROUP" == "cgroup2" ]; then
 	echo "Using cgroup version 2"
 	CGROUP_MEM=${CGROUP_MEM2}
 	CGROUP_LIMIT=${CGROUP_LIMIT2}

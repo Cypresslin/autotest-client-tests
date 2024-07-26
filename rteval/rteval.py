@@ -131,12 +131,26 @@ class rteval(test.test):
 
         xml_root = ET.fromstring(results_string)
         maximum_tag = xml_root.find(".//maximum")
+        mean_tag = xml_root.find(".//mean")
+        minimum_tag = xml_root.find(".//minimum")
 
         if maximum_tag is None:
             raise error.TestError('FAIL: Max latency not found.')
 
-        latency = maximum_tag.text
-        print("Maximum latency: "+latency+"us")
+        if mean_tag is None:
+            raise error.TestError('FAIL: Mean latency not found.')
+
+        if minimum_tag is None:
+            raise error.TestError('FAIL: Minimum latency not found.')
+
+        max_latency = maximum_tag.text
+        mean_latency = mean_tag.text
+        minimum_latency = minimum_tag.text
+
+        # Print stats in format used by mass-scrape-influxdb.sh
+        print("rteval_latency_maximum %.3f" % float(max_latency))
+        print("rteval_latency_average %.3f" % float(mean_latency))
+        print("rteval_latency_minimum %.3f" % float(minimum_latency))
 
         latency_limit = 1000
         if self.hostname == 'starlow':
@@ -144,7 +158,7 @@ class rteval(test.test):
         elif self.hostname == 'ivysaur':
             latency_limit = 800
 
-        if int(latency) > latency_limit:
+        if int(max_latency) > latency_limit:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

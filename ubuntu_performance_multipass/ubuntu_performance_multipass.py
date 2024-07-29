@@ -3,6 +3,7 @@
 import os
 import re
 from autotest.client                        import test, utils
+from autotest.client.shared                 import error
 from math import sqrt
 import functools
 import platform

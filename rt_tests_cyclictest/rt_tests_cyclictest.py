@@ -78,10 +78,43 @@ class rt_tests_cyclictest(test.test):
         elif self.hostname == 'ivysaur':
             latency_limit = 700
 
-        args += ' -b ' + str(latency_limit)
         self.results = utils.system_output(self.srcdir + '/rt-tests/cyclictest ' + args, retain_output=True)
 
-        if "Break" == self.results.splitlines()[-1].split()[1]:
+        # Find the last contiguous block of lines that include "T:", 
+        # which contains the final values for cyclictest.
+        cyclictest_last_group = []
+        block_started = False
+        for line in reversed(self.results.splitlines()):
+            if line.find("T:") >= 0:
+                cyclictest_last_group.append(line)
+                block_started = True
+            elif block_started:
+                break
+
+        # Calculate the min/avg/max
+        min_values = []
+        avg_values = []
+        max_values = []
+
+        for line in cyclictest_last_group:
+            min_value = int(re.search(r'Min:\s+(\d+)', line).group(1))
+            avg_value = int(re.search(r'Avg:\s+(\d+)', line).group(1))
+            max_value = int(re.search(r'Max:\s+(\d+)', line).group(1))
+            
+            min_values.append(min_value)
+            avg_values.append(avg_value)
+            max_values.append(max_value)
+
+        max_latency = max(max_values)
+        mean_latency = sum(avg_values) / float(len(avg_values))
+        minimum_latency = min(min_values)
+
+        # Print stats in format used by mass-scrape-influxdb.sh
+        print("rt_tests_cyclictest_latency_maximum %.3f" % float(max_latency))
+        print("rt_tests_cyclictest_latency_average %.3f" % float(mean_latency))
+        print("rt_tests_cyclictest_latency_minimum %.3f" % float(minimum_latency))
+
+        if max_latency > latency_limit:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

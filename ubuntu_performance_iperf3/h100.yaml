@@ -6,7 +6,7 @@ setup:
         start_port: 5001
         skip_lro_on: true
 test01:
-        numinstances: 15
+        numinstances: 16
         serveroptions:
                 interval: 0
         clientoptions:
@@ -16,7 +16,7 @@ test01:
                 title: config6
         expected_throughput: 360000000000
 test02:
-        numinstances: 15
+        numinstances: 16
         serveroptions:
                 interval: 0
         clientoptions:

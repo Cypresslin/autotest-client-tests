@@ -76,18 +76,35 @@ class rt_tests_pmqtest(test.test):
         elif self.hostname == 'ivysaur':
             latency_limit = 700
 
-        args += ' -b' + str(latency_limit)
         self.results = utils.system_output(self.srcdir + '/rt-tests/pmqtest ' + args, retain_output=True)
 
-        lines = self.results.split('\n')
+        # Extract results lines (contain "Max")
+        results_lines = [line for line in self.results.splitlines() if "Max" in line]
+        
+        # Calculate the min/avg/max
+        min_values = []
+        avg_values = []
+        max_values = []
 
-        max_latencies = []
-        for line in lines:
-            if 'Max' in line:
-                max_latencies.append(int(line.split()[-1]))
+        for line in results_lines:
+            min_value = int(re.search(r'Min\s+(\d+)', line).group(1))
+            avg_value = int(re.search(r'Avg\s+(\d+)', line).group(1))
+            max_value = int(re.search(r'Max\s+(\d+)', line).group(1))
+            
+            min_values.append(min_value)
+            avg_values.append(avg_value)
+            max_values.append(max_value)
+
+        max_latency = max(max_values)
+        mean_latency = sum(avg_values) / float(len(avg_values))
+        min_latency = min(min_values)
+
+        print("rt_tests_pmqtest_latency_maximum %.3f" % float(max_latency))
+        print("rt_tests_pmqtest_latency_average %.3f" % float(mean_latency))
+        print("rt_tests_pmqtest_latency_minimum %.3f" % float(min_latency))
 
         # Check if any max value is over latency limit
-        if any(value > latency_limit for value in max_latencies):
+        if max_latency > latency_limit:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

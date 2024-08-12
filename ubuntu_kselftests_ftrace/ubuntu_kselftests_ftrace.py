@@ -99,8 +99,8 @@ class ubuntu_kselftests_ftrace(test.test):
             cmd = "make -C linux/tools/testing/selftests TARGETS={}".format(test_name.replace('-build', ''))
             utils.system_output(cmd, retain_output=True)
             return
-        if test_name == 'ftrace:test.d--kprobe--multiple_kprobes.tc' and self.arch == 'riscv64' and self.series == 'noble':
-            raise error.TestFail('Test marked as failed as it cause panic for N-RISCV (LP: #2070034)')
+        if test_name == 'ftrace:test.d--kprobe--multiple_kprobes.tc' and self.arch == 'riscv64' and self.kv == 680:
+            raise error.TestFail('Test marked as failed as it cause panic for N-RISCV / J-RISCV-6.8 (LP: #2070034)')
 
         category = test_name.split(':')[0]
         sub_test = test_name.split(':')[1]

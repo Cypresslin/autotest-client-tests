@@ -27,9 +27,9 @@ if result == 'GOOD':
     #
     if os.uname()[1] == 'ivysaur':
         jobs = [
-            [ 'apache', 'apache', 10 ],
+            [ 'apache', 'apache', 15 ],
             [ 'cloverleaf', 'cloverleaf', 30 ],
-            [ 'crafty', 'crafty', 10 ],
+            [ 'crafty', 'crafty', 15 ],
             [ 'ebizzy', 'ebizzy', 10 ],
             [ 'git', 'git', 30 ],
             [ 'phpbench', 'phpbench', 10 ],

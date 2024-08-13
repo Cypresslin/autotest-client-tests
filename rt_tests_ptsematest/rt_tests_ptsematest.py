@@ -79,23 +79,33 @@ class rt_tests_ptsematest(test.test):
 
         self.results = utils.system_output(self.srcdir + '/rt-tests/ptsematest ' + args, retain_output=True)
 
-        # Parse results
+        # Extract results lines (contain "Max")
+        results_lines = [line for line in self.results.splitlines() if "Max" in line]
+        
+        # Calculate the min/avg/max
+        min_values = []
+        avg_values = []
         max_values = []
-        lines = self.results.split('\n')
 
-        for line in lines:
-            components = line.split(',')
-            for component in components:
-                if 'Max' in component:
-                    # Extract the max latency for each thread
-                    max_value = int(component.strip().split()[-1])
-                    max_values.append(max_value)
+        for line in results_lines:
+            min_value = int(re.search(r'Min\s+(\d+)', line).group(1))
+            avg_value = int(re.search(r'Avg\s+(\d+)', line).group(1))
+            max_value = int(re.search(r'Max\s+(\d+)', line).group(1))
+            
+            min_values.append(min_value)
+            avg_values.append(avg_value)
+            max_values.append(max_value)
 
-        # Find the highest "Max" latency
-        highest_max = max(max_values)
-        print("Highest Max Latency:", highest_max)
+        max_latency = max(max_values)
+        mean_latency = sum(avg_values) / float(len(avg_values))
+        min_latency = min(min_values)
 
-        if highest_max > latency_limit:
+        print("rt_tests_ptsematest_latency_maximum %.3f" % float(max_latency))
+        print("rt_tests_ptsematest_latency_average %.3f" % float(mean_latency))
+        print("rt_tests_ptsematest_latency_minimum %.3f" % float(min_latency))
+
+        # Check if any max value is over latency limit
+        if max_latency > latency_limit:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

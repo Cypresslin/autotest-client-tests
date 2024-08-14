@@ -106,7 +106,7 @@ class ubuntu_ltp_stable(test.test):
 
         timeout_cases = {'zram01': '5',
                          'ioctl_sg01': '3',  # cve-2018-1000204 / ioctl_sg01 (LP: #1899413, LP: #1936886, LP: #1949934)
-                         'in6_02': '4',
+                         'in6_02': '10',     # LP: #2076958
                          'hugefork02': '5',  # LP: #2026543
                          'hugemmap06': '5',  # LP: #2068006
                          'hugemmap15': '25'} # LP: #2026248, LP: #2068006

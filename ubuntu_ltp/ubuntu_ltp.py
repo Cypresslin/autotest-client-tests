@@ -127,6 +127,9 @@ class ubuntu_ltp(test.test):
         elif test_case == 'read_all_sys':
             print("Setting LTP_TIMEOUT_MUL={} for read_all_sys".format(LTP_TIMEOUT_MUL))
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
+        elif test_case == 'starvation':
+            print("Setting LTP_TIMEOUT_MUL=4 for starvation (lp:2059259)")
+            os.environ["LTP_TIMEOUT_MUL"] = '4'
 
         if test_case == 'read_all_sys' and os.uname()[1] == 'mtk-genio':
             raise error.TestFail('Test marked as failed for mtk due to cause apusys driver error (LP: #2059103)')

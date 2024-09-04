@@ -1,6 +1,17 @@
 # kernel_taint_test known issues for module taint flags
 
-dgx_modules = {'jammy':  {'nvidia_uvm':     'POE',
+dgx_modules = {'noble':  {'nvidia_uvm':     'POE',
+                          'nvidia_drm':     'POE',
+                          'nvidia_modeset': 'POE',
+                          'nvidia':         'POE',
+                          'mlx5_ib':        'OE',
+                          'ib_uverbs':      'OE',
+                          'ib_core':        'OE',
+                          'mlx5_core':      'OE',
+                          'mlxfw':          'OE',
+                          'mlxdevm':        'OE',
+                          'mlx_compat':     'OE'},
+               'jammy':  {'nvidia_uvm':     'POE',
                           'nvidia_drm':     'POE',
                           'nvidia_modeset': 'POE',
                           'nvidia':         'POE',

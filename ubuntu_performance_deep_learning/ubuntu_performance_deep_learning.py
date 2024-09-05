@@ -1,6 +1,6 @@
 import os
 import helper
-from autotest.client import test, utils
+from autotest.client import test, utils, canonical_perf
 
 
 TEST_ITERATION = 3
@@ -80,7 +80,17 @@ class ubuntu_performance_deep_learning(test.test):
 
     def run_once(self, test_name):
         if test_name == "tensor-flow-cnn-resnet":
+            self.stopped_services = canonical_perf.stop_services()
+            self.oldres = canonical_perf.set_rlimit_nofile((500000, 500000))
+            canonical_perf.set_cpu_governor('performance')
+            canonical_perf.set_swap_on(False)
+
             self.tensor_flow_cnn_resnet(test_name)
+
+            canonical_perf.set_swap_on(True)
+            canonical_perf.set_cpu_governor('powersave')
+            canonical_perf.set_rlimit_nofile(self.oldres)
+            canonical_perf.start_services(self.stopped_services)
 
             print("")
             print("tensor_flow_cnn_resnet shell script has run.")

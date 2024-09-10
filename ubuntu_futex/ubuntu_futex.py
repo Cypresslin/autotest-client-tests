@@ -41,7 +41,7 @@ class ubuntu_futex(test.test):
 
         os.chdir(self.srcdir)
         shutil.rmtree('futextest', ignore_errors=True)
-        cmd = 'git clone --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/dvhart/futextest.git'
+        cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/futextest'
         self.results = utils.system_output(cmd, retain_output=True)
 
         # Print test suite HEAD SHA1 commit id for future reference

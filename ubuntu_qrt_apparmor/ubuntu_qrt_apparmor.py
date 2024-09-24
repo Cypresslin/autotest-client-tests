@@ -65,6 +65,9 @@ class ubuntu_qrt_apparmor(test.test):
         if self.series not in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'lunar']:
             pkgs.append('liburing-dev') # LP: #2044230
 
+        if self.series not in ['trusty', 'xenial']:
+            pkgs.append('bubblewrap') # LP: #2081794
+
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)
 

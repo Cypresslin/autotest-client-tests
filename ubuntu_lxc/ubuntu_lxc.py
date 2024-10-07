@@ -34,9 +34,7 @@ class ubuntu_lxc(test.test):
             pkgs.append('meson')
             pkgs.append('docbook2x')
             pkgs.append('docbook-utils')
-            # criu is not available on Noble
-            if self.series in ['mantic']:
-                pkgs.append('criu')
+            pkgs.append('libdbus-1-dev') # LP: #2083805
 
         pkgs.append('liblxc1')
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)

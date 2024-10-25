@@ -56,4 +56,10 @@ class ubuntu_fan_smoke_test(test.test):
 
         print(self.results)
 
+    def cleanup(self, test_name):
+        if test_name in ['setup', 'fan-smoke-test']:
+            return
+        cmd = 'apt remove -y docker.io'
+        utils.system(cmd)
+
 # vi:set ts=4 sw=4 expandtab syntax=python:

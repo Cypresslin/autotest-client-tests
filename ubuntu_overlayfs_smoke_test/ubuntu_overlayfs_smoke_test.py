@@ -39,4 +39,10 @@ class ubuntu_overlayfs_smoke_test(test.test):
         self.results = utils.system_output(cmd, retain_output=True)
         print(self.results)
 
+    def cleanup(self, test_name):
+        if test_name == 'post-test-cleanup':
+            cmd = 'sudo ./cleanup.sh'
+            utils.system(cmd)
+        return
+
 # vi:set ts=4 sw=4 expandtab syntax=python:

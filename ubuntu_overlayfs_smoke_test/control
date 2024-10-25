@@ -35,6 +35,8 @@ if result == 'GOOD':
     # Just run the old ubuntu_overlayfs_smoke_test.sh test on older releases LP: #2032779
     if 'ubuntu_overlayfs_smoke_test.sh' and series in ['trusty', 'xenial', 'bionic']:
         tests_list = ['ubuntu_overlayfs_smoke_test.sh']
+    else:
+        tests_list.append('post-test-cleanup')
     for test in tests_list:
         if test in SKIP_LIST:
             print("SKIPPED: " + test)

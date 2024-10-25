@@ -43,4 +43,10 @@ class ubuntu_docker_smoke_test(test.test):
         cmd = 'sudo %s/the-test' % (self.bindir)
         self.results = utils.system_output(cmd, retain_output=True)
 
+    def cleanup(self, test_name):
+        if test_name == 'setup':
+            return
+        cmd = 'apt remove -y docker.io'
+        utils.system(cmd)
+
 # vi:set ts=4 sw=4 expandtab syntax=python:

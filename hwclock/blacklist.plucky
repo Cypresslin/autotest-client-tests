@@ -1,0 +1,3 @@
+Ubuntu now uses systemd's functionality to perform the same task instead.
+Use of hwclock should be considered a deprecated method on newer releases
+of Ubuntu. (LP: #2075146)

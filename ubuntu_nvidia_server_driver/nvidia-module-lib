@@ -104,6 +104,18 @@ pkg_compatible_with_platform() {
         return 0
     fi
 
+    if [[ "$product" == *"GH200 480GB"* ]]; then
+        if [ "$branch" -lt "535" ]; then
+            return 1
+        fi
+
+        if [ "$variant" != "-open" ]; then
+            return 1
+        fi
+
+        return 0
+    fi
+
     if [ "$variant" = "-open" ]; then
         return 1
     fi

@@ -92,5 +92,9 @@ pkg_compatible_with_platform() {
         return 1
     fi
 
+    if [ "$product" = "DGXH100" ] && [ "$branch" -lt "535" ]; then
+        return 1
+    fi
+
     return 0
 }

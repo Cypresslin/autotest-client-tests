@@ -25,6 +25,11 @@ for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-serv
         variant=""
     fi
 
+    # Convert e.g. linux-modules-nvidia-470-server-5.4.0-90-generic to
+    # linux-modules-nvidia-470-server-generic
+    # We need to install this so the DKMS package isn't installed instead.
+    drvpkgmeta=$(echo "$drvpkg" | sed -e 's/[0-9]\+\.[0-9]\+\.[0-9]\+\-[0-9]\+-//')
+
     if ! pkg_compatible_with_platform "$branch" "$variant"; then
         echo "INFO: Skipping $drvpkg on $platform" 1>&2
         continue
@@ -32,11 +37,17 @@ for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-serv
     uninstall_all_nvidia_mod_pkgs
     recursive_remove_module nvidia
     sudo dmesg -c > /dev/null
-    sudo apt install -y "$drvpkg"
+    sudo apt install -y "$drvpkg" "$drvpkgmeta" "nvidia-driver-$branch-server$variant"
     sudo modprobe nvidia
-    if sudo dmesg | grep "NVRM: loading NVIDIA UNIX"; then
-        continue
+
+    if ! sudo dmesg | grep "NVRM: loading NVIDIA UNIX"; then
+        echo "ERROR: Failed to detect nvidia driver initialization message in dmesg"
+        exit 1
     fi
-    echo "ERROR: Failed to detect nvidia driver initialization message in dmesg"
-    exit 1
+
+    # nvidia-smi will return an error code (6) if no GPUs are detected
+    if ! nvidia-smi; then
+        echo "ERROR: nvidia-smi failed: rc $?"
+        exit 1
+    fi
 done

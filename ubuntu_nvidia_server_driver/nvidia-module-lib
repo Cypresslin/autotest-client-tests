@@ -77,20 +77,50 @@ uninstall_all_nvidia_mod_pkgs() {
     for pkg in $(dpkg-query -f "\${Package}\n" -W 'linux-modules-nvidia-*'); do
         sudo apt remove --purge "$pkg" -y
     done
+    for pkg in $(dpkg-query -f "\${Package}\n" -W 'nvidia-dkms-*'); do
+        sudo apt remove --purge "$pkg" -y
+    done
     if sudo modinfo nvidia; then
         echo "ERROR: Uninstallation of all nvidia modules failed."
         exit 1
     fi
 }
 
-product="$(sudo dmidecode -s baseboard-product-name)"
+product="$(sudo dmidecode -s baseboard-product-name | tr '\n' ' ')"
 pkg_compatible_with_platform() {
-    local pkg="$1"
-    branch="$(echo "$pkg" | cut -d- -f4)"
+    local branch="$1"
+    local variant="$2"
 
-    if [ "$product" = "DGXA100" ] && [ "$branch" -le "418" ]; then
-        return 1
+    if [[ "$product" == "DGXA100"* ]]; then
+        if [ "$branch" -le "418" ]; then
+            return 1
+        fi
+
+        return 0
     fi
 
+    if [[ "$product" == "DGXH100"* ]]; then
+        if [ "$branch" -lt "535" ]; then
+            return 1
+        fi
+
+        return 0
+    fi
+
+    if [[ "$product" == *"GH200 480GB"* ]]; then
+        if [ "$branch" -lt "535" ]; then
+            return 1
+        fi
+
+        if [ "$variant" != "-open" ]; then
+            return 1
+        fi
+
+        return 0
+    fi
+
+    if [ "$variant" = "-open" ]; then
+        return 1
+    fi
     return 0
 }

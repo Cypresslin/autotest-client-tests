@@ -17,19 +17,37 @@ sudo service nvidia-fabricmanager stop || /bin/true
 # linux-modules-nvidia-450-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
 # linux-modules-nvidia-460-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
 # linux-modules-nvidia-470-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
-for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server-$(uname -r)$" | cut -d' ' -f1); do
-    if ! pkg_compatible_with_platform "$drvpkg"; then
+for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server(-open)?-$(uname -r)$" | cut -d' ' -f1); do
+    branch="$(echo "$drvpkg" | cut -d- -f4)"
+    if [[ "$drvpkg" == *"$branch-server-open"* ]]; then
+        variant="-open"
+    else
+        variant=""
+    fi
+
+    # Convert e.g. linux-modules-nvidia-470-server-5.4.0-90-generic to
+    # linux-modules-nvidia-470-server-generic
+    # We need to install this so the DKMS package isn't installed instead.
+    drvpkgmeta=$(echo "$drvpkg" | sed -e 's/[0-9]\+\.[0-9]\+\.[0-9]\+\-[0-9]\+-//')
+
+    if ! pkg_compatible_with_platform "$branch" "$variant"; then
         echo "INFO: Skipping $drvpkg on $platform" 1>&2
         continue
     fi
     uninstall_all_nvidia_mod_pkgs
     recursive_remove_module nvidia
     sudo dmesg -c > /dev/null
-    sudo apt install -y "$drvpkg"
+    sudo apt install -y "$drvpkg" "$drvpkgmeta" "nvidia-driver-$branch-server$variant"
     sudo modprobe nvidia
-    if sudo dmesg | grep "NVRM: loading NVIDIA UNIX"; then
-        continue
+
+    if ! sudo dmesg | grep "NVRM: loading NVIDIA UNIX"; then
+        echo "ERROR: Failed to detect nvidia driver initialization message in dmesg"
+        exit 1
     fi
-    echo "ERROR: Failed to detect nvidia driver initialization message in dmesg"
-    exit 1
+
+    # nvidia-smi will return an error code (6) if no GPUs are detected
+    if ! nvidia-smi; then
+        echo "ERROR: nvidia-smi failed: rc $?"
+        exit 1
+    fi
 done

@@ -56,7 +56,7 @@ if result == 'GOOD':
     result = job.run_test_detail(NAME, test_name='setup-test', tag='setup-test', timeout=60*60)
     if result == 'GOOD':
         stressng_dir = os.path.join(job.bindir, 'tmp', NAME, 'src', 'stress-ng')
-        cmd = '%s/stress-ng --stressor' % (stressng_dir)
+        cmd = '%s/stress-ng --stressors' % (stressng_dir)
         stressors = utils.system_output(cmd, retain_output=True).split()
     else:
         print("ERROR: can't get a list of available stressors")

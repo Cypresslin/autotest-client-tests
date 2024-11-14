@@ -31,7 +31,7 @@ class ubuntu_overlayfs_smoke_test(test.test):
         utils.system(cmd)
 
     def run_once(self, test_name):
-        if test_name == 'setup':
+        if test_name in ['setup', 'post-test-cleanup']:
             return
 
         cmd = os.path.join(self.srcdir, TEST_DIR, 'tests', test_name)
@@ -41,7 +41,7 @@ class ubuntu_overlayfs_smoke_test(test.test):
 
     def cleanup(self, test_name):
         if test_name == 'post-test-cleanup':
-            cmd = 'sudo ./cleanup.sh'
+            cmd = os.path.join(self.srcdir, TEST_DIR, 'cleanup.sh')
             utils.system(cmd)
         return
 

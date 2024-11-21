@@ -34,7 +34,10 @@ class ubuntu_qrt_apparmor(test.test):
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
-        if self.series == 'precise':
+        if self.series == 'oracular':
+            for p in ['flake8', 'python3-tk', 'python3-ttkthemes']:
+                pkgs.append(p)
+        elif self.series == 'precise':
             for p in ['python-libapparmor', 'ruby1.8', 'libapparmor-perl']:
                 pkgs.append(p)
         elif self.series in ['trusty', 'xenial', 'bionic', 'cosmic']:

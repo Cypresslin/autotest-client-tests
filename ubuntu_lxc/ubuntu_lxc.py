@@ -35,6 +35,7 @@ class ubuntu_lxc(test.test):
             pkgs.append('docbook2x')
             pkgs.append('docbook-utils')
             pkgs.append('libdbus-1-dev') # LP: #2083805
+            pkgs.append('systemd-dev') # LP: #2089812
 
         pkgs.append('liblxc1')
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)

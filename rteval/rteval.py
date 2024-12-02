@@ -77,11 +77,15 @@ class rteval(test.test):
         # Download Linux tarball referenced in the Makefile
         with open("Makefile", mode="rt") as makefile:
             makefile_content = makefile.read()
-            linux_version_match = re.search(r'KLOAD\s*:=\s*\$\(LOADDIR\)\/linux-(\d+\.\d+(\.\d+)?)\.tar\.xz', makefile_content)
+            linux_version_match = re.search(r'KLOAD\s*:=\s*\$\(LOADDIR\)\/(linux-\d+\.\d+(\.\d+)?(-rc\d+)?\.tar\.[gx]z)', makefile_content)
             if linux_version_match:
                 linux_version = linux_version_match.group(1)
                 print("Linux version download used in testing:", linux_version)
-                cmd = 'wget -nv -P loadsource https://cdn.kernel.org/pub/linux/kernel/v'+linux_version.split('.')[0]+'.x/linux-'+linux_version+'.tar.xz'
+                if "rc" in linux_version: # RCs in a different location on kernel.org
+                    cmd = 'wget -nv -P loadsource https://git.kernel.org/torvalds/t/'+linux_version
+                else:
+                    cmd = 'wget -nv -P loadsource https://cdn.kernel.org/pub/linux/kernel/v'+linux_version.split('-')[1].split('.')[0]+'.x/'+linux_version
+                    
                 utils.system_output(cmd, retain_output=True)
             else:
                 print("Linux version download for testing not found.")

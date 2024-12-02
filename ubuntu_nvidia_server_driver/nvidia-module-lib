@@ -74,12 +74,12 @@ recursive_remove_module() {
 }
 
 uninstall_all_nvidia_mod_pkgs() {
-    for pkg in $(dpkg-query -f "\${Package}\n" -W 'linux-modules-nvidia-*'); do
-        sudo apt remove --purge "$pkg" -y
-    done
-    for pkg in $(dpkg-query -f "\${Package}\n" -W 'nvidia-dkms-*'); do
-        sudo apt remove --purge "$pkg" -y
-    done
+    sudo apt remove --purge -y $(dpkg-query -f "\${Package} " -W \
+            'nvidia-dkms-*' \
+            'linux-modules-nvidia-*' \
+            'nvidia-driver-*' \
+            )
+
     if sudo modinfo nvidia; then
         echo "ERROR: Uninstallation of all nvidia modules failed."
         exit 1

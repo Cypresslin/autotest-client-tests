@@ -78,7 +78,7 @@ uninstall_all_nvidia_mod_pkgs() {
             'nvidia-dkms-*' \
             'linux-modules-nvidia-*' \
             'nvidia-driver-*' \
-            )
+            | sed -e 's/linux-modules-nvidia-fs-[^ ]\+//')
 
     if sudo modinfo nvidia; then
         echo "ERROR: Uninstallation of all nvidia modules failed."

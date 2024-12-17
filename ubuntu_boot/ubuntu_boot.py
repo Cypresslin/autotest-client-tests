@@ -8,9 +8,9 @@ from autotest.client.shared import error
 class ubuntu_boot(test.test):
     version = 1
     def setup(self):
-        with open('/proc/cmdline', 'r') as fh:
+        with open('/etc/os-release', 'r') as fh:
             content = fh.read()
-        if 'snapd_recovery_mode' in content:
+        if 'Ubuntu Core' in content:
             print('Running Ubuntu Core system, skipping apt commands.')
         else:
             pkgs = [ 'python3', 'keyutils' ]

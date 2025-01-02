@@ -215,6 +215,12 @@ rc=0
 test_lttng_session_create
 echo " "
 
+grep -q "CONFIG_MODULE_SIG_FORCE=y" /boot/config-$(uname -r)
+if [ $? -eq 0 ] || grep module.sig_enforce -qw /proc/cmdline; then
+    echo "FAILED: Module signature enforced, we won't be able to insert the lttng DKMS."
+    exit 1
+fi
+
 #
 # Disabled for all kernels as this is broken for all kernels > 4.8-rc1.
 # See LP#1802495

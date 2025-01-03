@@ -11,7 +11,7 @@ TEST_TYPE = "client"
 DOC = ""
 
 # This test will take about 50min to run on google cloud
-result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*40)
+result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=60*50)
 if result == 'GOOD':
     fn = '/opt/ltp/runtest/kernel_misc'
     with open(fn , 'r') as f:

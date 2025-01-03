@@ -170,7 +170,6 @@ class ubuntu_performance_stream(test.test):
             results = utils.system_output(stream_exe_path, retain_output=True)
             values[i] = self.get_stats(results, fields)
 
-            print(results)
 
             print("")
             print("Test %d of %d:" % (i + 1, test_iterations))

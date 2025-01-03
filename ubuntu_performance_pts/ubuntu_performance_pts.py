@@ -143,7 +143,6 @@ class ubuntu_performance_pts(test.test):
         self.results += utils.system_output('phoronix-test-suite enterprise-setup', retain_output=True)
         self.results += utils.system_output('yes n | phoronix-test-suite batch-setup', retain_output=True)
 
-        print(self.results)
 
     def get_sysinfo(self, test_name, subtest):
         print('date_ctime "' + time.ctime() + '"')

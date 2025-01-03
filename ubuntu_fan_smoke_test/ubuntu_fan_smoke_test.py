@@ -54,7 +54,6 @@ class ubuntu_fan_smoke_test(test.test):
         cmd = './ubuntu_fan_smoke_test.sh %s' % (underlay)
         self.results = utils.system_output(cmd, retain_output=True)
 
-        print(self.results)
 
     def cleanup(self, test_name):
         if test_name in ['setup', 'fan-smoke-test']:

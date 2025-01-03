@@ -37,7 +37,6 @@ class ubuntu_overlayfs_smoke_test(test.test):
         cmd = os.path.join(self.srcdir, TEST_DIR, 'tests', test_name)
         cmd = 'sudo -iu {} {}'.format(os.getlogin(), cmd)
         self.results = utils.system_output(cmd, retain_output=True)
-        print(self.results)
 
     def cleanup(self, test_name):
         if test_name == 'post-test-cleanup':

@@ -201,7 +201,6 @@ class ubuntu_performance_fio(test.test):
         utils.configure()
         self.results += utils.system_output('make', retain_output=True)
 
-        print(self.results)
 
     def get_filesystem_free_mbytes(self):
         fd = os.open(self.bindir, os.O_RDONLY)
@@ -235,7 +234,6 @@ class ubuntu_performance_fio(test.test):
         time.sleep(5)
         cmd = 'rm -f ' + os.path.join(self.srcdir, testname) + '.*.*'
         results = utils.system_output(cmd, retain_output=True)
-        print(results)
 
     def drop_cache(self):
         #

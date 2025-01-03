@@ -60,7 +60,6 @@ class ubuntu_lttng_smoke_test(test.test):
     def run_once(self, test_name):
         cmd = '%s/ubuntu_lttng_smoke_test.sh' % (self.bindir)
         self.results = utils.system_output(cmd, retain_output=True)
-        print(self.results)
 
     def cleanup(self):
         cmd = 'apt-get remove --yes lttng-modules-dkms'

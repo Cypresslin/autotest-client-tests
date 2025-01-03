@@ -124,7 +124,6 @@ class ubuntu_generic_fstest(test.test):
                 print(test_name + ': ' + test + ':')
                 cmd = 'prove --nocolor -q -r %s' % os.path.join(self.srcdir, test)
                 self.results = utils.system_output(cmd, retain_output=True, ignore_status=True)
-                print(self.results)
 
                 # parse output and raise test failure if 'prove' failed
                 if self.results.find('Result: FAIL') != -1:

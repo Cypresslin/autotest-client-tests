@@ -57,6 +57,5 @@ class ubuntu_performance_zfs_encryption(test.test):
 
         cmd = '%s/%s %s' % (self.bindir, test_name, self.srcdir)
         self.results = utils.system_output(cmd, retain_output=True)
-        print(self.results)
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

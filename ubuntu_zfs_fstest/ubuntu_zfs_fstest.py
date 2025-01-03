@@ -92,7 +92,6 @@ class ubuntu_zfs_fstest(test.test):
         cmd = 'prove --nocolor -q -r %s' % self.srcdir
         print("Running: " + cmd)
         self.results = utils.system_output(cmd, retain_output=True)
-        print(self.results)
         os.chdir(self.srcdir)
         utils.system('zfs destroy pool/test')
         utils.system('zpool destroy pool')

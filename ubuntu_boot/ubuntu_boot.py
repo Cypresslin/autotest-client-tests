@@ -28,10 +28,7 @@ class ubuntu_boot(test.test):
 
         # dmesg will be cleared out in autotest with dmesg -c before the test starts
         # Let's check for /var/log/syslog instead
-        if os_dist == 'CentOS':
-            logfile = '/var/log/messages'
-        else:
-            logfile = '/var/log/syslog'
+        logfile = '/var/log/syslog'
         patterns = [
             'kernel:( \[ *\d+\.\d+\])? BUG:.*',
             'kernel:( \[ *\d+\.\d+\])? Oops:.*',

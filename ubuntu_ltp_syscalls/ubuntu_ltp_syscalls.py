@@ -119,7 +119,7 @@ class ubuntu_ltp_syscalls(test.test):
             targets = ['Active: active', 'systemd-timesyncd.service could not be found', 'Loaded: masked']
         skip_timesyncd = any(string in status_output for string in targets)
         # trusty does not have systemd-timesyncd
-        return test in ['leapsec01', 'stime01', 'settimeofday01', 'clock_settime01'] and self.series != 'trusty' and not skip_timesyncd
+        return test in ['leapsec01', 'stime01', 'settimeofday01', 'clock_settime01', 'clock_settime03'] and self.series != 'trusty' and not skip_timesyncd
 
     # run_once
     #

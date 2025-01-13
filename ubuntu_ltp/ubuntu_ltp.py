@@ -135,7 +135,7 @@ class ubuntu_ltp(test.test):
             raise error.TestFail('Test marked as failed for mtk due to cause apusys driver error (LP: #2059103)')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
-        print(utils.system_output(cmd, verbose=False))
+        utils.system_output(cmd, verbose=False, retain_output=True)
         # /dev/loop# creation will be taken care by the runltp
 
     def cleanup(self, test_name):

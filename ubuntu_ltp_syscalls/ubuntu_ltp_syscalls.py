@@ -152,7 +152,7 @@ class ubuntu_ltp_syscalls(test.test):
             utils.run('systemctl stop systemd-timesyncd')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
-        print(utils.system_output(cmd, verbose=False))
+        utils.system_output(cmd, verbose=False, retain_output=True)
         # /dev/loop# creation will be taken care by the runltp
 
     def cleanup(self, test_name):

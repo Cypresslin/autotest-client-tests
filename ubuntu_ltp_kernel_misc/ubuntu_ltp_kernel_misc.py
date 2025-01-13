@@ -110,7 +110,7 @@ class ubuntu_ltp_kernel_misc(test.test):
             return
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
-        print(utils.system_output(cmd, verbose=False))
+        utils.system_output(cmd, verbose=False, retain_output=True)
         # /dev/loop# creation will be taken care by the runltp
 
 # vi:set ts=4 sw=4 expandtab syntax=python:

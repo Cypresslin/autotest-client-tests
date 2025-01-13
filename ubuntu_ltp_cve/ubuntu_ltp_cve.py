@@ -120,7 +120,7 @@ class ubuntu_ltp_cve(test.test):
             os.environ["LTP_TIMEOUT_MUL"] = LTP_TIMEOUT_MUL
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
-        print(utils.system_output(cmd, verbose=False))
+        utils.system_output(cmd, verbose=False, retain_output=True)
         # /dev/loop# creation will be taken care by the runltp
 
     def cleanup(self, test_name):

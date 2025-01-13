@@ -133,7 +133,7 @@ class ubuntu_ltp_controllers(test.test):
                 raise error.TestError('cpuset_hotplug will hang on X-aws-4.4 VM (LP: #2026722)')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
-        print(utils.system_output(cmd, verbose=False))
+        utils.system_output(cmd, verbose=False, retain_output=True)
         # /dev/loop# creation will be taken care by the runltp
 
     def cleanup(self, test_name):

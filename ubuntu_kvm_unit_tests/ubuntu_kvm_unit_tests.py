@@ -46,7 +46,7 @@ class ubuntu_kvm_unit_tests(test.test):
         os.chdir(self.srcdir)
         shutil.rmtree('kvm-unit-tests', ignore_errors=True)
         branch = 'sru'
-        if self.series in ['xenial', 'bionic']:
+        if self.series in ['trusty', 'xenial', 'bionic']:
             branch = 'sru-' + self.series
 
         cmd = 'git clone --depth=1 https://git.launchpad.net/~canonical-kernel-team/+git/kvm-unit-tests -b {}'.format(branch)

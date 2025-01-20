@@ -28,6 +28,7 @@ class ubuntu_ltp_kernel_misc(test.test):
 
         pkgs = [
             'automake',
+            'bc', #LP: #2095286
             'bison',
             'build-essential',
             'byacc',

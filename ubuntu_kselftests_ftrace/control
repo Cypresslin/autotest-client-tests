@@ -58,6 +58,8 @@ if result == 'GOOD':
                         timeout_threshold = 60 * 150 # LP: #2028839, #2054789, took 120 mins to run on system with 288 CPUs
                     elif test == 'ftrace:test.d--event--subsystem-enable.tc' and arch == 'x86_64':
                         timeout_threshold = 60 * 30 # LP: #2028839, it will take 18 mins to run on some amd64 systems
+                    elif test == 'ftrace:test.d--ftrace--fgraph-multi.tc' and arch != 'riscv64':
+                        timeout_threshold = 60 * 45 # LP: #2095288, took 35 mins to run on O-realtime
                     job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")

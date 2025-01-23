@@ -20,6 +20,7 @@ class ubuntu_fan_smoke_test(test.test):
             'docker.io',
             'gdb',
             'git',
+            'iproute2',
             'net-tools',
             'ubuntu-fan',
         ]

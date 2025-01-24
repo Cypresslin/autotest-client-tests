@@ -9,9 +9,13 @@ import unittest
 class TestRevocationList(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        with open('/etc/os-release', 'r') as fh:
+            content = fh.read()
+
         config_file = "/boot/config-" + os.uname()[2]
-        # For Ubuntu Core
-        if not os.path.isfile(config_file):
+        if 'Ubuntu Core 18' in content:
+            config_file = "/snap/pi-kernel/current/config-" + os.uname()[2]
+        elif 'Ubuntu Core' in content:
             config_file = "/run/mnt/kernel/config-"+ os.uname()[2]
 
         revocation_list_available = False

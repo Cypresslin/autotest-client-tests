@@ -1,7 +1,7 @@
 [global]
 include global-include.fio
 directory=DIRECTORY
-size=32768M
+size=2048M
 [rd-75,wr-25,rand,blk-8k,jobs-64]
 bs=8K
 rw=randrw

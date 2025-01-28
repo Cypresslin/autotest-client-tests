@@ -273,7 +273,7 @@ class ubuntu_performance_fio(test.test):
         else:
             return 'Generic'
 
-    def run_fio(self, testname, ramdisk_bytes, media):
+    def run_fio(self, testname, ramdisk_bytes, media, iteration):
         kb_scale = {
             "KiB":  1024.0 / 1000.0,
             "KB": 1000.0 / 1000.0,
@@ -300,11 +300,12 @@ class ubuntu_performance_fio(test.test):
         print(platform)
         if platform is not "Generic":
             test_dir = os.path.join('/raid', 'fio-test')
+            self.reuse_test_files = True
         else:
             test_dir = os.path.join(self.srcdir, 'fio-test')
-        if os.path.isdir(test_dir):
-            shutil.rmtree(test_dir)
-        os.mkdir(test_dir)
+            self.reuse_test_files = False
+        if not os.path.isdir(test_dir):
+            os.mkdir(test_dir)
         if media == 'ramdisk':
             self.mk_ramdisk(ramdisk_bytes, test_dir)
 
@@ -336,7 +337,8 @@ class ubuntu_performance_fio(test.test):
         fout.close()
 
         self.drop_cache()
-        self.fio_clean_files(testname)
+        if not self.reuse_test_files or iteration == 0:
+            self.fio_clean_files(testname)
 
         #if DGXA100 run fstrim
         if platform == 'DGXA100' or platform == 'DGXH100':
@@ -353,8 +355,6 @@ class ubuntu_performance_fio(test.test):
 
         if media == 'ramdisk':
             self.rm_ramdisk(test_dir)
-        if os.path.isdir(test_dir):
-            shutil.rmtree(test_dir)
         bw = 0.0
         avg = 0.0
         stdev = 0.0
@@ -395,7 +395,8 @@ class ubuntu_performance_fio(test.test):
         values['latency_usec_average'] = avg
         values['latency_stddev'] = stdev
 
-        self.fio_clean_files(testname)
+        if not self.reuse_test_files or iteration == test_iterations - 1:
+            self.fio_clean_files(testname)
         self.cleanup_drive()
 
         return values
@@ -411,7 +412,7 @@ class ubuntu_performance_fio(test.test):
 
         for i in range(test_iterations):
             print("Test %d of %d:" % (i + 1, test_iterations))
-            values[i] = self.run_fio(testname, ramdisk_bytes, media)
+            values[i] = self.run_fio(testname, ramdisk_bytes, media, i)
             print("fio_%s%s_%s_file_size_mb[%d] %s" % (media, config, testname, i, values[i]['file_size_mb']))
             if 'rd_bandwidth_per_sec' in values[i] and 'testname' in values[i]:
                 print("fio_%s%s_%s,rd_bandwidth_per_sec[%d] %.2f" % (media, config, values[i]['testname'], i, values[i]['rd_bandwidth_per_sec']))

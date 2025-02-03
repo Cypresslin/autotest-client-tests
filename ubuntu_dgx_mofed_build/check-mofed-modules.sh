@@ -10,7 +10,8 @@ printf "INFO: Detecting Ubuntu release version..."
 release="$(lsb_release -cs)"
 printf " %s\n" $release
 printf "INFO: Detecting MOFED driver version..."
-mofedver="$(dpkg-query --showformat='${Version}' --show mlnx-ofed-kernel-only)"
+mofedver="$(dpkg-query --showformat='${Version}' --show mlnx-ofed-kernel-only ||
+		dpkg-query --showformat='${Version}' --show doca-ofed)"
 printf " %s\n" ${mofedver}
 printf "INFO: Detecting Kernel version..."
 kernelver="$(uname -r)"

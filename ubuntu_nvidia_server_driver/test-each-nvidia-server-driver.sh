@@ -11,6 +11,14 @@ source nvidia-module-lib
 
 sudo service nvidia-fabricmanager stop || /bin/true
 
+# Example rdepends output:
+# $ apt-cache rdepends --installed "linux-image-$(uname -r)"
+# linux-image-6.11.0-17-generic
+# Reverse Depends:
+#   linux-image-generic-hwe-24.04
+kernelvariant=$(apt-cache rdepends --installed "linux-image-$(uname -r)" | tail -n +3 |
+                    grep linux-image | head -n 1 | sed -e 's/\s\slinux-image//')
+
 # Some examples like:
 # ubuntu@hot-koala:~$ apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server-$(uname -r)$"
 # linux-modules-nvidia-418-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
@@ -25,10 +33,9 @@ for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-serv
         variant=""
     fi
 
-    # Convert e.g. linux-modules-nvidia-470-server-5.4.0-90-generic to
-    # linux-modules-nvidia-470-server-generic
-    # We need to install this so the DKMS package isn't installed instead.
-    drvpkgmeta=$(echo "$drvpkg" | sed -e 's/[0-9]\+\.[0-9]\+\.[0-9]\+\-[0-9]\+-//')
+    # The meta provides nvidia-prebuilt-kernel. We need to install it so the
+    # DKMS package isn't installed instead.
+    drvpkgmeta=linux-modules-nvidia-$branch-server$variant$kernelvariant
 
     if ! pkg_compatible_with_platform "$branch" "$variant"; then
         echo "INFO: Skipping $drvpkg on $platform" 1>&2

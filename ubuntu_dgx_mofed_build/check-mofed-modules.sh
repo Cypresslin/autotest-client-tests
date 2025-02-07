@@ -17,20 +17,20 @@ printf "INFO: Detecting Kernel version..."
 kernelver="$(uname -r)"
 printf " %s\n" ${kernelver}
 actual="$(mktemp)"
+printf "INFO: Detecting system architecture..."
+arch=$(dpkg --print-architecture)
+printf " %s\n" "${arch}"
 
-# First check for a list specific to this major kernel version
-expected="$(pwd)/expected-mofed-modules/${mofedver}-${release}-${kernelver%%-*}.lst"
-if [ ! -f "${expected}" ]; then
-	# Fall back to a general list for this MOFED version & series combination.
-	printf "INFO: No expected module list at '%s', falling back to " "${expected}"
-	expected="$(pwd)/expected-mofed-modules/${mofedver}-${release}.lst"
-	printf "'%s'\n" "${expected}"
-fi
-
-# This test assumes that the only modules installed here are the MOFED ones.
-# If other DKMS packages are installed that will throw it off.
-echo "INFO: Scanning for available MOFED kernel modules..."
-ls /lib/modules/$(uname -r)/updates/dkms | sort > ${actual}
+majorkernelver=${kernelver%%-*}
+for list in "${mofedver}-${release}-${majorkernelver}-${arch}.lst" \
+				"${mofedver}-${release}-${majorkernelver}.lst" \
+				"${mofedver}-${release}.lst"; do
+	expected="$(pwd)/expected-mofed-modules/${list}"
+	if [ -f "${expected}" ]; then
+		break
+	fi
+	echo "INFO: No expected module list at '${expected}'"
+done
 
 if [ ! -f ${expected} ]; then
     echo "ERROR: No expected modules list available for MOFED $mofedver on $release" 1>&2
@@ -38,6 +38,11 @@ if [ ! -f ${expected} ]; then
 fi
 
 echo "INFO: Using expected module list file '${expected}'"
+
+# This test assumes that the only modules installed here are the MOFED ones.
+# If other DKMS packages are installed that will throw it off.
+echo "INFO: Scanning for available MOFED kernel modules..."
+ls /lib/modules/$(uname -r)/updates/dkms | sort > ${actual}
 
 if diff -u ${expected} ${actual}; then
     echo "INFO: Success: Actual module list matches expected module list."

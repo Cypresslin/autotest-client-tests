@@ -92,6 +92,9 @@ def process_known_issues(issue, modules):
         module_flags = rpi_modules
     elif 'nvidia-tegra' in platform.release():
         module_flags = tegra_modules
+    elif platform.node() in ["hinyari", "lubba", "gunyolk", "plok", "swob", "mynx"]:
+        # These are DGX OEM platforms and don't provide a "DGX" centric product name
+        module_flags = dgx_modules
 
     # Filter out modules flagged with corresponding taint flag
     mod_list = []

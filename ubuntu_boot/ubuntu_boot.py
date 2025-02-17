@@ -8,7 +8,9 @@ from autotest.client.shared import error
 class ubuntu_boot(test.test):
     version = 1
     def setup(self):
-        with open('/etc/os-release', 'r') as fh:
+        # On Ubuntu Core, we can't read from /etc/os-release
+        # as they will be affected by the base snap of our tool.
+        with open('/etc/lsb-release', 'r') as fh:
             content = fh.read()
         if 'Ubuntu Core' in content:
             print('Running Ubuntu Core system, skipping apt commands.')
@@ -96,5 +98,5 @@ class ubuntu_boot(test.test):
 
         cmd = "uname -a"
         utils.system(cmd)
-        cmd = "cat /etc/os-release"
+        cmd = "cat /etc/lsb-release"
         utils.system(cmd)

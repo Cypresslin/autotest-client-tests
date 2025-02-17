@@ -9,7 +9,9 @@ import unittest
 class TestRevocationList(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open('/etc/os-release', 'r') as fh:
+        # On Ubuntu Core, we can't read from /etc/os-release
+        # as they will be affected by the base snap of our tool.
+        with open('/etc/lsb-release', 'r') as fh:
             content = fh.read()
 
         config_file = "/boot/config-" + os.uname()[2]

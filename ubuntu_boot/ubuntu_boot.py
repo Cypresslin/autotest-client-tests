@@ -8,9 +8,10 @@ from autotest.client.shared import error
 class ubuntu_boot(test.test):
     version = 1
     def setup(self):
-        # On Ubuntu Core, we can't read from /etc/os-release
-        # as they will be affected by the base snap of our tool.
-        with open('/etc/lsb-release', 'r') as fh:
+        # On Ubuntu Core, please be careful when using /etc/os-release, as the cotent will be
+        # affected by the base snap of our tool (e.g. you will see Core22 on an UC16 system).
+        # But here we're just using it to check if we are runnig on a UC system, so it should be fine
+        with open('/etc/os-release', 'r') as fh:
             content = fh.read()
         if 'Ubuntu Core' in content:
             print('Running Ubuntu Core system, skipping apt commands.')

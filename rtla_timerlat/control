@@ -1,0 +1,13 @@
+AUTHOR = 'Daniel Bristot de Oliveira <bristot@kernel.org>'
+DOC = '''
+description realtime Linux analysis tool
+URL https://docs.kernel.org/tools/rtla/index.html
+'''
+NAME = 'rtla_timerlat'
+TIME = 'MEDIUM' ## ?
+EXPERIMENTAL = 'True'
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = 'client'
+
+job.run_test('rtla_timerlat', test_name='rtla_timerlat', tag='rtla-timerlat')

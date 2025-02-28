@@ -1,0 +1,2 @@
+Reason:
+Bionic does not support the rtla test suite because rtla was released after this kernel version.

@@ -36,7 +36,7 @@ class ubuntu_kernel_selftests(test.test):
 
     def download(self):
         '''Function to download kernel source.'''
-        cmd = "dpkg -S /lib/modules/" + platform.release() + "/kernel | cut -d: -f 1 | cut -d, -f 1"
+        cmd = "dpkg -S /lib/modules/" + platform.release() + "/modules.builtin | cut -d: -f 1 | cut -d, -f 1"
         pkg = os.popen(cmd).readlines()[0].strip()
         utils.system("apt-get source --download-only " + pkg)
 

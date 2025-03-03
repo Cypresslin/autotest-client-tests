@@ -59,7 +59,7 @@ class ubuntu_bpf(test.test):
         pass
 
     def download(self):
-        cmd = "dpkg -S /lib/modules/" + self.kv + "/kernel | cut -d: -f 1 | cut -d, -f 1"
+        cmd = "dpkg -S /lib/modules/" + self.kv + "/modules.builtin | cut -d: -f 1 | cut -d, -f 1"
         pkg = os.popen(cmd).readlines()[0].strip()
         utils.system("apt-get source --download-only " + pkg)
 

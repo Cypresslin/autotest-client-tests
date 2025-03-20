@@ -71,6 +71,9 @@ class ubuntu_qrt_apparmor(test.test):
         if self.series not in ['trusty', 'xenial']:
             pkgs.append('bubblewrap') # LP: #2081794
 
+        if self.series in ['jammy']:
+            pkgs.append('g++-11') # LP: #2103671 Ensure g++ is up-to-date
+
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)
 

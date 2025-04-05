@@ -11,6 +11,7 @@ import shutil
 import socket
 import subprocess
 import resource
+import requests
 
 #
 # Number of test iterations to get min/max/average stats
@@ -114,6 +115,19 @@ class ubuntu_performance_lkp(test.test):
         finally:
             s.close()
         return ipaddr
+    
+    def set_proxy(self):
+        try:
+            proxies = {
+                "http": "http://squid.internal:3128",
+                "https": "http://squid.internal:3128",
+            }
+            response = requests.get("https://github.com", proxies=proxies)
+            print(response.json())
+            os.environ["https_proxy"] = "http://squid.internal:3128"
+            os.environ["http_proxy"] = "http://squid.internal:3128"
+        except requests.exceptions.ProxyError as e:
+            print("Not using squid.internal proxy:", e)    
 
     def setup(self, lkp_jobs, lkp_commit):
         self.get_sysinfo()
@@ -121,8 +135,7 @@ class ubuntu_performance_lkp(test.test):
         self.job.require_gcc()
 
         if "192.168." not in self.get_ip():
-            os.environ["https_proxy"] = "http://squid.internal:3128"
-            os.environ["http_proxy"] = "http://squid.internal:3128"
+            self.set_proxy()
 
         os.chdir(self.srcdir)
         shutil.rmtree('lkp-tests', ignore_errors=True)

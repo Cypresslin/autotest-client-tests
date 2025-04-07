@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+import subprocess
+
+assert sys.version_info >= (3, 9)
+
+
+def parse_args() -> tuple[argparse.Namespace, list[str]]:
+    """Parse CLI arguments.
+    Any unknown arguments are collected to be passed to rtla itself.
+    """
+
+    rtla_help_text = subprocess.run(
+        ["rtla", "timerlat", "hist", "--help"], capture_output=True
+    ).stderr.decode()
+
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter, epilog=rtla_help_text
+    )
+    parser.add_argument("-d", "--duration", required=True, help=argparse.SUPPRESS)
+    # WARNING: This overlaps with RTLA's debug flag!
+    parser.add_argument("--debug", action="store_true", help="Print debug output.")
+    return parser.parse_known_args()
+
+
+def main():
+    args, unknown_args = parse_args()
+    cmd = f"rtla timerlat hist --duration {args.duration} {' '.join(unknown_args)}"
+    try:
+        result = subprocess.run(cmd.split(), capture_output=True, check=True)
+
+        # HACK: RTLA doesn't EXIT_FAILURE if you specify an unknown argument.
+        if b"unrecognized option" in result.stderr:
+            raise subprocess.CalledProcessError(
+                returncode=1,
+                cmd=cmd,
+                output=result.stdout,
+                stderr=result.stderr,
+            )
+
+    except subprocess.CalledProcessError as e:
+        print(e.stderr.decode(), file=sys.stderr)
+        sys.exit(e.returncode)
+
+    if args.debug:
+        pad = 100
+        print(pad * "=")
+        print("rtla timerlat stdout")
+        print(pad * "=")
+        print(result.stdout.decode())
+        print(pad * "=")
+        print("rtla timerlat stderr")
+        print(pad * "=")
+        print(result.stderr.decode())
+        print(pad * "=")
+
+    # Extract relevant result data.
+    stdout = result.stdout.decode()
+    combined_results_section = stdout[stdout.find("ALL:") :]
+    results = [
+        [
+            words
+            for words in line.split()[1:]  # Delete first column, which is just a label
+        ]
+        for line in combined_results_section.splitlines()[1:]  # Delete first row
+    ]
+
+    # This should be a 4x3 matrix.
+    assert len(results) == 4
+    for i in range(4):
+        assert len(results[i]) == 3
+
+    # NOTE: If you remove elements from the lists, be sure to adjust the index accordingly.
+    for col, colname in enumerate(["IRQ", "Thr", "Usr"]):
+        for row, rowname in enumerate(["count", "min", "average", "max"]):
+            print(f"rtla_timerlat__{colname}_{rowname}", results[row][col])
+
+
+if __name__ == "__main__":
+    main()

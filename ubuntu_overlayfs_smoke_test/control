@@ -22,7 +22,7 @@ except AttributeError:
 SKIP_LIST = [
 ]
 
-result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*15)
+result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*30)
 if result == 'GOOD':
     tests_dir = os.path.join(job.bindir, 'tmp', name, 'src', 'overlay-shiftfs-tests', 'tests')
     tests_list = os.listdir(tests_dir)

@@ -18,6 +18,7 @@ sudo service nvidia-fabricmanager stop || /bin/true
 #   linux-image-generic-hwe-24.04
 kernelvariant=$(apt-cache rdepends --installed "linux-image-$(uname -r)" | tail -n +3 |
                     grep linux-image | head -n 1 | sed -e 's/\s\slinux-image//')
+platform=$(get_platform_name)
 
 # Some examples like:
 # ubuntu@hot-koala:~$ apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server-$(uname -r)$"
@@ -37,9 +38,11 @@ for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-serv
     # DKMS package isn't installed instead.
     drvpkgmeta=linux-modules-nvidia-$branch-server$variant$kernelvariant
 
-    if ! pkg_compatible_with_platform "$branch" "$variant"; then
+    if ! pkg_compatible_with_platform "$branch" "$variant" "$platform"; then
         echo "INFO: Skipping $drvpkg on $platform" 1>&2
         continue
+    else
+        echo "INFO: Testing $drvpkg on $platform" 1>&2
     fi
     uninstall_all_nvidia_mod_pkgs
     recursive_remove_module nvidia

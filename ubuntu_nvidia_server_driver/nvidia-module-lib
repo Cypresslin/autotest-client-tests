@@ -86,12 +86,26 @@ uninstall_all_nvidia_mod_pkgs() {
     fi
 }
 
-product="$(sudo dmidecode -s baseboard-product-name | tr '\n' ' ')"
+get_platform_name() {
+    local raw_platform platform
+
+    raw_platform=$(sudo dmidecode -s baseboard-product-name | tr '\n' ' ')
+    case $raw_platform in
+        DGXA100*) platform=DGXA100 ;;
+        DGXH100*) platform=DGXH100 ;;
+        *GH200\ 480GB*|S7G\ MB\ \(CG1\)*) platform=GH200 ;;
+        *) platform=$raw_platform ;;
+    esac
+
+    echo "$platform"
+}
+
 pkg_compatible_with_platform() {
     local branch="$1"
     local variant="$2"
+    local product="$3"
 
-    if [[ "$product" == "DGXA100"* ]]; then
+    if [ "$product" == "DGXA100" ]; then
         if [ "$branch" -le "418" ]; then
             return 1
         fi
@@ -99,7 +113,7 @@ pkg_compatible_with_platform() {
         return 0
     fi
 
-    if [[ "$product" == "DGXH100"* ]]; then
+    if [ "$product" == "DGXH100" ]; then
         if [ "$branch" -lt "535" ]; then
             return 1
         fi
@@ -107,7 +121,7 @@ pkg_compatible_with_platform() {
         return 0
     fi
 
-    if [[ "$product" == *"GH200 480GB"* ]]; then
+    if [ "$product" == "GH200" ]; then
         if [ "$branch" -lt "535" ]; then
             return 1
         fi

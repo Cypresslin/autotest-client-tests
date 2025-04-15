@@ -156,13 +156,14 @@ class rteval(test.test):
         print("rteval_latency_average %.3f" % float(mean_latency))
         print("rteval_latency_minimum %.3f" % float(minimum_latency))
 
-        latency_limit = 1000
-        if self.hostname == 'starlow':
-            latency_limit = 200
-        elif self.hostname == 'ivysaur':
-            latency_limit = 800
+        latency_limit = 700
+        if self.hostname in ['starlow', 'drapion']:
+            latency_limit = 150
+        elif self.hostname in ['taycet', 'bunsen']:
+            latency_limit = 300
 
-        if int(max_latency) > latency_limit:
+        # Only fail real-time kernels on high latency
+        if int(max_latency) > latency_limit and "realtime" in self.flavour:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

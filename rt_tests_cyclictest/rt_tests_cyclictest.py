@@ -53,11 +53,9 @@ class rt_tests_cyclictest(test.test):
         if test_name == 'setup':
             return
         
-        latency_limit = 1000
-        if self.hostname == 'starlow':
-            latency_limit = 200
-        elif self.hostname == 'ivysaur':
-            latency_limit = 700
+        latency_limit = 500
+        if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
+            latency_limit = 120
 
         self.results = utils.system_output('cyclictest ' + args, retain_output=True)
 
@@ -95,7 +93,8 @@ class rt_tests_cyclictest(test.test):
         print("rt_tests_cyclictest_latency_average %.3f" % float(mean_latency))
         print("rt_tests_cyclictest_latency_minimum %.3f" % float(minimum_latency))
 
-        if max_latency > latency_limit:
+        # Only fail real-time kernels on high latency
+        if max_latency > latency_limit and "realtime" in self.flavour:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

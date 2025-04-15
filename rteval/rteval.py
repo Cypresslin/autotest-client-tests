@@ -162,6 +162,7 @@ class rteval(test.test):
         elif self.hostname in ['taycet', 'bunsen']:
             latency_limit = 300
 
+        # Check if any max value is over latency limit
         # Only fail real-time kernels on high latency
         if int(max_latency) > latency_limit and "realtime" in self.flavour:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')

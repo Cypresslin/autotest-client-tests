@@ -51,11 +51,11 @@ class rt_tests_pmqtest(test.test):
         if test_name == 'setup':
             return
         
-        latency_limit = 1000
-        if self.hostname == 'starlow':
+        latency_limit = 500
+        if self.hostname in ['starlow', 'drapion', 'bunsen']:
             latency_limit = 200
-        elif self.hostname == 'ivysaur':
-            latency_limit = 700
+        elif self.hostname in ['taycet']:
+            latency_limit = 400
 
         self.results = utils.system_output('pmqtest ' + args, retain_output=True)
 
@@ -85,7 +85,8 @@ class rt_tests_pmqtest(test.test):
         print("rt_tests_pmqtest_latency_minimum %.3f" % float(min_latency))
 
         # Check if any max value is over latency limit
-        if max_latency > latency_limit:
+        # Only fail real-time kernels on high latency
+        if max_latency > latency_limit and "realtime" in self.flavour:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')
 
         return

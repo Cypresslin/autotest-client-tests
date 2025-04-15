@@ -93,6 +93,7 @@ class rt_tests_cyclictest(test.test):
         print("rt_tests_cyclictest_latency_average %.3f" % float(mean_latency))
         print("rt_tests_cyclictest_latency_minimum %.3f" % float(minimum_latency))
 
+        # Check if any max value is over latency limit
         # Only fail real-time kernels on high latency
         if max_latency > latency_limit and "realtime" in self.flavour:
             raise error.TestError('FAIL: Max latency over ' + str(latency_limit) + 'us.')

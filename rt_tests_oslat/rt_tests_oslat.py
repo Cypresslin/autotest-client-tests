@@ -44,12 +44,30 @@ class rt_tests_oslat(test.test):
     #
     #    Driven by the control file for each individual test.
     #
-    #    Runs oslat for 60 seconds. This is just for data gathering purposes for now.
+    #    Runs oslat for 600 seconds. This is just for data gathering purposes for now.
     #
-    def run_once(self, test_name, args='--cpu-list 2-9 --rtprio 1 --duration 60 -q', exit_on_error=True):
+    def run_once(self, test_name, args='--cpu-list 2-7 --rtprio 1 --duration 600 -q', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        self.results = utils.system_output('oslat ' + args, retain_output=True)
 
-        utils.system_output('oslat ' + args, retain_output=True)
+        # Determine min/avg/max latencies
+        min_match = re.search(r"Minimum:\s+([0-9.\s]+)", self.results)
+        avg_match = re.search(r"Average:\s+([0-9.\s]+)", self.results)
+        max_match = re.search(r"Maximum:\s+([0-9.\s]+)", self.results)
+
+        minimums = list(map(float, min_match.group(1).split()))
+        averages = list(map(float, avg_match.group(1).split()))
+        maximums = list(map(float, max_match.group(1).split()))
+
+        oslat_minumum = sum(minimums) / len(minimums)
+        oslat_average = sum(averages) / len(averages)
+        oslat_maximum = max(maximums)
+
+        # Print stats in format used by mass-scrape-influxdb.sh
+        print("rt_tests_oslat_latency_minimum %.3f" % float(oslat_minumum))
+        print("rt_tests_oslat_latency_average %.3f" % float(oslat_average))
+        print("rt_tests_oslat_latency_maximum %.3f" % float(oslat_maximum))
 
         return

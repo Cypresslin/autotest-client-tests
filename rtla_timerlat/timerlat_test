@@ -3,8 +3,17 @@
 import sys
 import argparse
 import subprocess
+import re
 
-assert sys.version_info >= (3, 9)
+assert sys.version_info >= (3, 9), "Python 3.9 or later required to run this script."
+
+"""The minimum `rtla --version` (aka kernel version?) that supports `timerlat_print_stats_all()`.
+This was introduced in commit 1462501c7a8d565f5949d3d5635b2111d889aaaa.
+GitHub link: https://github.com/torvalds/linux/commit/1462501c7a8d565f5949d3d5635b2111d889aaaa
+The GitHub link shows us tags associated with this commit, where we see 6.10.0 as the first version
+including it.
+"""
+MIN_RTLA_SUMMARY_VERSION = (6, 10, 0)
 
 
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
@@ -44,20 +53,51 @@ def main():
         print(e.stderr.decode(), file=sys.stderr)
         sys.exit(e.returncode)
 
+    # Extract relevant result data.
+    stdout = result.stdout.decode()
+
     if args.debug:
         pad = 100
         print(pad * "=")
-        print("rtla timerlat stdout")
+        print(f"rtla timerlat stdout (size: {sys.getsizeof(stdout)}b)")
         print(pad * "=")
-        print(result.stdout.decode())
+        print(stdout)
         print(pad * "=")
         print("rtla timerlat stderr")
         print(pad * "=")
         print(result.stderr.decode())
         print(pad * "=")
 
-    # Extract relevant result data.
-    stdout = result.stdout.decode()
+    if does_rtla_version_support_summary():
+        parse_summary(stdout)
+    else:
+        if args.debug:
+            print("Old version of rtla, parsing the output ourselves...")
+        pass
+
+
+def does_rtla_version_support_summary() -> bool:
+    """
+    Check if the version of RTLA is the minimum version which supports
+    printing a summary at the end of the test.
+
+    For versions < 6.10 (what we have in Jammy circa April 2025), we have to do this ourselves.
+    """
+    cmd = "rtla --version"
+    stdout = subprocess.run(cmd.split(), capture_output=True).stderr.decode()
+
+    version_pattern = r"\d+\.\d+\.\d+"
+    try:
+        version_str = re.search(version_pattern, stdout).group()
+    except AttributeError:
+        print("Error: `rtla --version` printed something unexpected.", file=sys.stderr)
+        sys.exit(1)
+
+    version = tuple(int(i) for i in version_str.split("."))
+    return version >= MIN_RTLA_SUMMARY_VERSION
+
+
+def parse_summary(stdout: str):
     combined_results_section = stdout[stdout.find("ALL:") :]
     results = [
         [

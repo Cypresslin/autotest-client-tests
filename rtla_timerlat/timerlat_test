@@ -4,6 +4,7 @@ import sys
 import argparse
 import subprocess
 import re
+import itertools
 
 assert sys.version_info >= (3, 9), "Python 3.9 or later required to run this script."
 
@@ -73,7 +74,7 @@ def main():
     else:
         if args.debug:
             print("Old version of rtla, parsing the output ourselves...")
-        pass
+        timerlat_print_stats_all(stdout, args.debug)
 
 
 def does_rtla_version_support_summary() -> bool:
@@ -116,6 +117,80 @@ def parse_summary(stdout: str):
     for col, colname in enumerate(["IRQ", "Thr", "Usr"]):
         for row, rowname in enumerate(["count", "min", "average", "max"]):
             print(f"rtla_timerlat__{colname}_{rowname}", results[row][col])
+
+
+def timerlat_print_stats_all(stdout: str, debug: bool):
+    """
+    This is a simplified port of the function by the same name in the Linux kernel.
+    See the above docs on MIN_RTLA_SUMMARY_VERSION for more info.
+    """
+    lines = stdout.splitlines()
+
+    # Sample (of the subset of output we need):
+    # RTLA timerlat histogram
+    # ...
+    # Index   IRQ-000   Thr-000   IRQ-001   Thr-001   IRQ-002   Thr-002   IRQ-003   Thr-003   IRQ-004   Thr-004   IRQ-005   Thr-005   IRQ-006   Thr-006   IRQ-007   Thr-007   IRQ-008   Thr-008   IRQ-009   Thr-009   IRQ-010   Thr-010   IRQ-011   Thr-011
+    # ...
+    # over:       232       357       233       363       237       353       318       437       362       481       377       483       280       376       236       305       235       312       240       313       241       314       239       316
+    # count:   600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007    600007
+    # min:          0         3         0         4         0         4         0         4         1         4         1         6         1         3         1         3         1         3         1         3         1         3         1         4
+    # avg:          2        12         2        12         2        13        14        25        16        28        16        28         2        10         2         9         3        10         3        10         3        10         3        10
+    # max:        484       499       431       453       399       416       374       389       351       381       354       370       336       346       404       419       386       395       364       373       334       343       342       352
+
+    # NOTE: new versions seem to also include Usr... when did that get added?
+
+    # Get the indices
+    index_line = lines[3]
+    assert index_line.startswith("Index")
+
+    index_words = index_line.split()  # IRQ-000, ..., IRQ-n
+    assert len(index_words) >= 2
+    for i, e in enumerate(index_words):
+        if e.endswith("-001"):
+            break
+    categories = [s[: s.find("-")] for s in index_words[1:i]]  # pyright: ignore [reportPossiblyUnboundVariable] (we verify this above)
+
+    if debug:
+        print(f"{categories=}")
+
+    def find_line(key: str) -> str:
+        return next(line for line in lines if line.startswith(key))
+
+    def parse_line(key: str) -> list[int]:
+        return [int(word) for word in find_line(key).split()[1:]]
+
+    # TODO do the same for the others. Then, convert to list[int]. Then, do the math. Then print. Then smile because you're done.
+    all_counts = parse_line("count:")
+    all_mins = parse_line("min:")
+    all_avgs = parse_line("avg:")  # TODO this is rounded (float division)
+    all_maxs = parse_line("max:")
+
+    results = {stat: dict.fromkeys(categories, []) for stat in ["count", "min", "avg", "max"]}
+
+    # Batch the min by category
+    def populate_results(statistic: str, all_data: list[int]):
+        for mins_batch in itertools.batched(all_data, len(categories)):
+            for category, data in zip(categories, mins_batch):
+                results[statistic][category].append(data)
+
+    populate_results("count", all_counts)
+    populate_results("min", all_mins)
+    populate_results("avg", all_avgs)
+    populate_results("max", all_maxs)
+
+    # Do the math, print the result
+    for category in categories:
+        for statistic in results.keys():
+            if statistic == "count":
+                print(f"rtla_timerlat__{category}_{statistic}", sum(results[statistic][category]))
+            elif statistic == "min":
+                print(f"rtla_timerlat__{category}_{statistic}", min(results[statistic][category]))
+            elif statistic == "avg":
+                data = results["avg"][category]
+                avg = round(sum(data) / len(data))  # NOTE: Uses banker's rounding, so 0.5 -> 0.0
+                print(f"rtla_timerlat__{category}_average", avg)
+            elif statistic == "max":
+                print(f"rtla_timerlat__{category}_{statistic}", max(results[statistic][category]))
 
 
 if __name__ == "__main__":

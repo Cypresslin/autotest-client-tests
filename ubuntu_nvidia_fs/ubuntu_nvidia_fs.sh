@@ -9,6 +9,9 @@ setup() {
     # pre-setup testing environment and necessary tools
     # currently there is nothing practically but will be used possibly in the future.
     echo "begin to pre-setup testing"
+    sudo apt update
+    sudo apt install -y xmlstarlet jq
+    sudo apt install -y docker.io
 }
 
 run_test() {

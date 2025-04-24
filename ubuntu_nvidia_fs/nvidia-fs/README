@@ -1,4 +1,8 @@
 = nvidia-fs testing =
+=============
+UPDATE: The test was updated to remove the usage of VM as the reboot is 
+not necessary in the reworked test. 
+=============
 The goal of this test is to confirm that the nvidia-fs module continues to
 build and work properly with new kernel updates.
 

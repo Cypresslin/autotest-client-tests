@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
-source ./00-vars
-
-# We want e.g. gds-tools-11-4 if using CUDA 11.4
-gds_tools="gds-tools-$(echo "$CUDA_BRANCH" | tr "." "-")"
+#Make sure we have a gds-tools version
+if [ $# -eq 0 ]; then
+	echo "No gds-tools version provided"
+	exit
+fi
 
 apt update
-apt install "$gds_tools" libssl-dev -y
-cd /usr/local/cuda/gds/samples
+apt install "gds-tools-${1}" libssl-dev -y
+major="${1%-*}"
+minor="${1#*-}"
+if [ "$major" -gt 12 ] || { [ "$major" -eq 12 ] && [ "$minor" -gt 4 ]; }; then
+    # For gds/CUDA versions > 12.4 samples are not present in cuda/gds dir
+    # Use MagnumIO SDK where gds/samples are present
+    cd /root/MagnumIO/gds/samples
+else
+    cd /usr/local/cuda/gds/samples
+fi
 make -j "$(nproc)"
 dd status=none if=/dev/urandom of=/data/file1 iflag=fullblock bs=1M count=1024
 dd status=none if=/dev/urandom of=/data/file2 iflag=fullblock bs=1M count=1024

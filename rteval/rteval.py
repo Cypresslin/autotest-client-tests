@@ -110,6 +110,9 @@ class rteval(test.test):
     def run_once(self, test_name, args='', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        # Disable RT throttling
+        self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
 
         # Run rteval
         os.chdir(self.srcdir+"/rteval")

@@ -53,6 +53,9 @@ class rt_tests_cyclictest(test.test):
         if test_name == 'setup':
             return
         
+        # Disable RT throttling
+        self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
+        
         latency_limit = 500
         if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
             latency_limit = 120

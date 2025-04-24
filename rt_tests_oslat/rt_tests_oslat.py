@@ -50,6 +50,9 @@ class rt_tests_oslat(test.test):
         if test_name == 'setup':
             return
         
+        # Set performance governor
+        self.results = utils.system_output('cpupower frequency-set --governor performance')
+
         # Disable RT throttling
         self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
 

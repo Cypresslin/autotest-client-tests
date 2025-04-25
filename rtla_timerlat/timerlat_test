@@ -115,7 +115,7 @@ def parse_summary(stdout: str):
 
     # NOTE: If you remove elements from the lists, be sure to adjust the index accordingly.
     for col, colname in enumerate(["IRQ", "Thr", "Usr"]):
-        for row, rowname in enumerate(["count", "min", "average", "max"]):
+        for row, rowname in enumerate(["min", "average", "max"]):  # NOTE: removed "count"
             print(f"rtla_timerlat__{colname}_{rowname}", results[row][col])
 
 
@@ -181,9 +181,9 @@ def timerlat_print_stats_all(stdout: str, debug: bool):
     # Do the math, print the result
     for category in categories:
         for statistic in results.keys():
-            if statistic == "count":
-                print(f"rtla_timerlat__{category}_{statistic}", sum(results[statistic][category]))
-            elif statistic == "min":
+            # if statistic == "count":
+            #     print(f"rtla_timerlat__{category}_{statistic}", sum(results[statistic][category]))
+            if statistic == "min":
                 print(f"rtla_timerlat__{category}_{statistic}", min(results[statistic][category]))
             elif statistic == "avg":
                 data = results["avg"][category]

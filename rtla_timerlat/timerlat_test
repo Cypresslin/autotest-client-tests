@@ -17,6 +17,26 @@ including it.
 MIN_RTLA_SUMMARY_VERSION = (6, 10, 0)
 
 
+def print_debuginfo():
+    pad = 100
+    print(pad * "=")
+    print("DEBUG INFO")
+    print(pad * "=")
+
+    def print_and_run(cmd: str):
+        print(cmd)
+        subprocess.run(cmd.split())
+
+    print_and_run("git show --no-patch")
+    print_and_run(f"git hash-object {__file__}")
+    print(f"{sys.version=}")
+    print_and_run("rtla --version")
+    print_and_run("uname -a")
+    print_and_run("lsb_release -a")
+
+    print(pad * "=")
+
+
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
     """Parse CLI arguments.
     Any unknown arguments are collected to be passed to rtla itself.
@@ -30,13 +50,16 @@ def parse_args() -> tuple[argparse.Namespace, list[str]]:
         formatter_class=argparse.RawDescriptionHelpFormatter, epilog=rtla_help_text
     )
     parser.add_argument("-d", "--duration", required=True, help=argparse.SUPPRESS)
-    # WARNING: This overlaps with RTLA's debug flag!
-    parser.add_argument("--debug", action="store_true", help="Print debug output.")
+    parser.add_argument("--verbose", action="store_true", help="Print verbose output.")
     return parser.parse_known_args()
 
 
 def main():
     args, unknown_args = parse_args()
+
+    if args.verbose:
+        print_debuginfo()
+
     cmd = f"rtla timerlat hist --duration {args.duration} {' '.join(unknown_args)}"
     try:
         result = subprocess.run(cmd.split(), capture_output=True, check=True)
@@ -57,27 +80,25 @@ def main():
     # Extract relevant result data.
     stdout = result.stdout.decode()
 
-    if args.debug:
+    if args.verbose:
         pad = 100
         print(pad * "=")
         print(f"rtla timerlat stdout (size: {sys.getsizeof(stdout)}b)")
         print(pad * "=")
         print(stdout)
         print(pad * "=")
-        print("rtla timerlat stderr")
+        print(f"rtla timerlat stderr {'<EMPTY>' if len(result.stderr) == 0 else ''}")
         print(pad * "=")
         print(result.stderr.decode())
         print(pad * "=")
 
-    if does_rtla_version_support_summary():
+    if does_rtla_version_support_summary(args.verbose):
         parse_summary(stdout)
     else:
-        if args.debug:
-            print("Old version of rtla, parsing the output ourselves...")
-        timerlat_print_stats_all(stdout, args.debug)
+        timerlat_print_stats_all(stdout, args.verbose)
 
 
-def does_rtla_version_support_summary() -> bool:
+def does_rtla_version_support_summary(verbose: bool) -> bool:
     """
     Check if the version of RTLA is the minimum version which supports
     printing a summary at the end of the test.
@@ -95,31 +116,33 @@ def does_rtla_version_support_summary() -> bool:
         sys.exit(1)
 
     version = tuple(int(i) for i in version_str.split("."))
+    if verbose:
+        print("RTLA version (parsed tuple):", version)
     return version >= MIN_RTLA_SUMMARY_VERSION
 
 
 def parse_summary(stdout: str):
     combined_results_section = stdout[stdout.find("ALL:") :]
-    results = [
-        [
-            words
-            for words in line.split()[1:]  # Delete first column, which is just a label
-        ]
-        for line in combined_results_section.splitlines()[1:]  # Delete first row
-    ]
+    results = {
+        line.split()[0].removesuffix(":"): line.split()[1:]
+        for line in combined_results_section.splitlines()
+    }
 
     # This should be a 4x3 matrix.
-    assert len(results) == 4
-    for i in range(4):
-        assert len(results[i]) == 3
+    assert len(results) == 5
+    for k in results.keys():
+        assert len(results[k]) == len(results["ALL"])
 
-    # NOTE: If you remove elements from the lists, be sure to adjust the index accordingly.
-    for col, colname in enumerate(["IRQ", "Thr", "Usr"]):
-        for row, rowname in enumerate(["min", "average", "max"]):  # NOTE: removed "count"
-            print(f"rtla_timerlat__{colname}_{rowname}", results[row][col])
+    for i, colname in enumerate(results["ALL"]):
+        for rowname in ["min", "avg", "max"]:  # NOTE: skip "count"
+            value = results[rowname][i]
+            # HACK: We need to print "average", not "avg", to trigger influxdb.
+            if rowname == "avg":
+                rowname = "average"
+            print(f"rtla_timerlat__{colname}_{rowname}", value)
 
 
-def timerlat_print_stats_all(stdout: str, debug: bool):
+def timerlat_print_stats_all(stdout: str, verbose: bool):
     """
     This is a simplified port of the function by the same name in the Linux kernel.
     See the above docs on MIN_RTLA_SUMMARY_VERSION for more info.
@@ -150,7 +173,7 @@ def timerlat_print_stats_all(stdout: str, debug: bool):
             break
     categories = [s[: s.find("-")] for s in index_words[1:i]]  # pyright: ignore [reportPossiblyUnboundVariable] (we verify this above)
 
-    if debug:
+    if verbose:
         print(f"{categories=}")
 
     def find_line(key: str) -> str:
@@ -165,7 +188,9 @@ def timerlat_print_stats_all(stdout: str, debug: bool):
     all_avgs = parse_line("avg:")  # TODO this is rounded (float division)
     all_maxs = parse_line("max:")
 
-    results = {stat: dict.fromkeys(categories, []) for stat in ["count", "min", "avg", "max"]}
+    results = {
+        stat: {k: [] for k in categories} for stat in ["count", "min", "avg", "max"]
+    }
 
     # Batch the min by category
     def populate_results(statistic: str, all_data: list[int]):
@@ -184,13 +209,21 @@ def timerlat_print_stats_all(stdout: str, debug: bool):
             # if statistic == "count":
             #     print(f"rtla_timerlat__{category}_{statistic}", sum(results[statistic][category]))
             if statistic == "min":
-                print(f"rtla_timerlat__{category}_{statistic}", min(results[statistic][category]))
+                print(
+                    f"rtla_timerlat__{category}_{statistic}",
+                    min(results[statistic][category]),
+                )
             elif statistic == "avg":
                 data = results["avg"][category]
-                avg = round(sum(data) / len(data))  # NOTE: Uses banker's rounding, so 0.5 -> 0.0
+                avg = round(
+                    sum(data) / len(data)
+                )  # NOTE: Uses banker's rounding, so 0.5 -> 0.0
                 print(f"rtla_timerlat__{category}_average", avg)
             elif statistic == "max":
-                print(f"rtla_timerlat__{category}_{statistic}", max(results[statistic][category]))
+                print(
+                    f"rtla_timerlat__{category}_{statistic}",
+                    max(results[statistic][category]),
+                )
 
 
 if __name__ == "__main__":

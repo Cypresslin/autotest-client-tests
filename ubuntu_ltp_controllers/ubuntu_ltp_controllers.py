@@ -107,6 +107,9 @@ class ubuntu_ltp_controllers(test.test):
             nprocs = ''
         utils.make(nprocs)
         utils.make('install')
+        # Remove the source code to squeeze out disk space (LP: #2007978)
+        os.chdir(self.srcdir)
+        shutil.rmtree('ltp', ignore_errors=True)
 
     # run_once
     #

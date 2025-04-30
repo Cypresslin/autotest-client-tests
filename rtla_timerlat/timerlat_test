@@ -4,6 +4,7 @@ import sys
 import argparse
 import subprocess
 import re
+import platform
 import itertools
 
 assert sys.version_info >= (3, 9), "Python 3.9 or later required to run this script."
@@ -27,7 +28,6 @@ def print_debuginfo():
         print(cmd)
         subprocess.run(cmd.split())
 
-    print_and_run("git show --no-patch")
     print_and_run(f"git hash-object {__file__}")
     print(f"{sys.version=}")
     print_and_run("rtla --version")
@@ -35,6 +35,31 @@ def print_debuginfo():
     print_and_run("lsb_release -a")
 
     print(pad * "=")
+
+
+def setup_and_run_tuning():
+    """Install and run cpupower, and use sysctl to tweak realtime settings."""
+    flavor = re.split(r"-\d*-", platform.uname().release)[-1]
+    cmd = f"apt-get install --yes linux-tools-{flavor}"
+    try:
+        subprocess.run(cmd.split(), check=True)
+    except subprocess.CalledProcessError:
+        print(f"Error installing linux-tools-{flavor}.", file=sys.stderr)
+        return
+
+    cmd = "cpupower frequency-set --governor performance"
+    try:
+        subprocess.run(cmd.split(), check=True)
+    except subprocess.CalledProcessError:
+        print("Error running cpupower.", file=sys.stderr)
+        return
+
+    cmd = "sysctl -w kernel.sched_rt_runtime_us=-1"
+    try:
+        subprocess.run(cmd.split(), check=True)
+    except subprocess.CalledProcessError:
+        print(f"Error running `{cmd}`.", file=sys.stderr)
+        return
 
 
 def parse_args() -> tuple[argparse.Namespace, list[str]]:
@@ -59,6 +84,8 @@ def main():
 
     if args.verbose:
         print_debuginfo()
+
+    setup_and_run_tuning()
 
     cmd = f"rtla timerlat hist --duration {args.duration} {' '.join(unknown_args)}"
     try:

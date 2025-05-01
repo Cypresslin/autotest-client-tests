@@ -53,7 +53,7 @@ class rt_tests_cyclictest(test.test):
     #    80 and an interval of 200us. It will fail if the max latency goes 
     #    over a specified latency.
     #
-    def run_once(self, test_name, args='-t 10 -m -l 100000 -p 80 -i 200 -d 0', exit_on_error=True):
+    def run_once(self, test_name, args='-t 10 -m -l 100000 -p 80 -i 200 -d 0 -q', exit_on_error=True):
         if test_name == 'setup':
             return
         

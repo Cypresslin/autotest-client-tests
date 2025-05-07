@@ -21,18 +21,31 @@ printf "INFO: Detecting system architecture..."
 arch=$(dpkg --print-architecture)
 printf " %s\n" "${arch}"
 
+prev_mofedver=$(cd "$(pwd)/expected-mofed-modules" && echo *.lst "$mofedver" | \
+                tr ' ' '\n' | sed -E 's/^([0-9\.\-]+)-[a-z].*$/\1/' | \
+                uniq | sort -V | sed -n "/$mofedver/q;p" | tail -n 1)
+
 majorkernelver=${kernelver%%-*}
-for list in "${mofedver}-${release}-${majorkernelver}-${arch}.lst" \
-				"${mofedver}-${release}-${majorkernelver}.lst" \
-				"${mofedver}-${release}.lst"; do
-	expected="$(pwd)/expected-mofed-modules/${list}"
-	if [ -f "${expected}" ]; then
-		break
-	fi
-	echo "INFO: No expected module list at '${expected}'"
+for try_mofedver in "${mofedver}" "${prev_mofedver}"; do
+    if [ "${try_mofedver}" = "${prev_mofedver}" ]; then
+        echo "WARN: Fallback: Searching for module list of last known DOCA-OFED/MOFED version ${prev_mofedver}"
+    fi
+
+    for list in "${try_mofedver}-${release}-${majorkernelver}-${arch}.lst" \
+                "${try_mofedver}-${release}-${majorkernelver}.lst" \
+                "${try_mofedver}-${release}.lst"; do
+        expected="$(pwd)/expected-mofed-modules/${list}"
+        if [ -f "${expected}" ]; then
+            break
+        fi
+        echo "INFO: No expected module list at '${expected}'"
+    done
+    if [ -f "${expected}" ]; then
+        break
+    fi
 done
 
-if [ ! -f ${expected} ]; then
+if [ ! -f "${expected}" ]; then
     echo "ERROR: No expected modules list available for MOFED $mofedver on $release" 1>&2
     exit 1
 fi

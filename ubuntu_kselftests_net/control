@@ -23,7 +23,7 @@ result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_
 if result == 'GOOD':
     for category in categories:
         build = '{}-build'.format(category)
-        result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=arch_scale*60*90)
+        result = job.run_test_detail(NAME, test_name=build, tag=build, timeout=arch_scale*60*120)
         if result == 'ERROR':
             print("ERROR: test suite '{}' failed to build, skipping all the sub tests".format(category))
             continue

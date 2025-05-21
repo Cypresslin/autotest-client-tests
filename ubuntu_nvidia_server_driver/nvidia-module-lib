@@ -94,6 +94,7 @@ get_platform_name() {
         DGXA100*) platform=DGXA100 ;;
         DGXH100*) platform=DGXH100 ;;
         *GH200\ 480GB*|S7G\ MB\ \(CG1\)*) platform=GH200 ;;
+        7Z23CTO2WW*) platform=SR670V2 ;;
         *) platform=$raw_platform ;;
     esac
 
@@ -127,6 +128,14 @@ pkg_compatible_with_platform() {
         fi
 
         if [ "$variant" != "-open" ]; then
+            return 1
+        fi
+
+        return 0
+    fi
+
+    if [ "$product" == "SR670V2" ]; then
+        if [ "$branch" -lt "535" ]; then
             return 1
         fi
 

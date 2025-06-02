@@ -51,6 +51,12 @@ class rt_tests_pip_stress(test.test):
     def run_once(self, test_name, args='', exit_on_error=True):
         if test_name == 'setup':
             return
+        
+        # Set performance governor
+        self.results = utils.system_output('cpupower frequency-set --governor performance')
+        
+        # Disable RT throttling
+        self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
 
         utils.system_output('pip_stress ' + args, timeout=1, retain_output=True)
 

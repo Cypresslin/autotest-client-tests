@@ -52,6 +52,12 @@ class rt_tests_ptsematest(test.test):
         if test_name == 'setup':
             return
         
+        # Set performance governor
+        self.results = utils.system_output('cpupower frequency-set --governor performance')
+        
+        # Disable RT throttling
+        self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
+        
         latency_limit = 500
         if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
             latency_limit = 100

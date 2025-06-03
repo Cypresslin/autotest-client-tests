@@ -30,6 +30,10 @@ class rt_tests_ptsematest(test.test):
         gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
+        # Install tools for cpupower
+        tools_pkg = "linux-tools-" + self.flavour
+        pkgs.append(tools_pkg)
+
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)
 

@@ -26,6 +26,8 @@ if arch in ['riscv64']:
    arch_scale = 2
 if 'seccomp' in categories and kver > 418 and arch not in ['x86_64', 'ppc64le']:
     categories.remove('seccomp')
+if 'user' in categories and kver >= 614:
+    categories.remove('user') # LP: #2110483
 
 result = job.run_test_detail(NAME, test_name='setup', tag='setup', timeout=arch_scale*60*45)
 if result == 'GOOD':

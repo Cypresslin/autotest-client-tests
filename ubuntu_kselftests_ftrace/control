@@ -27,40 +27,34 @@ if result == 'GOOD':
         if result == 'ERROR':
             print("ERROR: test suite '{}' failed to build, skipping all the sub tests".format(category))
             continue
-        mk_helper = os.path.join(job.testdir, NAME, 'helper.mk')
         dir_root = os.path.join(job.bindir, 'tmp', NAME, 'src', 'linux/tools/testing/selftests/')
         dir_src = os.path.join(dir_root, category)
-        mk_src = os.path.join(dir_src, 'Makefile')
         os.chdir(dir_src)
         default_timeout = 60 * 10
         if arch == 'riscv64':
             # autotest timeout on riscv64 is incorrect (lp:1940080), disable it
             default_timeout = 0
 
-        if os.path.isfile(mk_src):
-            cmd = 'make -f {} -f {} gettests'.format(mk_src, mk_helper)
-            tests = utils.system_output(cmd).split()
-            for item in tests:
-                # Get all sub-tests for ftracetest and run them one-by-one
-                cmd = 'find {}/test.d/ -name *.tc | sort'.format(dir_src)
-                ftrace_tests = utils.system_output(cmd).split()
-                for ftrace_sub_test in ftrace_tests:
-                    # Replace the '/' in test pathname with '--' (as '-' and '_' have been used)
-                    # to avoid dir name collisions, otherwise autotest will try to create a dir
-                    # for it. The next test in the same dir will error out with:
-                    # "multiple tests cannot run with the same subdirectory"
-                    clean_name = ftrace_sub_test.split('/selftests/ftrace/')[1].replace('/', '--')
-                    test = "{}:{}".format(category, clean_name)
-                    timeout_threshold = default_timeout
-                    if test == 'ftrace:test.d--00basic--basic2.tc' and arch != 'riscv64':
-                        timeout_threshold = 60 * 20 # LP: #2054789, took 15 mins to run on system with 288 CPUs
-                    elif test == 'ftrace:test.d--direct--ftrace-direct.tc' and arch != 'riscv64':
-                        timeout_threshold = 60 * 150 # LP: #2028839, #2054789, took 120 mins to run on system with 288 CPUs
-                    elif test == 'ftrace:test.d--event--subsystem-enable.tc' and arch == 'x86_64':
-                        timeout_threshold = 60 * 30 # LP: #2028839, it will take 18 mins to run on some amd64 systems
-                    elif test == 'ftrace:test.d--ftrace--fgraph-multi.tc' and arch != 'riscv64':
-                        timeout_threshold = 60 * 70 # LP: #2095288, took 53 mins to run on O-realtime
-                    job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
+        # Get all sub-tests for ftracetest and run them one-by-one
+        cmd = 'find {}/test.d/ -name *.tc | sort'.format(dir_src)
+        ftrace_tests = utils.system_output(cmd).split()
+        for ftrace_sub_test in ftrace_tests:
+            # Replace the '/' in test pathname with '--' (as '-' and '_' have been used)
+            # to avoid dir name collisions, otherwise autotest will try to create a dir
+            # for it. The next test in the same dir will error out with:
+            # "multiple tests cannot run with the same subdirectory"
+            clean_name = ftrace_sub_test.split('/selftests/ftrace/')[1].replace('/', '--')
+            test = "{}:{}".format(category, clean_name)
+            timeout_threshold = default_timeout
+            if test == 'ftrace:test.d--00basic--basic2.tc' and arch != 'riscv64':
+                timeout_threshold = 60 * 20 # LP: #2054789, took 15 mins to run on system with 288 CPUs
+            elif test == 'ftrace:test.d--direct--ftrace-direct.tc' and arch != 'riscv64':
+                timeout_threshold = 60 * 150 # LP: #2028839, #2054789, took 120 mins to run on system with 288 CPUs
+            elif test == 'ftrace:test.d--event--subsystem-enable.tc' and arch == 'x86_64':
+                timeout_threshold = 60 * 30 # LP: #2028839, it will take 18 mins to run on some amd64 systems
+            elif test == 'ftrace:test.d--ftrace--fgraph-multi.tc' and arch != 'riscv64':
+                timeout_threshold = 60 * 70 # LP: #2095288, took 53 mins to run on O-realtime
+            job.run_test_detail(NAME, test_name=test, tag=test, timeout=timeout_threshold)
 else:
     print("ERROR: test failed to build, skipping all the sub tests")
 

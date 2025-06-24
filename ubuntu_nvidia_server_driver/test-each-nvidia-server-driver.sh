@@ -26,7 +26,15 @@ platform=$(get_platform_name)
 # linux-modules-nvidia-450-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
 # linux-modules-nvidia-460-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
 # linux-modules-nvidia-470-server-5.4.0-90-generic - Linux kernel nvidia modules for version 5.4.0-90
-for drvpkg in $(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server(-open)?-$(uname -r)$" | cut -d' ' -f1); do
+# The `apt-cache search` can also return empty in case no match is found
+
+found_packages=$(apt-cache search --names-only "^linux-modules-nvidia-[0-9]+-server(-open)?-$(uname -r)$" | cut -d' ' -f1)
+if [ -z "$found_packages" ]; then
+    echo "ERROR: No matching linux-modules-nvidia package found"
+    exit 1
+fi
+
+for drvpkg in $found_packages; do
     branch="$(echo "$drvpkg" | cut -d- -f4)"
     if [[ "$drvpkg" == *"$branch-server-open"* ]]; then
         variant="-open"

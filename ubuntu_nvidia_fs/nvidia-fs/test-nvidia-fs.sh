@@ -86,16 +86,6 @@ NVME_PATH="$(find_nvme_drive)"
 #mount path for GDS
 MNT_PATH="/mnt/nvme"
 
-
-#Install NVIDIA driver
-function install_nvidia_driver {
-	kernelvariant=$(apt-cache rdepends --installed "linux-image-$(uname -r)" | tail -n +3 |
-		                    grep linux-image | head -n 1 | sed -e 's/\s\slinux-image//')
-	sudo apt install -y "nvidia-driver-${DRIVER_VER}-server" \
-		            "linux-modules-nvidia-${DRIVER_VER}-server${kernelvariant}" \
-			    "nvidia-fabricmanager-${DRIVER_VER}"
-}
-
 #Setup nvme and mount
 function setup_nvme {
 	sudo umount ${MNT_PATH} || true
@@ -109,7 +99,7 @@ function setup_nvme {
 
 #Install Nvidia Container Toolkit
 function install_nvidia_ctk {
-        curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+        curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg -y --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
 && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
 sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
 sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
@@ -127,6 +117,7 @@ function setup_nvidia {
 	#make sure GPU is in persistence mode
 	sudo nvidia-smi -pm 1
 	sudo nvidia-smi -mig 0
+	sudo modprobe nvidia-fs
 }
 
 #Run the nvidia docker gds sample tests
@@ -156,7 +147,6 @@ function get_magnum_io_repo {
 
 
 setup_nvme
-install_nvidia_driver
 setup_nvidia
 
 

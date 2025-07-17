@@ -244,7 +244,7 @@ class ubuntu_performance_pts(test.test):
 
     def run_john_the_ripper_blowfish(self, test_name, tag):
         if self.get_platform_distro()[1].split('.')[0] > "20":
-            cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Blowfish"; %s phoronix-test-suite batch-benchmark john-the-ripper-1.8.0' % force_times_to_run
+            cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Blowfish"; phoronix-test-suite force-install john-the-ripper-1.8.0; sudo sed -i -e "s/82a589813382dd301bab77bae0204ad8/1f78deb1e64e21511eac9c4aa556274d/g" -e "s/2452cdc582b1b15a410becb9bbbde906a898d50dc8526120c0ded7686e3dd33a/ae7813ec8e249be35f1d1cd47d250e82e1865b16a5502a773f24031113c7eda5/g" /var/lib/phoronix-test-suite/test-profiles/pts/john-the-ripper-1.8.0/downloads.xml; %s phoronix-test-suite batch-benchmark john-the-ripper-1.8.0' % force_times_to_run
         else:
             cmd = 'export PRESET_OPTIONS="john-the-ripper.run-test=Blowfish"; %s phoronix-test-suite batch-benchmark john-the-ripper-1.7.2' % force_times_to_run
         self.print_stats('john_the_ripper_blowfish', cmd)

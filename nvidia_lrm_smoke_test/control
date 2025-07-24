@@ -1,0 +1,29 @@
+AUTHOR = "Austin Rhodes <austin.rhodes@canonical.com>"
+NAME = "nvidia_lrm_smoke_test"
+CRITERIA = """
+Nvidia Driver Support Test
+"""
+SUITE = "None"
+TIME = "SHORT"
+TEST_CLASS = 'kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = "client"
+DOC = "Test Nvidia LRM support"
+
+NAME = 'nvidia_lrm_smoke_test'
+
+TESTS = [
+    "matrixMulDrv",
+    "simpleTextureDrv",
+    "vectorAddDrv",
+    "deviceQueryDrv",
+]
+
+# Extra time for instaling CUDA
+result = job.run_test_detail(NAME, test_name="setup", tag="setup", timeout=60*30)
+
+if result == "GOOD":
+    for test in TESTS:
+        job.run_test(NAME, test_name=test, tag=test, timeout=60*10)
+else:
+    print("ERROR: Failed to set up CUDA environment. Skipping sub-tests.")

@@ -76,7 +76,7 @@ echo "$s RETURNED $ret"
 MEAN=$(grep mean: ${TMP_FILE}  | awk '{print $6}')
 MODE=$(grep mode: ${TMP_FILE}  | awk '{print $9}')
 MIN=$(grep min: ${TMP_FILE}  | awk '{print $6}')
-MAX=$(grep min: ${TMP_FILE}  | awk '{print $9}')
+MAX=$(grep max: ${TMP_FILE}  | awk '{print $9}')
 s2=$(secs_now)
 dur=$((s2 - $s1))
 rm ${TMP_FILE}

@@ -62,10 +62,6 @@ class rt_tests_pmqtest(test.test):
         self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
         
         latency_limit = 500
-        if self.hostname in ['starlow', 'drapion', 'bunsen']:
-            latency_limit = 200
-        elif self.hostname in ['taycet']:
-            latency_limit = 400
 
         self.results = utils.system_output('pmqtest ' + args, retain_output=True)
 

@@ -47,12 +47,15 @@ def setup_and_run_tuning():
         print(f"Error installing linux-tools-{flavor}.", file=sys.stderr)
         return
 
-    cmd = "cpupower frequency-set --governor performance"
-    try:
-        subprocess.run(cmd.split(), check=True)
-    except subprocess.CalledProcessError:
-        print("Error running cpupower.", file=sys.stderr)
-        return
+    # Set performance governor (only on x86_64 for now)
+    arch = platform.processor()
+    if arch == 'x86_64':
+        cmd = "cpupower frequency-set --governor performance"
+        try:
+            subprocess.run(cmd.split(), check=True)
+        except subprocess.CalledProcessError:
+            print("Error running cpupower.", file=sys.stderr)
+            return
 
     cmd = "sysctl -w kernel.sched_rt_runtime_us=-1"
     try:

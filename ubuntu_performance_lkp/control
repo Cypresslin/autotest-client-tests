@@ -92,8 +92,8 @@ lkp_jobs = {
 }
 
 lkp_commit = 'ef0e92c3bdb9c2647139a51c8bee0538cf452cb4'
-if series not in ['xenial', 'bionic', 'focal', 'jammy']:
-    # Commit that compatible with Python3.12 on Noble
+if series not in ['xenial', 'bionic', 'focal']:
+    # Commit that compatible with Python 3.10 on Jammy and Python 3.12 on Noble
     lkp_commit = '7381899cd266da72cae7d23bf4e9883324daa15a'
 # The following statement might need to be reviewed if we're testing akis with Noble+
 if (os.uname()[1] == 'akis') or \

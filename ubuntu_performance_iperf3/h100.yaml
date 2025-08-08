@@ -1,6 +1,6 @@
 setup:
-        server_iface: enp41s0f0np0
-        client_iface: enp170s0f0np0
+        server_iface: enp24s0np0
+        client_iface: enp192s0np0
         server_ip: 192.168.5.1
         client_ip: 192.168.5.2
         start_port: 5001

@@ -100,7 +100,7 @@ class ubuntu_performance_thermal(test.test):
         os.chdir(os.path.join(self.srcdir, 'stress-ng'))
         self.results = utils.system_output('git checkout -b V0.19.01 V0.19.01', retain_output=True)
         self.results = utils.system_output('patch -p1 < %s/0003-stress-ng.h-workaround-non-constant-stack-sizes-in-n.patch' % self.bindir, retain_output=True)
-        self.results = utils.system_output('make', retain_output=True)
+        self.results = utils.system_output('make -j$(nproc)', retain_output=True)
 
     def parse(self, results, test_pass, test_full_name, field, name):
         for line in results.splitlines():

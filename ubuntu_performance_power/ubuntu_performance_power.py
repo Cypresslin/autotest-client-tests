@@ -105,7 +105,7 @@ class ubuntu_performance_power(test.test):
             branch = 'V0.18.00'  # LP: #1959090
         cmd = 'git checkout -b {} {}'.format(branch, branch)
         self.results = utils.system_output(cmd, retain_output=True)
-        self.results = utils.system_output('make', retain_output=True)
+        self.results = utils.system_output('make -j$(nproc)', retain_output=True)
 
     def get_sysinfo(self):
         print('date_ctime "' + time.ctime() + '"')

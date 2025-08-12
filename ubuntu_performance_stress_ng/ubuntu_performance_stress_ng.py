@@ -115,7 +115,7 @@ class ubuntu_performance_stress_ng(test.test):
         os.chdir(os.path.join(self.srcdir, 'stress-ng'))
         self.results = utils.system_output('git checkout -b V0.19.01 V0.19.01', retain_output=True)
         self.results = utils.system_output('patch -p1 < %s/0003-stress-ng.h-workaround-non-constant-stack-sizes-in-n.patch' % self.bindir, retain_output=True)
-        self.results = utils.system_output('make', retain_output=True)
+        self.results = utils.system_output('make -j$(nproc)', retain_output=True)
 
     def run_once(self, test_name, threshold):
         if test_name == 'setup':

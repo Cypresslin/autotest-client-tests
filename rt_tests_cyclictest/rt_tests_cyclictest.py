@@ -49,11 +49,12 @@ class rt_tests_cyclictest(test.test):
     #
     #    Driven by the control file for each individual test.
     #
-    #    Runs cyclictest with 10 threads, for 100000 loops, priority set to 
-    #    80 and an interval of 200us. It will fail if the max latency goes 
-    #    over a specified latency.
+    #    Runs cyclictest for 600 seconds across all CPUs, priority set to 80, 
+    #    with an interval of 200us. The default scheduler when priority is 
+    #    configured is SCHED_FIFO. It will fail if the max latency goes over 
+    #    a specified latency.
     #
-    def run_once(self, test_name, args='-t 10 -m -l 100000 -p 80 -i 200 -d 0 -q', exit_on_error=True):
+    def run_once(self, test_name, args='--smp -m -D 600 -p 80 -i 200 -d 0 -q', exit_on_error=True):
         if test_name == 'setup':
             return
         

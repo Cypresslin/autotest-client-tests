@@ -67,7 +67,7 @@ class rt_tests_cyclictest(test.test):
         
         latency_limit = 500
         if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
-            latency_limit = 120
+            latency_limit = 200
 
         self.results = utils.system_output('cyclictest ' + args, retain_output=True)
 

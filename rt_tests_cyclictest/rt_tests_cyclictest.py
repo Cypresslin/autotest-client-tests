@@ -13,22 +13,19 @@ class rt_tests_cyclictest(test.test):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.arch = platform.processor()
         self.hostname = os.uname()[1]
-
-    def install_required_pkgs(self):
         try:
-            series = platform.dist()[2]
+            self.series = platform.dist()[2]
         except AttributeError:
             import distro
-            series = distro.codename()
+            self.series = distro.codename()
+
+    def install_required_pkgs(self):
 
         pkgs = [
-            'build-essential',
-            'git',
             'libnuma-dev',
             'rt-tests',
+            'tuna'
         ]
-        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         # Install tools for cpupower
         tools_pkg = "linux-tools-" + self.flavour
@@ -43,18 +40,17 @@ class rt_tests_cyclictest(test.test):
     #
     def setup(self):
         self.install_required_pkgs()
-        self.job.require_gcc()
 
     # run_once
     #
     #    Driven by the control file for each individual test.
     #
-    #    Runs cyclictest for 600 seconds across all CPUs, priority set to 80, 
+    #    Runs cyclictest for 600 seconds across CPUs 2-7, priority set to 80,
     #    with an interval of 200us. The default scheduler when priority is 
     #    configured is SCHED_FIFO. It will fail if the max latency goes over 
     #    a specified latency.
     #
-    def run_once(self, test_name, args='--smp -m -D 600 -p 80 -i 200 -d 0 -q', exit_on_error=True):
+    def run_once(self, test_name, args='', exit_on_error=True):
         if test_name == 'setup':
             return
         
@@ -64,12 +60,23 @@ class rt_tests_cyclictest(test.test):
         
         # Disable RT throttling
         self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
+
+        # Isolate CPUs 2-7
+        self.results = utils.system_output('tuna --cpus 2-7 --isolate')
         
         latency_limit = 500
         if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
             latency_limit = 200
 
-        self.results = utils.system_output('cyclictest ' + args, retain_output=True)
+        # Configure arguments
+        args += "-t 6 -m -D 600 -p 80 -i 200 -d 0 -q"
+
+        # Configuring CPU affinity with cyclictest fails on jammy, so use tuna
+        if self.series != 'jammy':
+            args += " --mainaffinity=0 -a 2-7"
+            self.results = utils.system_output('cyclictest ' + args, retain_output=True)
+        else:
+            self.results = utils.system_output('tuna --cpus 2-7 --run="cyclictest ' + args + '"', retain_output=True)
 
         # Find the last contiguous block of lines that include "T:", 
         # which contains the final values for cyclictest.

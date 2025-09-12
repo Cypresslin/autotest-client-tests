@@ -60,23 +60,27 @@ class rt_tests_cyclictest(test.test):
         
         # Disable RT throttling
         self.results = utils.system_output('sysctl -w kernel.sched_rt_runtime_us=-1')
-
-        # Isolate CPUs 2-7
-        self.results = utils.system_output('tuna --cpus 2-7 --isolate')
         
         latency_limit = 500
         if self.hostname in ['starlow', 'taycet', 'drapion', 'bunsen']:
             latency_limit = 200
 
-        # Configure arguments
+        # Configure cylictest arguments
         args += "-t 6 -m -D 600 -p 80 -i 200 -d 0 -q"
+        
+        # Determine tuna version and build commands
+        tuna_version = utils.system_output('tuna --version')
+        print(tuna_version)
 
-        # Configuring CPU affinity with cyclictest fails on jammy, so use tuna
-        if self.series != 'jammy':
-            args += " --mainaffinity=0 -a 2-7"
-            self.results = utils.system_output('cyclictest ' + args, retain_output=True)
+        if tuna_version < "0.19":
+            print("Running with tuna < 0.19 syntax")
+            tuna_cmd = "sudo tuna --cpus 2-7 --isolate; sudo tuna --cpus=2-7 --run="
         else:
-            self.results = utils.system_output('tuna --cpus 2-7 --run="cyclictest ' + args + '"', retain_output=True)
+            print("Running with tuna >= 0.19 syntax")
+            tuna_cmd = "sudo tuna isolate --cpus 2-7; sudo tuna run --cpus=2-7 "
+
+        # Isolate CPUs 2-7 and run cyclictest
+        self.results = utils.system_output( tuna_cmd + '"cyclictest ' + args + '"', retain_output=True)
 
         # Find the last contiguous block of lines that include "T:", 
         # which contains the final values for cyclictest.

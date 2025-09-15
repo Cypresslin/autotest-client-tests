@@ -33,6 +33,7 @@ for try_mofedver in "${mofedver}" "${prev_mofedver}"; do
 
     for list in "${try_mofedver}-${release}-${majorkernelver}-${arch}.lst" \
                 "${try_mofedver}-${release}-${majorkernelver}.lst" \
+                "${try_mofedver}-${release}-${arch}.lst" \
                 "${try_mofedver}-${release}.lst"; do
         expected="$(pwd)/expected-mofed-modules/${list}"
         if [ -f "${expected}" ]; then

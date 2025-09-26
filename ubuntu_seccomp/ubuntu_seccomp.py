@@ -10,11 +10,6 @@ class ubuntu_seccomp(test.test):
 
     def install_required_pkgs(self):
         arch   = platform.processor()
-        try:
-            series = platform.dist()[2]
-        except AttributeError:
-            import distro
-            series = distro.codename()
 
         pkgs = [
             'build-essential', 'git', 'libtool', 'build-essential', 'autoconf', 'valgrind', 'gperf',
@@ -33,12 +28,22 @@ class ubuntu_seccomp(test.test):
     #    Automatically run when there is no autotest/client/tmp/<test-suite> directory
     #
     def setup(self):
+        try:
+            series = platform.dist()[2]
+        except AttributeError:
+            import distro
+            series = distro.codename()
         self.install_required_pkgs()
         self.job.require_gcc()
         os.chdir(self.srcdir)
         shutil.rmtree('libseccomp', ignore_errors=True)
-        cmd = 'git clone --depth=1 https://github.com/seccomp/libseccomp.git'
-        self.results = utils.system_output(cmd, retain_output=True)
+        cmd = "git clone https://github.com/seccomp/libseccomp.git"
+        utils.system_output(cmd, retain_output=True)
+        if series in ["trusty", "xenial", "bionic"]:
+            print("Pin libseccomp to e7e633c28a for releases <= Bionic (LP: #2125202)")
+            os.chdir("libseccomp")
+            cmd = "git reset e7e633c28aed5333b185bfc0ad6f8d70b5fc20be --hard"
+            utils.system_output(cmd, retain_output=True)
 
         # Print test suite HEAD SHA1 commit id for future reference
         os.chdir(os.path.join(self.srcdir, 'libseccomp'))

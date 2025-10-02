@@ -51,7 +51,7 @@ class ubuntu_ltp_controllers(test.test):
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
-        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']):
+        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']) and self.kv < 617:
             if not (self.flavour == 'aws' and self.series == 'trusty'):
                 pkgs.append('linux-modules-extra-' + platform.uname()[2])
         if self.flavour not in ['kvm']:
@@ -72,6 +72,8 @@ class ubuntu_ltp_controllers(test.test):
             self.series = distro.codename()
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.kernel = platform.uname()[2].split('-')[0]
+        self.kv = platform.release().split(".")[:2]
+        self.kv = int(self.kv[0]) * 100 + int(self.kv[1])
 
     # setup
     #

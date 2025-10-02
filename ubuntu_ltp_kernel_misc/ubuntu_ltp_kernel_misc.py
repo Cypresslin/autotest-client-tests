@@ -51,7 +51,7 @@ class ubuntu_ltp_kernel_misc(test.test):
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 
-        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']):
+        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']) and self.kv < 617:
             pkgs.append('linux-modules-extra-' + platform.uname()[2])
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
@@ -65,6 +65,8 @@ class ubuntu_ltp_kernel_misc(test.test):
             self.series = distro.codename()
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         self.kernel = platform.uname()[2].split('-')[0]
+        self.kv = platform.release().split(".")[:2]
+        self.kv = int(self.kv[0]) * 100 + int(self.kv[1])
 
     # setup
     #

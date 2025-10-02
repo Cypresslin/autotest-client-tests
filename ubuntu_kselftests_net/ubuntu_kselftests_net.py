@@ -45,7 +45,7 @@ class ubuntu_kselftests_net(test.test):
         pkgs.append(gcc)
 
         # The modules-extra is required for net:rtnetlink.sh test
-        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke', 'ibm', 'oracle']):
+        if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke', 'ibm', 'oracle']) and self.kv < 617:
             if not (self.flavour == 'aws' and self.series == 'trusty'):
                 pkgs.append('linux-modules-extra-' + platform.uname()[2])
 

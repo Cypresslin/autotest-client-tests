@@ -89,8 +89,6 @@ class ubuntu_fs_fio_perf(test.test):
             'xfsdump',
             'xfsprogs',
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

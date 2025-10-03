@@ -41,8 +41,6 @@ class ubuntu_kselftests_net(test.test):
                 # package is installed (in the releases where it is available)
                 # lld is not available for s390x
                 pkgs.append('lld')
-        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         # The modules-extra is required for net:rtnetlink.sh test
         if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke', 'ibm', 'oracle']) and self.kv < 617:

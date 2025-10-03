@@ -15,6 +15,7 @@ class ubuntu_qrt_apparmor(test.test):
             'apparmor-utils',
             'apport',
             'attr',
+            'build-essential',
             'devscripts',
             'exim4',
             'gawk',
@@ -32,8 +33,6 @@ class ubuntu_qrt_apparmor(test.test):
         ]
         if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
             pkgs.append('execstack')
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if self.series == 'oracular':
             for p in ['flake8', 'python3-tk', 'python3-ttkthemes']:

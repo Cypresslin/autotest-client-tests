@@ -37,8 +37,6 @@ class ubuntu_stress_smoke_test(test.test):
         cgroup_tool = 'cgroup-bin' if codename in [ 'precise', 'trusty' ] else 'cgroup-tools'
         pkgs.append(cgroup_tool)
 
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

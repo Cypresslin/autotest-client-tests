@@ -12,13 +12,12 @@ class ubuntu_kselftests_ftrace(test.test):
     def install_required_pkgs(self):
         '''Function to install necessary packages.'''
         pkgs = [
+            'build-essential',
             'debhelper',
             'devscripts',
             'dpkg-dev',
             'git',
         ]
-        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         utils.system_output(cmd, retain_output=True)

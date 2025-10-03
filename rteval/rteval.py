@@ -46,8 +46,6 @@ class rteval(test.test):
             'llvm',
             'rt-tests'
         ]
-        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         # Install tools for cpupower
         tools_pkg = "linux-tools-" + self.flavour

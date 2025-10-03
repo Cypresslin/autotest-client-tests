@@ -35,8 +35,6 @@ class ubuntu_zfs_xfs_generic(test.test):
             'pkgconf',
             'uuid-dev'
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if series in ['precise', 'trusty']:
             utils.system_output('add-apt-repository ppa:zfs-native/stable -y', retain_output=True)

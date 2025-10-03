@@ -54,8 +54,6 @@ class ubuntu_xfstests_ext4(test.test):
             'uuid-dev'
         ]
 
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if series not in ['precise', 'trusty', 'xenial']:
             pkgs.append('duperemove')

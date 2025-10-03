@@ -15,10 +15,7 @@ class ubuntu_blkdev_directio(test.test):
             import distro
             series = distro.codename()
 
-        pkgs = [
-        ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
+        pkgs = ['build-essential']
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

@@ -15,8 +15,6 @@ class ubuntu_qrt_kernel_security(test.test):
         ]
         if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
             pkgs.append('execstack')
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
         if self.series == 'jammy':
             if not re.match('5\.15\.0-.*', platform.release()):
                 pkgs.append('gcc-12')

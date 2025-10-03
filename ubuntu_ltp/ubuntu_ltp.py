@@ -40,8 +40,6 @@ class ubuntu_ltp(test.test):
             'xfslibs-dev',
             'xfsprogs',
         ]
-        gcc = 'gcc' if self.arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']) and self.kv < 617:
             pkgs.append('linux-modules-extra-' + platform.uname()[2])

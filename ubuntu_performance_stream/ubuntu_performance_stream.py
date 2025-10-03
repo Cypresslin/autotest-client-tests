@@ -105,13 +105,12 @@ class ubuntu_performance_stream(test.test):
             series = distro.codename()
 
         pkgs = [
+            'build-essential',
             'gfortran',
             'libgomp1',
             'linux-tools-' + release
 
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

@@ -27,8 +27,6 @@ class ubuntu_lxc(test.test):
                 'pkg-config',
                 'python3-lxc',
             ]
-            gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-            pkgs.append(gcc)
         # For Mantic and newer
         if self.series not in ['precise', 'trusty', 'xenial', 'bionic', 'focal', 'jammy']:
             pkgs.append('meson')

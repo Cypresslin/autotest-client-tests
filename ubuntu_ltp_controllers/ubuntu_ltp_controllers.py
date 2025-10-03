@@ -48,8 +48,6 @@ class ubuntu_ltp_controllers(test.test):
             'xfslibs-dev',
             'xfsprogs',
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if any(x in self.flavour for x in ['aws', 'azure', 'gcp', 'gke']) and self.kv < 617:
             if not (self.flavour == 'aws' and self.series == 'trusty'):

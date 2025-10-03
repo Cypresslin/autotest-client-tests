@@ -21,8 +21,6 @@ class ubuntu_bpf(test.test):
             'libelf-dev',
             'libssl-dev',
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if self.series == 'jammy':
             if not re.match('5\.15\.0-.*', platform.release()):

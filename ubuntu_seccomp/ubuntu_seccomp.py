@@ -14,8 +14,6 @@ class ubuntu_seccomp(test.test):
         pkgs = [
             'build-essential', 'git', 'libtool', 'build-essential', 'autoconf', 'valgrind', 'gperf',
         ]
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

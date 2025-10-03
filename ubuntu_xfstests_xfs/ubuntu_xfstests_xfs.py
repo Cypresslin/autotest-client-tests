@@ -53,8 +53,6 @@ class ubuntu_xfstests_xfs(test.test):
             'uuid-dev'
         ]
 
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         if series not in ['precise', 'trusty']:
             pkgs.append('btrfs-progs')

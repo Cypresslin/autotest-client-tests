@@ -21,8 +21,6 @@ class ubuntu_qrt_kernel_panic(test.test):
         ]
         if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
             pkgs.append('execstack')
-        gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
-        pkgs.append(gcc)
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

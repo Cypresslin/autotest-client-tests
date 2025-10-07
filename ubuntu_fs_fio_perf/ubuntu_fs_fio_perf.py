@@ -72,7 +72,7 @@ class ubuntu_fs_fio_perf(test.test):
         print("memory online: %d GB" % (mem_total / gb))
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

@@ -12,7 +12,7 @@ class ubuntu_kvm_unit_tests(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'build-essential', 'cpu-checker', 'qemu-kvm', 'git',
@@ -39,7 +39,7 @@ class ubuntu_kvm_unit_tests(test.test):
         self.install_required_pkgs()
         self.job.require_gcc()
 
-        arch = platform.processor()
+        arch = platform.machine()
         opt = []
         os.chdir(self.srcdir)
         shutil.rmtree('kvm-unit-tests', ignore_errors=True)
@@ -81,7 +81,7 @@ class ubuntu_kvm_unit_tests(test.test):
 
         try:
             utils.system('kvm-ok')
-            arch = platform.processor()
+            arch = platform.machine()
             if arch == 'ppc64le':
                 # disable smt (simultaneous multithreading) on ppc for kvm
                 utils.system('ppc64_cpu --smt=off')

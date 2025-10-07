@@ -7,7 +7,7 @@ class ubuntu_qrt_kernel_hardening(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'git', 'libcap2-bin', 'gawk', 'exim4', 'libcap-dev',

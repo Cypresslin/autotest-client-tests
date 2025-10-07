@@ -19,7 +19,7 @@ class ipv6connect(test.test):
         utils.system('gcc ipv6connect.c -o ipv6connect -lpthread -static -s')
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

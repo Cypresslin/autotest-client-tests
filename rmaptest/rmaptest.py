@@ -17,7 +17,7 @@ class rmaptest(test.test):
     preserve_srcdir = True
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

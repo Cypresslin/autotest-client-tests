@@ -23,7 +23,7 @@ class ubuntu_kselftests_ftrace(test.test):
         utils.system_output(cmd, retain_output=True)
 
     def initialize(self):
-        self.arch = platform.processor()
+        self.arch = platform.machine()
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
         try:
             self.series = platform.dist()[2]

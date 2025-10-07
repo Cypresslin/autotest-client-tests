@@ -66,7 +66,7 @@ class ubuntu_performance_power(test.test):
         resource.setrlimit(resource.RLIMIT_NOFILE, res)
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'apparmor',

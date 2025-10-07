@@ -84,7 +84,7 @@ class ubuntu_performance_lkp(test.test):
             return False
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

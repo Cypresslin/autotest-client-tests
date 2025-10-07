@@ -10,7 +10,7 @@ class ubuntu_lxc(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch  = platform.processor()
+        arch  = platform.machine()
         if self.series in ['precise', 'trusty', 'xenial', 'artful']:
             pkgs = [
                 'lxc-tests'

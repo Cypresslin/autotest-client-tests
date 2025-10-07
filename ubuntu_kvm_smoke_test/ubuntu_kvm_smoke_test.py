@@ -9,7 +9,7 @@ class ubuntu_kvm_smoke_test(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:
@@ -50,10 +50,10 @@ class ubuntu_kvm_smoke_test(test.test):
     def run_once(self, test_name):
         if test_name == 'setup':
             return
-        if platform.processor() == 'athlon':
+        if platform.machine() == 'athlon':
             arch = platform.machine()
         else:
-            arch = platform.processor()
+            arch = platform.machine()
 
         if arch in ['x86_64']:
             arch = 'amd64'

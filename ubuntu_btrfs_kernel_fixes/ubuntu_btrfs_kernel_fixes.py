@@ -29,7 +29,7 @@ class ubuntu_btrfs_kernel_fixes(test.test):
         return None
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

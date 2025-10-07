@@ -94,7 +94,7 @@ class ubuntu_performance_pts(test.test):
             return distro.linux_distribution(full_distribution_name=False)
 
     def install_required_pkgs(self):
-        arch    = platform.processor()
+        arch    = platform.machine()
         series = self.get_platform_distro()[2]
         release = platform.release()
 

@@ -7,7 +7,7 @@ class ubuntu_qrt_kernel_panic(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'build-essential',

@@ -19,7 +19,7 @@ class perfmon(test.test):
         utils.make()
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

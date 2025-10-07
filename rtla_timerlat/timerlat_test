@@ -48,7 +48,7 @@ def setup_and_run_tuning():
         return
 
     # Set performance governor (only on x86_64 for now)
-    arch = platform.processor()
+    arch = platform.machine()
     if arch == 'x86_64':
         cmd = "cpupower frequency-set --governor performance"
         try:

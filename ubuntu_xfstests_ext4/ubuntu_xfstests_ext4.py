@@ -27,7 +27,7 @@ class ubuntu_xfstests_ext4(test.test):
         return tests_list
 
     def install_required_pkgs(self):
-        arch = platform.processor()
+        arch = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

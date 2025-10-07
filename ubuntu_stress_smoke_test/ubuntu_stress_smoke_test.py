@@ -19,7 +19,7 @@ class ubuntu_stress_smoke_test(test.test):
             return 'unknown'
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'apparmor',

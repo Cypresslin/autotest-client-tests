@@ -67,7 +67,7 @@ class ubuntu_performance_latency(test.test):
         resource.setrlimit(resource.RLIMIT_NOFILE, res)
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

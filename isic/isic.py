@@ -10,7 +10,7 @@ class isic(test.test):
     # + http://www.stardust.webpages.pl/files/crap/isic-gcc41-fix.patch
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

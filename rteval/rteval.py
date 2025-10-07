@@ -13,7 +13,7 @@ class rteval(test.test):
 
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
-        self.arch = platform.processor()
+        self.arch = platform.machine()
         self.hostname = os.uname()[1]
 
     def install_required_pkgs(self):

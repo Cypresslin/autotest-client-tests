@@ -9,7 +9,7 @@ class ubuntu_seccomp(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'build-essential', 'git', 'libtool', 'build-essential', 'autoconf', 'valgrind', 'gperf',

@@ -24,7 +24,7 @@ class ubuntu_ltp_controllers(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch = platform.processor()
+        arch = platform.machine()
 
         pkgs = [
             'automake',

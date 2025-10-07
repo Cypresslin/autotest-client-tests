@@ -8,7 +8,7 @@ class ubuntu_qrt_kernel_security(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'gdb', 'git', 'build-essential', 'libcap2-bin', 'gawk', 'exim4', 'libcap-dev', 'libkeyutils-dev',

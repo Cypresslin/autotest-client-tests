@@ -28,7 +28,7 @@ CVES = {'CVE-2015-7550': {'arch-blacklist': []},
 result = job.run_test_detail(name, test_name='setup', tag='setup', timeout=60*10)
 if result == 'GOOD':
     for cve in CVES:
-        if not platform.processor() in CVES[cve]['arch-blacklist']:
+        if not platform.machine() in CVES[cve]['arch-blacklist']:
             result = job.run_test_detail(name, test_name=cve, tag=cve, timeout=60*15)
 else:
     print("ERROR: required packages installation has failed, skipping all the sub tests")

@@ -96,7 +96,7 @@ class ubuntu_performance_fio(test.test):
             print("WARNING: could not set swap %s" % ("on" if swap_on else "off"))
 
     def install_required_pkgs(self):
-        arch    = platform.processor()
+        arch    = platform.machine()
         try:
             series = platform.dist()[2]
         except AttributeError:

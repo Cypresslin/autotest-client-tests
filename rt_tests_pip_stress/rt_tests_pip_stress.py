@@ -11,7 +11,7 @@ class rt_tests_pip_stress(test.test):
 
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
-        self.arch = platform.processor()
+        self.arch = platform.machine()
 
     def install_required_pkgs(self):
         try:

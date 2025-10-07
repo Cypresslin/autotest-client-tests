@@ -49,7 +49,7 @@ class ubuntu_ltp(test.test):
 
     def initialize(self):
         self.flavour = re.split('-\d*-', platform.uname()[2])[-1]
-        self.arch = platform.processor()
+        self.arch = platform.machine()
         self.kv = platform.release().split(".")[:2]
         self.kv = int(self.kv[0]) * 100 + int(self.kv[1])
 

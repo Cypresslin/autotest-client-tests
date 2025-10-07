@@ -5,7 +5,7 @@ class ubuntu_cve_kernel(test.test):
     version = 1
 
     def install_required_pkgs(self):
-        arch   = platform.processor()
+        arch   = platform.machine()
 
         pkgs = [
             'build-essential', 'git', 'libkeyutils-dev', 'libfuse-dev', 'pkg-config', 'expect', 'libecryptfs-dev', 'ecryptfs-utils'

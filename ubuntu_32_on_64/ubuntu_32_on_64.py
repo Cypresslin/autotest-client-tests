@@ -16,6 +16,7 @@ class ubuntu_32_on_64(test.test):
 
         pkgs = [
             'build-essential',
+            'libc6-dev-i386',  #KTNT-1674
         ]
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)

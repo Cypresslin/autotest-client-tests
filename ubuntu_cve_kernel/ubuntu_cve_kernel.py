@@ -10,6 +10,8 @@ class ubuntu_cve_kernel(test.test):
         pkgs = [
             'build-essential', 'git', 'libkeyutils-dev', 'libfuse-dev', 'pkg-config', 'expect', 'libecryptfs-dev', 'ecryptfs-utils'
         ]
+        if arch in "x86_64":
+            pkgs.append('libc6-dev-i386')  #KTNT-1674
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

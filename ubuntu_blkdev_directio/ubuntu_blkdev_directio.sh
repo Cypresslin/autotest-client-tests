@@ -35,7 +35,7 @@ echo "--------------------------------------------------------------------------
 echo "Date:         " $(date)
 echo "Host:         " $(hostname)
 echo "Kernel:       " $(uname -rv)
-echo "Machine:      " $(uname -npi)
+echo "Machine:      " $(uname -nm)
 echo "CPUs online:  " $(getconf _NPROCESSORS_ONLN)
 echo "CPUs total:   " $(getconf _NPROCESSORS_CONF)
 echo "Page size:    " $(getconf PAGE_SIZE)

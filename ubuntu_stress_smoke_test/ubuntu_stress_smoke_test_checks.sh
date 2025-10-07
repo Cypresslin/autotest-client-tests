@@ -15,7 +15,7 @@ check_message()
 check_machine()
 {
 	hostname=$(hostname)
-	processor=$(uname -p)
+	processor=$(uname -m)
 	skip=0
 	case "$processor" in
 	i386 | i486 | i586 | i686 | x86_64)

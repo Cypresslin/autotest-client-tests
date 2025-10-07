@@ -16,7 +16,6 @@ class ubuntu_qrt_apparmor(test.test):
             'apport',
             'attr',
             'devscripts',
-            'execstack',
             'exim4',
             'gawk',
             'git',
@@ -31,6 +30,8 @@ class ubuntu_qrt_apparmor(test.test):
             'quilt',
             'sudo',
         ]
+        if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
+            pkgs.append('execstack')
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
 

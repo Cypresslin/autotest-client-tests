@@ -10,8 +10,10 @@ class ubuntu_qrt_kernel_hardening(test.test):
         arch   = platform.processor()
 
         pkgs = [
-            'git', 'libcap2-bin', 'gawk', 'execstack', 'exim4', 'libcap-dev',
+            'git', 'libcap2-bin', 'gawk', 'exim4', 'libcap-dev',
         ]
+        if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
+            pkgs.append('execstack')
 
         cmd = 'yes "" | DEBIAN_FRONTEND=noninteractive apt-get install --yes --force-yes ' + ' '.join(pkgs)
         self.results = utils.system_output(cmd, retain_output=True)

@@ -11,8 +11,10 @@ class ubuntu_qrt_kernel_security(test.test):
         arch   = platform.processor()
 
         pkgs = [
-            'gdb', 'git', 'build-essential', 'libcap2-bin', 'gawk', 'execstack', 'exim4', 'libcap-dev', 'libkeyutils-dev',
+            'gdb', 'git', 'build-essential', 'libcap2-bin', 'gawk', 'exim4', 'libcap-dev', 'libkeyutils-dev',
         ]
+        if self.series in ['trusty', 'xenial', 'bionic', 'focal', 'jammy', 'noble', 'plucky']:
+            pkgs.append('execstack')
         gcc = 'gcc' if arch in ['ppc64le', 'aarch64', 's390x', 'riscv64'] else 'gcc-multilib'
         pkgs.append(gcc)
         if self.series == 'jammy':

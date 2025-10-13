@@ -1,3 +1,5 @@
-Commit e1b49796
+The code is no longer buildable since Bionic.
+
+According to commit e1b49796 in autotest-client-tests:
 libhugetlbfs: the code is not longer buildable;
 the package just gets copied forward from xenial; people should be using transparent huge pages

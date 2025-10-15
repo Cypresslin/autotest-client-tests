@@ -22,6 +22,9 @@ class ubuntu_bpf(test.test):
             'libssl-dev',
         ]
 
+        if arch == "x86_64":
+            pkgs.append("gcc-multilib")
+
         if self.series == 'jammy':
             if not re.match('5\.15\.0-.*', platform.release()):
                 pkgs.append('gcc-12')

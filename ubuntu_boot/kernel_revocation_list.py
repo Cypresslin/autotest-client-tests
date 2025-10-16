@@ -17,9 +17,9 @@ class TestRevocationList(unittest.TestCase):
 
         config_file = "/boot/config-" + os.uname()[2]
         if 'Ubuntu Core' in content:
-            cmd = ["snap", "list"]
-            snap_list = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            snap_pkg = re.search(r'\b(\w+-kernel)\b', snap_list.stdout).group(1)
+            snap_list = " ".join(os.listdir("/snap"))
+            pattern = r"\w+-kernel"
+            snap_pkg = re.search(pattern, snap_list).group(0)
             config_file = "/snap/{}/current/config-{}".format(snap_pkg, os.uname()[2])
 
         revocation_list_available = False

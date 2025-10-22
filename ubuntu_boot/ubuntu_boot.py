@@ -33,10 +33,10 @@ class ubuntu_boot(test.test):
         # Let's check for /var/log/syslog instead
         logfile = '/var/log/syslog'
         patterns = [
-            'kernel:( \[ *\d+\.\d+\])? BUG:.*',
-            'kernel:( \[ *\d+\.\d+\])? Oops:.*',
-            'kernel:( \[ *\d+\.\d+\])? kernel BUG at.*',
-            'kernel:( \[ *\d+\.\d+\])? WARNING:.*'
+            r'kernel:( \[ *\d+\.\d+\])? BUG:.*',
+            r'kernel:( \[ *\d+\.\d+\])? Oops:.*',
+            r'kernel:( \[ *\d+\.\d+\])? kernel BUG at.*',
+            r'kernel:( \[ *\d+\.\d+\])? WARNING:.*'
         ]
         test_passed = True
         if not os.path.exists(logfile):

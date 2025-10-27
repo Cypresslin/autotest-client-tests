@@ -131,8 +131,11 @@ class ubuntu_ltp(test.test):
             print("Setting LTP_TIMEOUT_MUL=4 for starvation (lp:2059259)")
             os.environ["LTP_TIMEOUT_MUL"] = '4'
 
-        if test_case == 'read_all_sys' and os.uname()[1] == 'mtk-genio':
-            raise error.TestFail('Test marked as failed for mtk due to cause apusys driver error (LP: #2059103)')
+        if test_case == 'read_all_sys':
+            if os.uname()[1] == 'mtk-genio':
+                raise error.TestFail('Test marked as failed for mtk due to cause apusys driver error (LP: #2059103)')
+            elif self.kv == 617:
+                raise error.TestFail('Test marked as failed for 6.17 due to an incomplete fix (LP: #2129834)')
 
         cmd = '/opt/ltp/runltp -f /tmp/target -q -C /dev/null -l /dev/null -T /dev/null'
         utils.system_output(cmd, verbose=False, retain_output=True)

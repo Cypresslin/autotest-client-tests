@@ -191,6 +191,11 @@ class ubuntu_kernel_selftests(test.test):
         pattern = re.compile('not ok [\d\.]* selftests: {}: {} # (?!.*SKIP)'.format(category, sub_test))
         if re.search(pattern, result):
             raise error.TestError(test_name + ' failed.')
+        
+    def cleanup(self, test_name):
+        if "memfd" in test_name and "build" not in test_name:
+            cmd = "sudo umount fuse_mnt || true"
+            utils.system_output(cmd)
 
 
 # vi:set ts=4 sw=4 expandtab syntax=python:
